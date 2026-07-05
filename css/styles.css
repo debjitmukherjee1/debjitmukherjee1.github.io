@@ -1,0 +1,796 @@
+/* ============================================================================
+   styles.css — ALL visual styling. Content editors should not need this file.
+   ----------------------------------------------------------------------------
+   THEME: high-finance print material. Deep navy-black base like a pitch-book
+   cover; cool white/grey type like engraved letterhead; a single ash-steel
+   accent used only for hairline rules, small caps and active states.
+   Palette is strictly black / white / grey / navy / ash — no warm metallics.
+   SIGNATURE ELEMENT: the scrolling ticker tape under the masthead. Everything
+   else stays quiet and disciplined around it.
+   ========================================================================== */
+
+/* ----------------------------- design tokens ---------------------------- */
+:root {
+  --bg:          #0a0e18;   /* page base — near-black navy            */
+  --bg-raised:   #101624;   /* card / panel surface                   */
+  --bg-inset:    #060910;   /* ticker strip, modal top bar            */
+  --paper:       #e9ebef;   /* primary text — cool paper white        */
+  --paper-dim:   #969eab;   /* secondary text — grey                  */
+  --accent:      #aeb9c9;   /* the one accent — brushed ash-steel     */
+  --accent-faint: rgba(174, 185, 201, 0.26); /* hairlines             */
+  --up:          #6fae85;   /* ticker up / BUY                        */
+  --down:        #bd6a5f;   /* ticker down / SELL                     */
+  --flat:        #8b93a5;   /* ticker flat / HOLD                     */
+
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body:    "Source Serif 4", Georgia, serif;
+  --font-mono:    "IBM Plex Mono", "Courier New", monospace;
+
+  --max-width: 1080px;
+  --ticker-h: 44px;
+}
+
+/* ------------------------------- base ----------------------------------- */
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  /* faint ledger-line texture: horizontal rules every 8px, barely visible */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 7px,
+    rgba(233, 235, 239, 0.015) 7px,
+    rgba(233, 235, 239, 0.015) 8px
+  );
+}
+
+img { max-width: 100%; display: block; }
+
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--paper); }
+
+/* Visible focus everywhere — keyboard users must always see where they are */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: var(--bg);
+  padding: 0.5rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  z-index: 100;
+}
+.skip-link:focus { left: 0; }
+
+/* --------------------- boot overlay (first visit only) ------------------ */
+.boot {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: var(--bg-inset);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.45s ease;
+}
+.boot.done { opacity: 0; pointer-events: none; }
+
+.boot-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  font-family: var(--font-mono);
+}
+.boot-label {
+  font-size: 0.66rem;
+  letter-spacing: 0.32em;
+  color: var(--paper-dim);
+}
+.boot-pct {
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--paper);
+  font-variant-numeric: tabular-nums;
+}
+.boot-bar {
+  width: 220px;
+  height: 2px;
+  background: rgba(233, 235, 239, 0.12);
+}
+.boot-fill { height: 100%; width: 0; background: var(--accent); }
+.boot-sub {
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  color: var(--paper-dim);
+}
+
+/* ------------------------------ masthead -------------------------------- */
+/* Engraved-letterhead treatment: centered, small-caps kicker between double
+   hairlines, large display name, restrained links row.                     */
+/* Full-bleed so the backdrop photo reaches both edges; the text inside
+   centers itself via its own max-widths. position/overflow contain the
+   slowly-zooming backdrop layer (.masthead-bg, created by app.js). */
+.masthead {
+  width: 100%;
+  padding: 3.5rem 1.5rem 2.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Backdrop photo layer — sits behind the content and slowly zooms
+   (a "Ken Burns" drift) so the masthead feels alive without moving text. */
+.masthead-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 30%;
+  z-index: 0;
+  animation: kenburns 30s ease-in-out infinite alternate;
+}
+.masthead > *:not(.masthead-bg) { position: relative; z-index: 1; }
+
+@keyframes kenburns {
+  from { transform: scale(1); }
+  to   { transform: scale(1.09); }
+}
+
+/* Masthead entrance: each element rises in, slightly staggered */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+.masthead-kicker   { animation: rise-in 0.7s ease-out 0.05s both; }
+.masthead-portrait { animation: rise-in 0.7s ease-out 0.15s both; }
+.masthead-name     { animation: rise-in 0.7s ease-out 0.25s both; }
+.masthead-tagline  { animation: rise-in 0.7s ease-out 0.35s both; }
+.masthead-bio      { animation: rise-in 0.7s ease-out 0.45s both; }
+.hero-stats        { animation: rise-in 0.7s ease-out 0.55s both; }
+.masthead-links    { animation: rise-in 0.7s ease-out 0.65s both; }
+
+/* Count-up stats row under the bio */
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 3rem;
+  margin: 0 0 1.9rem;
+}
+.stat { text-align: center; }
+.stat-value {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.9rem;
+  color: var(--paper);
+  font-variant-numeric: tabular-nums;   /* digits don't jiggle while counting */
+}
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+}
+
+/* When a backdrop photo is set in data.js, app.js adds this class and the
+   image (under a heavy navy gradient so type stays crisp). */
+.masthead-hasbg {
+  background-size: cover;
+  background-position: center 30%;
+  border-bottom: 1px solid var(--accent-faint);
+}
+
+/* Framed portrait: double hairline "engraved plate" frame */
+.masthead-portrait {
+  width: 138px;
+  height: 168px;
+  margin: 0 auto 1.6rem;
+  padding: 5px;
+  border: 1px solid var(--accent-faint);
+  outline: 1px solid rgba(174, 185, 201, 0.12);
+  outline-offset: 4px;
+  background: var(--bg-inset);
+}
+.masthead-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(25%) contrast(1.03);
+}
+
+.masthead-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.32em;
+  color: var(--paper-dim);
+  border-top: 1px solid var(--accent-faint);
+  border-bottom: 1px solid var(--accent-faint);
+  display: inline-block;
+  padding: 0.45rem 1.2rem;
+  margin: 0 0 2rem;
+}
+
+.masthead-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  letter-spacing: 0.02em;
+  margin: 0 0 0.4rem;
+  color: var(--paper);
+}
+
+.masthead-tagline {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1rem, 2.4vw, 1.25rem);
+  color: var(--accent);
+  margin: 0 auto 1.2rem;
+  max-width: 46em;
+}
+
+.masthead-bio {
+  color: var(--paper-dim);
+  max-width: 40em;
+  margin: 0 auto 1.8rem;
+}
+
+.masthead-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.mast-link {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--paper);
+  border: 1px solid var(--accent-faint);
+  padding: 0.55rem 1.1rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+.mast-link:hover { border-color: var(--accent); color: var(--accent); }
+.mast-link-primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.mast-link-primary:hover { background: var(--paper); border-color: var(--paper); color: var(--bg); }
+
+/* ------------------------- THE TICKER (signature) ----------------------- */
+.ticker-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg-inset);
+  border-top: 1px solid var(--accent-faint);
+  border-bottom: 1px solid var(--accent-faint);
+  overflow: hidden;
+  height: var(--ticker-h);
+}
+
+.ticker {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: max-content;
+  animation: ticker-scroll 45s linear infinite;
+}
+
+/* pause when the user is reading or tabbing through it */
+.ticker-wrap:hover .ticker,
+.ticker-wrap:focus-within .ticker { animation-play-state: paused; }
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }  /* items are duplicated once, so -50% loops seamlessly */
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55em;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  padding: 0.55rem 1.6rem;
+  background: none;
+  border: none;
+  border-right: 1px solid rgba(233, 235, 239, 0.08);
+  color: var(--paper);
+  cursor: pointer;
+}
+.ticker-item:hover .ticker-label { color: var(--accent); }
+
+.ticker-label { color: var(--paper-dim); font-weight: 600; transition: color 0.15s; }
+.ticker-value { color: var(--paper); }
+.ticker-dir-up   { color: var(--up); }
+.ticker-dir-down { color: var(--down); }
+.ticker-dir-flat { color: var(--flat); }
+
+/* Reduced motion: the tape stands still and can be scrolled by hand,
+   and ALL animation (entrances, reveals, zoom, counters) is switched off. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .ticker { animation: none; }
+  .ticker-wrap { overflow-x: auto; }
+  .ticker-item-dup { display: none; }  /* hide the duplicate set */
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+  .reveal { opacity: 1 !important; transform: none !important; }
+}
+
+/* Scroll reveal: app.js adds .reveal to cards/headers, then .revealed when
+   they enter the viewport. --reveal-delay staggers items in the same row. */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.7s ease var(--reveal-delay, 0s),
+    transform 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) var(--reveal-delay, 0s);
+}
+.reveal.revealed { opacity: 1; transform: none; }
+
+/* ------------------------------ sections -------------------------------- */
+.section {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 4rem 1.5rem 1rem;
+}
+
+/* Engraved section header: index number + small-caps title over a double rule */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  border-bottom: 1px solid var(--accent-faint);
+  padding-bottom: 0.7rem;
+  margin-bottom: 0.35rem;
+  position: relative;
+}
+.section-head::after {          /* second, thinner rule = engraved double line */
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -4px;
+  border-bottom: 1px solid rgba(174, 185, 201, 0.12);
+}
+
+.section-index {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.section-note {
+  color: var(--paper-dim);
+  font-size: 0.95rem;
+  margin: 1.1rem 0 0;
+}
+
+/* ------------------------------- cards ---------------------------------- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.1rem;
+  margin-top: 1.6rem;
+}
+
+/* Base card: quiet panel with a hairline; whole card is a button */
+.card {
+  background: var(--bg-raised);
+  border: 1px solid rgba(233, 235, 239, 0.09);
+  padding: 1.4rem 1.5rem 1.3rem;
+  text-align: left;
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  width: 100%;
+}
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+}
+
+.card-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0;
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.card-sub {
+  color: var(--paper-dim);
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.card-summary { margin: 0.2rem 0 0; font-size: 0.95rem; color: var(--paper); }
+
+.card-open-hint {
+  margin-top: auto;
+  padding-top: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  color: var(--paper-dim);
+}
+.card:hover .card-open-hint { color: var(--accent); }
+
+/* Featured leadership card: full width, ash-steel left rule */
+.card-featured {
+  border-left: 3px solid var(--accent);
+  margin-top: 1.6rem;
+}
+.card-featured .card-title { font-size: 1.45rem; }
+
+.badge-launching {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 0.2rem 0.6rem;
+  margin-left: 0.6rem;
+  vertical-align: middle;
+}
+
+/* ------------------------ models: the centerpiece ----------------------- */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.4rem;
+}
+
+.filter-btn {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: none;
+  color: var(--paper-dim);
+  border: 1px solid rgba(233, 235, 239, 0.14);
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.filter-btn:hover { color: var(--paper); border-color: var(--paper-dim); }
+.filter-btn[aria-pressed="true"] {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Model card: adds the terminal-style data readout strip */
+.model-readout {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  background: var(--bg-inset);
+  border: 1px solid rgba(233, 235, 239, 0.08);
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.2rem;
+}
+.model-readout .ro-label { color: var(--paper-dim); }
+.model-readout .ro-buy  { color: var(--up); font-weight: 600; }
+.model-readout .ro-sell { color: var(--down); font-weight: 600; }
+.model-readout .ro-hold { color: var(--flat); font-weight: 600; }
+.model-readout .ro-val  { color: var(--paper); }
+
+.sector-tag {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* --------------------------- credentials list --------------------------- */
+.credential-list {
+  list-style: none;
+  margin: 1.6rem 0 0;
+  padding: 0;
+}
+
+.credential-item { border-bottom: 1px solid rgba(233, 235, 239, 0.08); }
+
+.credential-btn {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.2rem 1.5rem;
+  align-items: center;
+  background: none;
+  border: none;
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  text-align: left;
+  padding: 1rem 0.25rem;
+  cursor: pointer;
+}
+.credential-btn:hover .credential-name { color: var(--accent); }
+
+.credential-name { font-weight: 600; transition: color 0.15s; }
+.credential-issuer { grid-column: 1; color: var(--paper-dim); font-size: 0.88rem; }
+
+.credential-status {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  text-align: right;
+}
+
+.credential-bar {
+  grid-column: 1 / -1;
+  height: 3px;
+  background: rgba(233, 235, 239, 0.08);
+  margin-top: 0.35rem;
+}
+.credential-bar-fill { height: 100%; background: var(--accent); }
+
+/* -------------------------------- skills -------------------------------- */
+.skills-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1.6rem;
+}
+@media (max-width: 640px) { .skills-wrap { grid-template-columns: 1fr; } }
+
+.skills-subhead {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.9rem;
+}
+
+.skill-tags {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.skill-tags li {
+  border: 1px solid rgba(233, 235, 239, 0.14);
+  padding: 0.35rem 0.85rem;
+  font-size: 0.9rem;
+  color: var(--paper);
+}
+
+/* ------------------------------- contact --------------------------------- */
+.contact-block {
+  margin-top: 1.8rem;
+  text-align: center;
+  padding: 2.4rem 1.5rem;
+  border: 1px solid var(--accent-faint);
+  background: var(--bg-raised);
+}
+
+.contact-email {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 3vw, 1.6rem);
+  display: inline-block;
+  margin-bottom: 1.4rem;
+}
+
+.contact-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.75rem; }
+
+/* -------------------------------- footer --------------------------------- */
+.site-footer {
+  max-width: var(--max-width);
+  margin: 3rem auto 0;
+  padding: 1.8rem 1.5rem 2.6rem;
+  border-top: 1px solid var(--accent-faint);
+  text-align: center;
+}
+.footer-personal { color: var(--paper-dim); font-style: italic; font-size: 0.95rem; margin: 0 0 0.5rem; }
+.footer-legal {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  margin: 0;
+}
+
+/* ------------------------- modal: pitch-book page ------------------------ */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 6, 12, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  z-index: 200;
+  /* animated open/close: app.js toggles the .open class */
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.modal-backdrop.open { opacity: 1; }
+.modal-backdrop[hidden] { display: none; }
+
+.modal {
+  transform: translateY(18px) scale(0.985);
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1);
+  background: var(--bg-raised);
+  border: 1px solid var(--accent-faint);
+  max-width: 720px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+}
+
+.modal-backdrop.open .modal { transform: none; }
+
+.modal-topbar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-inset);
+  border-bottom: 1px solid var(--accent-faint);
+  padding: 0.6rem 1.1rem;
+}
+
+.modal-stamp {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.28em;
+  color: var(--accent);
+}
+
+.modal-close {
+  background: none;
+  border: 1px solid rgba(233, 235, 239, 0.2);
+  color: var(--paper);
+  font-size: 1.15rem;
+  line-height: 1;
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+}
+.modal-close:hover { border-color: var(--accent); color: var(--accent); }
+
+.modal-body { padding: 1.8rem 2rem 2.2rem; }
+
+.modal-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.5rem;
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin: 0 0 0.3rem;
+  line-height: 1.3;
+}
+
+.modal-sub { color: var(--paper-dim); font-size: 0.95rem; margin: 0 0 1.2rem; }
+
+.modal-rule { border: none; border-top: 1px solid var(--accent-faint); margin: 1.2rem 0; }
+
+.modal-body ul { padding-left: 1.2rem; margin: 0.8rem 0; }
+.modal-body li { margin-bottom: 0.5rem; }
+
+.modal-detail { color: var(--paper); }
+
+.modal-photos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.8rem;
+  margin-top: 1.2rem;
+}
+.modal-photo figcaption { font-size: 0.8rem; color: var(--paper-dim); margin-top: 0.35rem; }
+
+/* Placeholder frame shown when a photo file isn't there yet (Phase 1) */
+.photo-placeholder {
+  aspect-ratio: 4 / 3;
+  border: 1px dashed rgba(174, 185, 201, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  color: var(--paper-dim);
+  background: repeating-linear-gradient(
+    45deg, transparent 0 10px, rgba(233, 235, 239, 0.03) 10px 20px
+  );
+}
+
+.modal-file-link {
+  display: inline-block;
+  margin-top: 1.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 0.65rem 1.3rem;
+}
+.modal-file-link:hover { background: var(--paper); color: var(--bg); }
+
+/* Secondary file link (e.g. Excel model): outlined, sits next to the primary */
+.modal-file-link-secondary {
+  background: none;
+  color: var(--paper);
+  border: 1px solid var(--accent-faint);
+  margin-left: 0.6rem;
+}
+.modal-file-link-secondary:hover { background: none; color: var(--accent); border-color: var(--accent); }
+
+/* ------------------------------ responsive ------------------------------- */
+@media (max-width: 640px) {
+  .section { padding: 3rem 1.1rem 0.5rem; }
+  .masthead { padding: 2.5rem 1.1rem 2rem; }
+  .modal-body { padding: 1.4rem 1.2rem 1.8rem; }
+  .card-grid { grid-template-columns: 1fr; }
+}
