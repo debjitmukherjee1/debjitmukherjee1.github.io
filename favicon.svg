@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Favicon: ash-steel "DM" monogram between engraved rules on navy -->
+  <rect width="64" height="64" fill="#0a0e18"/>
+  <line x1="10" y1="14" x2="54" y2="14" stroke="#aeb9c9" stroke-width="1.5"/>
+  <line x1="10" y1="18" x2="54" y2="18" stroke="#aeb9c9" stroke-width="0.6" opacity="0.5"/>
+  <text x="32" y="45" text-anchor="middle" font-family="Georgia, serif" font-weight="bold" font-size="26" fill="#e9ebef">DM</text>
+  <line x1="10" y1="52" x2="54" y2="52" stroke="#aeb9c9" stroke-width="0.6" opacity="0.5"/>
+  <line x1="10" y1="56" x2="54" y2="56" stroke="#aeb9c9" stroke-width="1.5"/>
+</svg>
