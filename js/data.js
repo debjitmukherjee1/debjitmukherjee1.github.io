@@ -388,8 +388,8 @@ const siteData = {
     {
       title: "ICICI Bank (ICICIBANK) — Equity Research Report",
       sector: "Banking",
-      date: "Jun 2026",
-      thesis: "Superb franchise, full price.",
+      date: "Jul 2026",
+      thesis: "Superb franchise — but the price has now run ahead of it.",
       rating: "",
       targetPrice: "",
       impliedValue: "",
