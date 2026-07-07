@@ -17,10 +17,28 @@
   --paper:       #e9ebef;   /* primary text — cool paper white        */
   --paper-dim:   #969eab;   /* secondary text — grey                  */
   --accent:      #aeb9c9;   /* the one accent — brushed ash-steel     */
-  --accent-faint: rgba(174, 185, 201, 0.26); /* hairlines             */
+  --accent-faint: rgba(var(--ash-rgb), 0.26); /* hairlines             */
   --up:          #6fae85;   /* ticker up / BUY                        */
   --down:        #bd6a5f;   /* ticker down / SELL                     */
   --flat:        #8b93a5;   /* ticker flat / HOLD                     */
+
+  /* Hairline / border bases as RGB triplets so a theme is just a flip.
+     Almost every border in the file resolves to one of these two. */
+  --edge-rgb: 233, 235, 239;   /* primary hairline base                 */
+  --ash-rgb: 174, 185, 201;    /* ash hairline / accent base            */
+
+  /* Living-backdrop scene colours (read by app.js), as RGB triplets. */
+  --scene-grid-rgb: 174, 185, 201;
+  --scene-line1-rgb: 174, 185, 201;
+  --scene-line2-rgb: 233, 235, 239;
+  --scene-line3-rgb: 150, 158, 171;
+  --candle-up-rgb: 111, 174, 133;
+  --candle-down-rgb: 189, 106, 95;
+  --scene-glow-rgb: 191, 201, 215;
+
+  /* Cinematic vignette stops (over the backdrop). */
+  --vignette-mid:  rgba(8, 11, 18, 0.35);
+  --vignette-edge: rgba(5, 7, 13, 0.62);
 
   --font-display: "Fraunces", Georgia, serif;
   --font-body:    "Source Serif 4", Georgia, serif;
@@ -56,8 +74,8 @@ body {
     to bottom,
     transparent 0px,
     transparent 7px,
-    rgba(233, 235, 239, 0.015) 7px,
-    rgba(233, 235, 239, 0.015) 8px
+    rgba(var(--edge-rgb), 0.015) 7px,
+    rgba(var(--edge-rgb), 0.015) 8px
   );
 }
 
@@ -81,9 +99,9 @@ body::after {
   pointer-events: none;
   background:
     radial-gradient(135% 95% at 50% 30%,
-      rgba(10, 14, 24, 0) 0%,
-      rgba(8, 11, 18, 0.35) 68%,
-      rgba(5, 7, 13, 0.62) 100%);
+      transparent 0%,
+      var(--vignette-mid) 68%,
+      var(--vignette-edge) 100%);
 }
 
 img { max-width: 100%; display: block; }
@@ -145,7 +163,7 @@ a:hover { color: var(--paper); }
 .boot-bar {
   width: 220px;
   height: 2px;
-  background: rgba(233, 235, 239, 0.12);
+  background: rgba(var(--edge-rgb), 0.12);
 }
 .boot-fill { height: 100%; width: 0; background: var(--accent); }
 .boot-sub {
@@ -212,7 +230,7 @@ a:hover { color: var(--paper); }
   pointer-events: none;
   mix-blend-mode: screen;
   background:
-    radial-gradient(55% 55% at 28% 18%, rgba(174, 185, 201, 0.12), transparent 62%),
+    radial-gradient(55% 55% at 28% 18%, rgba(var(--ash-rgb), 0.12), transparent 62%),
     radial-gradient(52% 55% at 80% 42%, rgba(96, 124, 166, 0.14), transparent 64%);
   animation: hero-glow 20s ease-in-out infinite alternate;
 }
@@ -274,7 +292,7 @@ a:hover { color: var(--paper); }
   margin: 0 auto 1.6rem;
   padding: 5px;
   border: 1px solid var(--accent-faint);
-  outline: 1px solid rgba(174, 185, 201, 0.12);
+  outline: 1px solid rgba(var(--ash-rgb), 0.12);
   outline-offset: 4px;
   background: var(--bg-inset);
 }
@@ -400,7 +418,7 @@ a:hover { color: var(--paper); }
   padding: 0.55rem 1.6rem;
   background: none;
   border: none;
-  border-right: 1px solid rgba(233, 235, 239, 0.08);
+  border-right: 1px solid rgba(var(--edge-rgb), 0.08);
   color: var(--paper);
   cursor: pointer;
 }
@@ -418,7 +436,7 @@ a:hover { color: var(--paper); }
   animation: tick-flash 0.9s ease-out;
 }
 @keyframes tick-flash {
-  0%   { color: var(--accent); text-shadow: 0 0 10px rgba(174, 185, 201, 0.55); }
+  0%   { color: var(--accent); text-shadow: 0 0 10px rgba(var(--ash-rgb), 0.55); }
   100% { color: var(--paper);  text-shadow: none; }
 }
 
@@ -471,7 +489,7 @@ a:hover { color: var(--paper); }
   content: "";
   position: absolute;
   left: 0; right: 0; bottom: -4px;
-  border-bottom: 1px solid rgba(174, 185, 201, 0.12);
+  border-bottom: 1px solid rgba(var(--ash-rgb), 0.12);
 }
 
 .section-index {
@@ -514,7 +532,7 @@ a:hover { color: var(--paper); }
   position: relative;
   overflow: hidden;
   background: var(--bg-raised);
-  border: 1px solid rgba(233, 235, 239, 0.09);
+  border: 1px solid rgba(var(--edge-rgb), 0.09);
   padding: 1.4rem 1.5rem 1.3rem;
   text-align: left;
   color: var(--paper);
@@ -549,7 +567,7 @@ a:hover { color: var(--paper); }
   z-index: 0;
   pointer-events: none;
   opacity: 0;
-  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(174, 185, 201, 0.10), transparent 62%);
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(var(--ash-rgb), 0.10), transparent 62%);
   transition: opacity 0.4s ease, --mx 0.18s ease-out, --my 0.18s ease-out;
 }
 .card:hover::after { opacity: 1; }
@@ -623,7 +641,7 @@ a:hover { color: var(--paper); }
   text-transform: uppercase;
   background: none;
   color: var(--paper-dim);
-  border: 1px solid rgba(233, 235, 239, 0.14);
+  border: 1px solid rgba(var(--edge-rgb), 0.14);
   padding: 0.45rem 1rem;
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
@@ -641,7 +659,7 @@ a:hover { color: var(--paper); }
   font-size: 0.76rem;
   letter-spacing: 0.05em;
   background: var(--bg-inset);
-  border: 1px solid rgba(233, 235, 239, 0.08);
+  border: 1px solid rgba(var(--edge-rgb), 0.08);
   padding: 0.5rem 0.75rem;
   margin-top: 0.6rem;
   display: flex;
@@ -673,7 +691,7 @@ a:hover { color: var(--paper); }
 /* Illustrative terminal chart inside the model detail view */
 .model-chart {
   margin-top: 1.4rem;
-  border: 1px solid rgba(233, 235, 239, 0.08);
+  border: 1px solid rgba(var(--edge-rgb), 0.08);
   background: var(--bg-inset);
   padding: 0.7rem 0.8rem 0.5rem;
 }
@@ -698,7 +716,7 @@ a:hover { color: var(--paper); }
   padding: 0;
 }
 
-.credential-item { border-bottom: 1px solid rgba(233, 235, 239, 0.08); }
+.credential-item { border-bottom: 1px solid rgba(var(--edge-rgb), 0.08); }
 
 .credential-btn {
   width: 100%;
@@ -734,7 +752,7 @@ a:hover { color: var(--paper); }
 .credential-bar {
   grid-column: 1 / -1;
   height: 3px;
-  background: rgba(233, 235, 239, 0.08);
+  background: rgba(var(--edge-rgb), 0.08);
   margin-top: 0.35rem;
 }
 .credential-bar-fill { height: 100%; background: var(--accent); }
@@ -766,7 +784,7 @@ a:hover { color: var(--paper); }
   gap: 0.5rem;
 }
 .skill-tags li {
-  border: 1px solid rgba(233, 235, 239, 0.14);
+  border: 1px solid rgba(var(--edge-rgb), 0.14);
   padding: 0.35rem 0.85rem;
   font-size: 0.9rem;
   color: var(--paper);
@@ -859,7 +877,7 @@ a:hover { color: var(--paper); }
 
 .modal-close {
   background: none;
-  border: 1px solid rgba(233, 235, 239, 0.2);
+  border: 1px solid rgba(var(--edge-rgb), 0.2);
   color: var(--paper);
   font-size: 1.15rem;
   line-height: 1;
@@ -908,7 +926,7 @@ a:hover { color: var(--paper); }
 /* Placeholder frame shown when a photo file isn't there yet (Phase 1) */
 .photo-placeholder {
   aspect-ratio: 4 / 3;
-  border: 1px dashed rgba(174, 185, 201, 0.45);
+  border: 1px dashed rgba(var(--ash-rgb), 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -917,7 +935,7 @@ a:hover { color: var(--paper); }
   letter-spacing: 0.18em;
   color: var(--paper-dim);
   background: repeating-linear-gradient(
-    45deg, transparent 0 10px, rgba(233, 235, 239, 0.03) 10px 20px
+    45deg, transparent 0 10px, rgba(var(--edge-rgb), 0.03) 10px 20px
   );
 }
 
@@ -982,4 +1000,54 @@ a:hover { color: var(--paper); }
 
   /* Tighter stat row so four items sit cleanly two-by-two */
   .hero-stats { gap: 0.4rem 2rem; }
+}
+
+/* ============================ LIGHT THEME ==============================
+   "Daylight gallery" — warm ash/beige base with New York photography.
+   Activated by class="theme-light" on <html>. Removing the class reverts
+   to the dark theme, so both are preserved in one stylesheet. */
+html.theme-light {
+  --bg:          #e8e3d7;   /* warm ash / beige page base            */
+  --bg-raised:   #f4f0e7;   /* card / panel — warm off-white          */
+  --bg-inset:    #ded6c6;   /* ticker strip / deeper beige            */
+  --paper:       #23262d;   /* primary text — dark ink                */
+  --paper-dim:   #6d675b;   /* secondary text — warm taupe            */
+  --accent:      #45505f;   /* accent — deep slate                    */
+  --up:          #3f7d5a;
+  --down:        #a8564a;
+  --flat:        #7c7568;
+  --edge-rgb: 45, 48, 56;
+  --ash-rgb: 96, 98, 104;
+  --vignette-mid:  rgba(60, 54, 42, 0.05);
+  --vignette-edge: rgba(45, 40, 30, 0.16);
+}
+html.theme-light .scene-bg { display: none; }        /* photo replaces the generated scene */
+html.theme-light .masthead::before { display: none; }
+html.theme-light .masthead {
+  background-image:
+    linear-gradient(rgba(233,228,217,0.82), rgba(233,228,217,0.8) 45%, rgba(233,228,217,0.93) 100%),
+    url('../assets/images/bg-nyc.jpg');
+  background-size: cover;
+  background-position: center 38%;
+  border-bottom: 1px solid rgba(var(--edge-rgb), 0.18);
+}
+html.theme-light .masthead-bio {
+  color: #292c33;
+  text-shadow: 0 1px 3px rgba(236, 231, 221, 0.75);
+}
+html.theme-light .masthead-tagline {
+  color: #3a4655;
+  text-shadow: 0 1px 3px rgba(236, 231, 221, 0.6);
+}
+html.theme-light .card:hover { box-shadow: 0 16px 40px rgba(60, 54, 42, 0.16); }
+
+/* footer disclaimer on imagery */
+.footer-note {
+  max-width: 46em;
+  margin: 0.8rem auto 0;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: var(--paper-dim);
+  line-height: 1.6;
 }
