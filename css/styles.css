@@ -61,6 +61,31 @@ body {
   );
 }
 
+/* The living backdrop canvas, fixed behind everything (painted by app.js). */
+.scene-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  display: block;
+}
+
+/* Cinematic vignette over the backdrop: a soft pool of light toward the top-
+   centre falling to shadow at the edges — the "lit display case" depth. Sits
+   above the scene, below all content. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(135% 95% at 50% 30%,
+      rgba(10, 14, 24, 0) 0%,
+      rgba(8, 11, 18, 0.35) 68%,
+      rgba(5, 7, 13, 0.62) 100%);
+}
+
 img { max-width: 100%; display: block; }
 
 a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
@@ -137,10 +162,15 @@ a:hover { color: var(--paper); }
    slowly-zooming backdrop layer (.masthead-bg, created by app.js). */
 .masthead {
   width: 100%;
-  padding: 3.5rem 1.5rem 2.5rem;
+  min-height: 100vh;                 /* full-screen cinematic intro */
+  padding: 4rem 1.5rem 3rem;
   text-align: center;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Backdrop photo layer — sits behind the content and slowly zooms
@@ -424,7 +454,7 @@ a:hover { color: var(--paper); }
 .section {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 4rem 1.5rem 1rem;
+  padding: 6.5rem 1.5rem 3rem;       /* generous rhythm — each section is an exhibit */
 }
 
 /* Engraved section header: index number + small-caps title over a double rule */
