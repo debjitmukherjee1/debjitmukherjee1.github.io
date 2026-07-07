@@ -914,19 +914,6 @@ a:hover { color: var(--paper); }
 }
 .modal-file-link-secondary:hover { background: none; color: var(--accent); border-color: var(--accent); }
 
-/* ------------------------------ scroll snap ------------------------------ */
-/* Gentle "breaks": sections settle to the top as you stop scrolling, but the
-   snap is PROXIMITY (never mandatory) so tall sections like the models list
-   still scroll freely — no scroll hijacking. Desktop + motion-OK only.
-   scroll-padding-top keeps the sticky ticker from covering a snapped title. */
-@media (min-width: 641px) and (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-snap-type: y proximity;
-    scroll-padding-top: var(--ticker-h);
-  }
-  .masthead, .section { scroll-snap-align: start; }
-}
-
 /* ------------------------------ responsive ------------------------------- */
 @media (max-width: 640px) {
   .section { padding: 3rem 1.1rem 0.5rem; }
