@@ -39,22 +39,9 @@
   }
 
   function renderHero() {
-    // Backdrop photo behind the masthead — rendered as its own layer div so
-    // it can slowly zoom (Ken Burns) without moving the text. Only applied
-    // if the image file actually loads; always under a heavy navy overlay.
-    if (siteData.hero.backdropImage) {
-      var bgTest = new Image();
-      bgTest.onload = function () {
-        var mast = document.querySelector(".masthead");
-        var layer = el("div", "masthead-bg");
-        layer.setAttribute("aria-hidden", "true");
-        layer.style.backgroundImage =
-          "linear-gradient(rgba(10,14,24,0.78), rgba(10,14,24,0.92) 60%, #0a0e18 96%), " +
-          "url('" + siteData.hero.backdropImage + "')";
-        mast.insertBefore(layer, mast.firstChild);
-      };
-      bgTest.src = siteData.hero.backdropImage;
-    }
+    // The masthead is now transparent so the fixed living backdrop (the
+    // drifting market lines) shows through behind the name. The old opaque
+    // skyline layer is intentionally not applied.
 
     // Framed portrait above the name — hidden if the file is missing.
     if (siteData.hero.portraitImage) {
@@ -761,47 +748,47 @@
     }, 2800);
   }
 
-  /* Animated terminal wallpaper behind the masthead: a faint grid plus three
-     slow-drifting seeded "market lines". Restores the hero canvas the site
-     carried before. Under reduced motion it draws a single static frame. */
-  function drawHeroFrame(c, t) {
-    // Size from the PARENT (masthead), never from the canvas's own box —
-    // measuring itself and then resizing itself feeds back and runs away.
-    var mast = c.parentNode;
-    if (!mast) return;
-    var w = mast.clientWidth, h = mast.clientHeight;
-    if (!w || !h) return;
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    var pw = Math.round(w * dpr), ph = Math.round(h * dpr);
-    if (c.width !== pw || c.height !== ph) {
-      c.width = pw; c.height = ph;
-      c.style.width = w + "px"; c.style.height = h + "px";
-    }
-    var ctx = c.getContext("2d");
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);   // fresh scale each frame
-    ctx.clearRect(0, 0, w, h);
-    // faint grid
-    ctx.strokeStyle = "rgba(174,185,201,0.05)";
+  /* ---- THE LIVING BACKDROP -----------------------------------------------
+     One fixed, full-viewport canvas behind the whole page. It renders a
+     single cohesive "after-hours trading floor" scene whose layers fade in
+     and out as you scroll, so the background visibly shifts between sections
+     while staying one consistent, palette-locked picture:
+        top      → drifting market lines (the hero animation, kept)
+        middle   → a slow candlestick field
+        bottom   → soft out-of-focus "city / desk lights" (bokeh)
+     Sized from the WINDOW (never from itself), dpr-clamped, and it respects
+     reduced motion (draws a still frame and only re-renders on scroll). */
+
+  // smoothstep 0→1 between edges a and b
+  function sstep(a, b, x) {
+    if (x <= a) return 0;
+    if (x >= b) return 1;
+    var t = (x - a) / (b - a);
+    return t * t * (3 - 2 * t);
+  }
+
+  function sceneGrid(ctx, w, h, scrollY) {
+    var gs = 64, off = (scrollY * 0.06) % gs, x, y;
+    ctx.strokeStyle = "rgba(174,185,201,0.045)";
     ctx.lineWidth = 1;
-    var gs = 56, x, y;
-    for (x = 0; x < w; x += gs) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
-    for (y = 0; y < h; y += gs) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
-    // drifting market lines
+    for (x = 0; x <= w; x += gs) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+    for (y = -gs + off; y <= h + gs; y += gs) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+  }
+
+  function sceneLines(ctx, w, h, t) {
     var lines = [
-      { seed: "hero-a", color: "rgba(174,185,201,0.30)", amp: 60, speed: 0.00016, trend: 0.9 },
-      { seed: "hero-b", color: "rgba(233,235,239,0.16)", amp: 44, speed: 0.00011, trend: 0.5 },
-      { seed: "hero-c", color: "rgba(150,158,171,0.12)", amp: 70, speed: 0.00007, trend: 0.2 }
+      { seed: "scene-a", color: "rgba(174,185,201,0.34)", amp: 66, speed: 0.00016, trend: 0.9 },
+      { seed: "scene-b", color: "rgba(233,235,239,0.18)", amp: 48, speed: 0.00011, trend: 0.5 },
+      { seed: "scene-c", color: "rgba(150,158,171,0.13)", amp: 78, speed: 0.00007, trend: 0.2 }
     ];
     lines.forEach(function (L) {
-      var r = chartRng(L.seed);
-      var phase = t * L.speed;
-      var n = 90, i, xx, base, wob, yy;
+      var r = chartRng(L.seed), phase = t * L.speed, n = 100, i, xx, base, wob, yy;
       ctx.beginPath();
       for (i = 0; i <= n; i++) {
         xx = (i / n) * w;
-        base = h * 0.62 - (i / n) * L.trend * h * 0.22;
-        wob = Math.sin(i * 0.55 + phase * 6 + r() * 4) * L.amp * 0.35 +
-              Math.sin(i * 0.13 + phase * 2.4) * L.amp * 0.65;
+        base = h * 0.5 - (i / n) * L.trend * h * 0.18;
+        wob = Math.sin(i * 0.5 + phase * 6 + r() * 4) * L.amp * 0.35 +
+              Math.sin(i * 0.12 + phase * 2.4) * L.amp * 0.65;
         yy = base + wob;
         if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
       }
@@ -811,15 +798,88 @@
     });
   }
 
-  function startHeroCanvas() {
-    var mast = document.querySelector(".masthead");
-    if (!mast) return;
-    var c = el("canvas", "masthead-canvas");
-    c.setAttribute("aria-hidden", "true");
-    mast.insertBefore(c, mast.firstChild);   // behind text, above skyline
-    if (reducedMotion) { drawHeroFrame(c, 0); return; }
-    function loop(ts) { drawHeroFrame(c, ts); requestAnimationFrame(loop); }
-    requestAnimationFrame(loop);
+  function sceneCandles(ctx, w, h, t, candles) {
+    var n = candles.length, cw = w / n, baseline = h * 0.62, unit = h * 0.30;
+    for (var i = 0; i < n; i++) {
+      var cd = candles[i];
+      var cx = i * cw + cw * 0.5;
+      var sway = Math.sin(t * 0.5 + i * 0.6) * 0.5 + 0.5;             // 0..1 slow
+      var oPx = baseline - (cd.o * 0.7 + sway * 0.3) * unit;
+      var cPx = baseline - (cd.c * 0.7 + (1 - sway) * 0.3) * unit;
+      var wickTop = Math.min(oPx, cPx) - cd.wick * unit * 0.5;
+      var wickBot = Math.max(oPx, cPx) + (1 - cd.wick) * unit * 0.35;
+      var col = cd.up ? "111,174,133" : "189,106,95";
+      ctx.strokeStyle = "rgba(" + col + ",0.62)";
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx, wickTop); ctx.lineTo(cx, wickBot); ctx.stroke();
+      var bw = Math.max(2, cw * 0.5);
+      ctx.fillStyle = "rgba(" + col + ",0.42)";
+      ctx.fillRect(cx - bw / 2, Math.min(oPx, cPx), bw, Math.max(2, Math.abs(cPx - oPx)));
+    }
+  }
+
+  function sceneBokeh(ctx, w, h, t, pts) {
+    for (var i = 0; i < pts.length; i++) {
+      var p = pts[i];
+      var px = p.x * w + Math.sin(t * 0.15 + p.ph) * 24;
+      var py = p.y * h + Math.cos(t * 0.11 + p.ph) * 20;
+      var rad = 40 + p.r * 130;
+      var a = 0.07 + p.s * 0.08;
+      var g = ctx.createRadialGradient(px, py, 0, px, py, rad);
+      g.addColorStop(0, "rgba(191,201,215," + a + ")");
+      g.addColorStop(1, "rgba(191,201,215,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(px, py, rad, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  function startSceneEngine() {
+    var c = byId("scene");
+    if (!c) return;
+    var ctx = c.getContext("2d");
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var w = window.innerWidth, h = window.innerHeight;
+      c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+      c.style.width = w + "px"; c.style.height = h + "px";
+    }
+    resize();
+    window.addEventListener("resize", function () { resize(); if (reducedMotion) draw(0); });
+
+    // seeded, stable props for candles + bokeh
+    var rC = chartRng("scene-candles"), candles = [], i;
+    for (i = 0; i < 56; i++) candles.push({ o: rC(), c: rC(), wick: rC(), up: rC() > 0.5 });
+    var rB = chartRng("scene-bokeh"), bokeh = [];
+    for (i = 0; i < 24; i++) bokeh.push({ x: rB(), y: rB(), r: rB(), s: rB(), ph: rB() * 6.283 });
+
+    function draw(ts) {
+      var w = window.innerWidth, h = window.innerHeight;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      var maxScroll = Math.max(1, document.documentElement.scrollHeight - h);
+      var f = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+      var t = ts * 0.001;
+
+      sceneGrid(ctx, w, h, window.scrollY);
+
+      var aLines = 1 - sstep(0.04, 0.30, f);
+      if (aLines > 0.01) { ctx.globalAlpha = aLines; sceneLines(ctx, w, h, t); ctx.globalAlpha = 1; }
+
+      var aCandles = sstep(0.14, 0.42, f) * (1 - sstep(0.66, 0.9, f));
+      if (aCandles > 0.01) { ctx.globalAlpha = aCandles; sceneCandles(ctx, w, h, t, candles); ctx.globalAlpha = 1; }
+
+      var aBokeh = sstep(0.58, 0.95, f);
+      if (aBokeh > 0.01) { ctx.globalAlpha = aBokeh; sceneBokeh(ctx, w, h, t, bokeh); ctx.globalAlpha = 1; }
+    }
+
+    if (reducedMotion) {
+      draw(0);
+      window.addEventListener("scroll", function () { draw(0); }, { passive: true });
+      return;
+    }
+    (function loop(ts) { draw(ts); requestAnimationFrame(loop); })(0);
   }
 
   /* Cursor-follow light on cards. Delegation means it also covers cards
@@ -840,8 +900,8 @@
 
   runBoot();
   renderMeta();
+  startSceneEngine();
   renderHero();
-  startHeroCanvas();
   renderStats();
   renderMarketClock();
   renderTicker();
