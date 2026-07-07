@@ -763,9 +763,21 @@
      slow-drifting seeded "market lines". Restores the hero canvas the site
      carried before. Under reduced motion it draws a single static frame. */
   function drawHeroFrame(c, t) {
-    var env = setupCanvas(c);
-    if (!env) return;
-    var ctx = env.ctx, w = env.w, h = env.h;
+    // Size from the PARENT (masthead), never from the canvas's own box —
+    // measuring itself and then resizing itself feeds back and runs away.
+    var mast = c.parentNode;
+    if (!mast) return;
+    var w = mast.clientWidth, h = mast.clientHeight;
+    if (!w || !h) return;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var pw = Math.round(w * dpr), ph = Math.round(h * dpr);
+    if (c.width !== pw || c.height !== ph) {
+      c.width = pw; c.height = ph;
+      c.style.width = w + "px"; c.style.height = h + "px";
+    }
+    var ctx = c.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);   // fresh scale each frame
+    ctx.clearRect(0, 0, w, h);
     // faint grid
     ctx.strokeStyle = "rgba(174,185,201,0.05)";
     ctx.lineWidth = 1;
