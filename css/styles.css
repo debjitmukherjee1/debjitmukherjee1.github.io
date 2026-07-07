@@ -22,7 +22,7 @@
   --down:        #bd6a5f;   /* ticker down / SELL                     */
   --flat:        #8b93a5;   /* ticker flat / HOLD                     */
 
-  --font-display: "Playfair Display", Georgia, serif;
+  --font-display: "Fraunces", Georgia, serif;
   --font-body:    "Source Serif 4", Georgia, serif;
   --font-mono:    "IBM Plex Mono", "Courier New", monospace;
 
@@ -33,7 +33,16 @@
 /* ------------------------------- base ----------------------------------- */
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; font-optical-sizing: auto; }
+
+/* Fraunces has playful "wonk/soft" axes; pin them off so display text stays
+   sharp and letterpress-clean rather than quirky. */
+.masthead-name,
+.section-title,
+.card-title,
+.modal-title,
+.contact-email,
+.masthead-tagline { font-variation-settings: "SOFT" 0, "WONK" 0; }
 
 body {
   margin: 0;
@@ -144,11 +153,40 @@ a:hover { color: var(--paper); }
   z-index: 0;
   animation: kenburns 30s ease-in-out infinite alternate;
 }
-.masthead > *:not(.masthead-bg) { position: relative; z-index: 1; }
+.masthead > *:not(.masthead-bg):not(.masthead-canvas) { position: relative; z-index: 1; }
+
+/* Animated terminal wallpaper (grid + drifting market lines), drawn by
+   app.js. Sits above the darkened skyline, below the glow and the text. */
+.masthead-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
 
 @keyframes kenburns {
   from { transform: scale(1); }
   to   { transform: scale(1.09); }
+}
+
+/* Soft "lighting": a slow-drifting cool glow bloom over the darkened
+   backdrop. Sits above the skyline (z0) and below the text (z1); screen
+   blend so it adds light rather than a flat wash. Palette-safe ash + steel. */
+.masthead::before {
+  content: "";
+  position: absolute;
+  inset: -25% -15% 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(55% 55% at 28% 18%, rgba(174, 185, 201, 0.12), transparent 62%),
+    radial-gradient(52% 55% at 80% 42%, rgba(96, 124, 166, 0.14), transparent 64%);
+  animation: hero-glow 20s ease-in-out infinite alternate;
+}
+@keyframes hero-glow {
+  from { transform: translate3d(-2%, -1%, 0) scale(1);   opacity: 0.72; }
+  to   { transform: translate3d(3%, 2%, 0)  scale(1.12); opacity: 1; }
 }
 
 /* Masthead entrance: each element rises in, slightly staggered */
@@ -252,6 +290,18 @@ a:hover { color: var(--paper); }
   margin: 0 auto 1.8rem;
 }
 
+/* Live world-markets clock — a small terminal readout under the bio.
+   Text is filled + ticked by app.js; here we just style it. */
+.market-clock {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.15em;
+  color: var(--paper-dim);
+  font-variant-numeric: tabular-nums;
+  margin: 0 0 1.7rem;
+  animation: rise-in 0.7s ease-out 0.6s both;
+}
+
 .masthead-links {
   display: flex;
   justify-content: center;
@@ -284,6 +334,10 @@ a:hover { color: var(--paper); }
   border-bottom: 1px solid var(--accent-faint);
   overflow: hidden;
   height: var(--ticker-h);
+  /* Soft fade at both edges so tape items dissolve in/out like a real
+     terminal ticker, instead of being hard-sliced by the screen border. */
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
 }
 
 .ticker {
@@ -326,6 +380,16 @@ a:hover { color: var(--paper); }
 .ticker-dir-down { color: var(--down); }
 .ticker-dir-flat { color: var(--flat); }
 
+/* Live "reprint": app.js briefly adds .ticker-item-pulse to a random item
+   so a quote flashes like a real tape. Faint ash glow, settles to normal. */
+.ticker-item-pulse .ticker-value {
+  animation: tick-flash 0.9s ease-out;
+}
+@keyframes tick-flash {
+  0%   { color: var(--accent); text-shadow: 0 0 10px rgba(174, 185, 201, 0.55); }
+  100% { color: var(--paper);  text-shadow: none; }
+}
+
 /* Reduced motion: the tape stands still and can be scrolled by hand,
    and ALL animation (entrances, reveals, zoom, counters) is switched off. */
 @media (prefers-reduced-motion: reduce) {
@@ -338,6 +402,9 @@ a:hover { color: var(--paper); }
     animation: none !important;
   }
   .reveal { opacity: 1 !important; transform: none !important; }
+  /* no cursor light, no drifting hero glow when reduced motion is on */
+  .card::after { display: none; }
+  .masthead::before { opacity: 0.5; }
 }
 
 /* Scroll reveal: app.js adds .reveal to cards/headers, then .revealed when
@@ -404,8 +471,16 @@ a:hover { color: var(--paper); }
   margin-top: 1.6rem;
 }
 
+/* Registered custom props so the cursor light can EASE toward the pointer
+   (a physics-like lag) instead of snapping. Falls back gracefully if the
+   browser doesn't support @property — the light just follows instantly. */
+@property --mx { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
+@property --my { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
+
 /* Base card: quiet panel with a hairline; whole card is a button */
 .card {
+  position: relative;
+  overflow: hidden;
   background: var(--bg-raised);
   border: 1px solid rgba(233, 235, 239, 0.09);
   padding: 1.4rem 1.5rem 1.3rem;
@@ -414,7 +489,11 @@ a:hover { color: var(--paper); }
   font-family: var(--font-body);
   font-size: 1rem;
   cursor: pointer;
-  transition: border-color 0.15s, transform 0.15s;
+  /* springy lift with a hint of overshoot = "smooth physics" */
+  transition:
+    border-color 0.2s ease,
+    transform 0.4s cubic-bezier(0.34, 1.4, 0.5, 1),
+    box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
@@ -422,9 +501,26 @@ a:hover { color: var(--paper); }
 }
 .card:hover {
   border-color: var(--accent);
-  transform: translateY(-3px);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
 }
+
+/* Keep the card's real content above the cursor light */
+.card > * { position: relative; z-index: 1; }
+
+/* Cursor-follow light sheen. Position (--mx/--my) is set by app.js on
+   pointer move; the eased @property transition gives it inertia. */
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(174, 185, 201, 0.10), transparent 62%);
+  transition: opacity 0.4s ease, --mx 0.18s ease-out, --my 0.18s ease-out;
+}
+.card:hover::after { opacity: 1; }
 
 .card-kicker {
   font-family: var(--font-mono);
@@ -532,6 +628,35 @@ a:hover { color: var(--paper); }
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--accent);
+}
+
+/* Illustrative sparkline on each model card */
+.spark {
+  width: 100%;
+  height: 52px;
+  display: block;
+  margin: 0.6rem 0 0.1rem;
+}
+
+/* Illustrative terminal chart inside the model detail view */
+.model-chart {
+  margin-top: 1.4rem;
+  border: 1px solid rgba(233, 235, 239, 0.08);
+  background: var(--bg-inset);
+  padding: 0.7rem 0.8rem 0.5rem;
+}
+.model-chart canvas {
+  width: 100%;
+  height: 220px;
+  display: block;
+}
+.model-chart-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  margin: 0.5rem 0 0;
 }
 
 /* --------------------------- credentials list --------------------------- */
@@ -787,10 +912,55 @@ a:hover { color: var(--paper); }
 }
 .modal-file-link-secondary:hover { background: none; color: var(--accent); border-color: var(--accent); }
 
+/* ------------------------------ scroll snap ------------------------------ */
+/* Gentle "breaks": sections settle to the top as you stop scrolling, but the
+   snap is PROXIMITY (never mandatory) so tall sections like the models list
+   still scroll freely — no scroll hijacking. Desktop + motion-OK only.
+   scroll-padding-top keeps the sticky ticker from covering a snapped title. */
+@media (min-width: 641px) and (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-snap-type: y proximity;
+    scroll-padding-top: var(--ticker-h);
+  }
+  .masthead, .section { scroll-snap-align: start; }
+}
+
 /* ------------------------------ responsive ------------------------------- */
 @media (max-width: 640px) {
   .section { padding: 3rem 1.1rem 0.5rem; }
   .masthead { padding: 2.5rem 1.1rem 2rem; }
   .modal-body { padding: 1.4rem 1.2rem 1.8rem; }
   .card-grid { grid-template-columns: 1fr; }
+
+  /* Comfortable touch targets (~44px) for the small controls on phones */
+  .mast-link,
+  .filter-btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .mast-link  { padding: 0.75rem 1.1rem; }
+  .filter-btn { padding: 0.6rem 1rem; }
+  .modal-close { width: 2.75rem; height: 2.75rem; }
+
+  /* Ease the wide letter-spacing so the long confidential line and the
+     tape don't crowd a ~390px screen */
+  .masthead-kicker {
+    letter-spacing: 0.2em;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.6rem;
+  }
+  .ticker-item { padding: 0.55rem 1.15rem; }
+
+  /* Stack the two modal action buttons full-width so they never overflow */
+  .modal-file-link,
+  .modal-file-link-secondary {
+    display: block;
+    text-align: center;
+    margin-left: 0;
+  }
+  .modal-file-link-secondary { margin-top: 0.7rem; }
+
+  /* Tighter stat row so four items sit cleanly two-by-two */
+  .hero-stats { gap: 0.4rem 2rem; }
 }
