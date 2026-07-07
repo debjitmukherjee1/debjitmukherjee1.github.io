@@ -470,7 +470,9 @@
     var env = setupCanvas(c, 220);
     if (!env) return;
     var ctx = env.ctx, w = env.w, h = env.h;
-    var data = chartSeries((c.getAttribute("data-seed") || "x") + "-D", 46, parseFloat(c.getAttribute("data-trend")) || 0);
+    // same seed + length as the card sparkline so the modal shows the SAME
+    // line (just larger), not a different path
+    var data = chartSeries(c.getAttribute("data-seed") || "x", 44, parseFloat(c.getAttribute("data-trend")) || 0);
     var min = Math.min.apply(null, data), max = Math.max.apply(null, data);
     var padL = 6, padR = 6, padT = 12, padB = 16;
     var X = function (i) { return padL + (i / (data.length - 1)) * (w - padL - padR); };
