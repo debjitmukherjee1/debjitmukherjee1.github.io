@@ -154,7 +154,9 @@ const siteData = {
         "Organised outreach visits and donation drives for differently-abled residents",
         "Contributed to the club's \"Care of Especially Abled\" recognition"
       ],
-      photos: [],
+      photos: [
+        { src: "assets/images/interact-club-1.jpg", caption: "Interact Club, St. James' School" }
+      ],
       featured: false
     },
     {
@@ -166,7 +168,9 @@ const siteData = {
         "Ran logistics, transportation and delegate coordination for the full conference",
         "Managed scheduling and internal communications across committees"
       ],
-      photos: [],
+      photos: [
+        { src: "assets/images/jaco-mun-1.jpg", caption: "JACO Model United Nations, St. James' School" }
+      ],
       featured: false
     },
     {
