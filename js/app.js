@@ -219,7 +219,12 @@
     backdrop.hidden = false;
     // next frame, add .open so the CSS fade/rise transition plays
     requestAnimationFrame(function () {
-      requestAnimationFrame(function () { backdrop.classList.add("open"); });
+      requestAnimationFrame(function () {
+        backdrop.classList.add("open");
+        // draw the illustrative chart now that the modal has layout width
+        var tc = modal.querySelector("canvas[data-terminal-chart]");
+        if (tc) drawTerminalChart(tc);
+      });
     });
     document.body.style.overflow = "hidden";
     closeBtn.focus();
@@ -385,9 +390,144 @@
 
   var activeSector = "All";
 
+  /* ---- illustrative model charts ----------------------------------------
+     Decorative "terminal" line charts: a deterministic random walk seeded
+     from the company name and gently biased by the rating direction. These
+     are NOT real price history (the real figures live in each linked report /
+     model); every detail chart is labelled as illustrative. Restores the
+     charts the site carried in an earlier version. Static images, so they're
+     fine under reduced motion. */
+
+  var CHART_UP = "#6fae85", CHART_UP_A = "111,174,133";
+  var CHART_DN = "#bd6a5f", CHART_DN_A = "189,106,95";
+
+  function chartRng(seedStr) {
+    var h = 2166136261;
+    for (var i = 0; i < seedStr.length; i++) { h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return function () {
+      h += 0x6D2B79F5;
+      var t = h;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function chartSeries(seed, n, trend) {
+    var r = chartRng(seed);
+    var out = [100];
+    for (var i = 1; i < n; i++) out.push(out[i - 1] + (r() - 0.5 + trend * 0.06) * 3.2);
+    return out;
+  }
+
+  function trendForRating(rating) {
+    if (rating === "BUY") return 1;
+    if (rating === "ACCUMULATE") return 0.5;
+    if (rating === "HOLD") return 0;
+    if (rating === "SELL" || rating === "REDUCE") return -0.7;
+    return 0.2;   // macro / unrated: gentle drift
+  }
+
+  function setupCanvas(c, cssH) {
+    var dpr = window.devicePixelRatio || 1;
+    var rect = c.getBoundingClientRect();
+    var w = rect.width, h = cssH || rect.height;
+    if (w === 0) return null;
+    c.width = w * dpr;
+    c.height = h * dpr;
+    var ctx = c.getContext("2d");
+    ctx.scale(dpr, dpr);
+    return { ctx: ctx, w: w, h: h };
+  }
+
+  function drawSpark(c) {
+    var env = setupCanvas(c, 52);
+    if (!env) return;
+    var ctx = env.ctx, w = env.w, h = env.h;
+    var data = chartSeries(c.getAttribute("data-seed") || "x", 44, parseFloat(c.getAttribute("data-trend")) || 0);
+    var min = Math.min.apply(null, data), max = Math.max.apply(null, data);
+    var X = function (i) { return (i / (data.length - 1)) * w; };
+    var Y = function (v) { return h - 4 - ((v - min) / (max - min || 1)) * (h - 8); };
+    var up = data[data.length - 1] >= data[0];
+    var col = up ? CHART_UP : CHART_DN, colA = up ? CHART_UP_A : CHART_DN_A;
+    // faint area fill
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(data[0]));
+    for (var i = 1; i < data.length; i++) ctx.lineTo(X(i), Y(data[i]));
+    ctx.lineTo(X(data.length - 1), h); ctx.lineTo(X(0), h); ctx.closePath();
+    var g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, "rgba(" + colA + ",0.14)");
+    g.addColorStop(1, "rgba(" + colA + ",0)");
+    ctx.fillStyle = g; ctx.fill();
+    // line
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(data[0]));
+    for (var j = 1; j < data.length; j++) ctx.lineTo(X(j), Y(data[j]));
+    ctx.strokeStyle = col; ctx.lineWidth = 1.4; ctx.stroke();
+  }
+
+  function drawTerminalChart(c) {
+    var env = setupCanvas(c, 220);
+    if (!env) return;
+    var ctx = env.ctx, w = env.w, h = env.h;
+    var data = chartSeries((c.getAttribute("data-seed") || "x") + "-D", 46, parseFloat(c.getAttribute("data-trend")) || 0);
+    var min = Math.min.apply(null, data), max = Math.max.apply(null, data);
+    var padL = 6, padR = 6, padT = 12, padB = 16;
+    var X = function (i) { return padL + (i / (data.length - 1)) * (w - padL - padR); };
+    var Y = function (v) { return h - padB - ((v - min) / (max - min || 1)) * (h - padT - padB); };
+    // horizontal grid lines
+    ctx.strokeStyle = "rgba(174,185,201,0.08)"; ctx.lineWidth = 1;
+    for (var gy = 0; gy <= 3; gy++) {
+      var yy = padT + (gy / 3) * (h - padT - padB);
+      ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(w - padR, yy); ctx.stroke();
+    }
+    var up = data[data.length - 1] >= data[0];
+    var col = up ? CHART_UP : CHART_DN, colA = up ? CHART_UP_A : CHART_DN_A;
+    // area
+    ctx.beginPath(); ctx.moveTo(X(0), Y(data[0]));
+    for (var i = 1; i < data.length; i++) ctx.lineTo(X(i), Y(data[i]));
+    ctx.lineTo(X(data.length - 1), h - padB); ctx.lineTo(X(0), h - padB); ctx.closePath();
+    var g = ctx.createLinearGradient(0, padT, 0, h - padB);
+    g.addColorStop(0, "rgba(" + colA + ",0.18)");
+    g.addColorStop(1, "rgba(" + colA + ",0)");
+    ctx.fillStyle = g; ctx.fill();
+    // line + last dot
+    ctx.beginPath(); ctx.moveTo(X(0), Y(data[0]));
+    for (var j = 1; j < data.length; j++) ctx.lineTo(X(j), Y(data[j]));
+    ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.stroke();
+    ctx.beginPath(); ctx.arc(X(data.length - 1), Y(data[data.length - 1]), 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = col; ctx.fill();
+  }
+
+  function drawAllSparks() {
+    var grid = byId("models-grid");
+    if (!grid) return;
+    grid.querySelectorAll("canvas.spark").forEach(function (c) {
+      if (c.getAttribute("data-drawn") === "1") return;
+      drawSpark(c);
+      c.setAttribute("data-drawn", "1");
+    });
+  }
+
+  // Redraw charts on resize (canvas is pixel-based, so it must be re-rendered)
+  function setupChartResize() {
+    var t;
+    window.addEventListener("resize", function () {
+      clearTimeout(t);
+      t = setTimeout(function () {
+        var grid = byId("models-grid");
+        if (grid) grid.querySelectorAll("canvas.spark").forEach(function (c) { c.removeAttribute("data-drawn"); });
+        drawAllSparks();
+      }, 200);
+    });
+  }
+
   function ratingClass(rating) {
-    if (rating === "BUY") return "ro-buy";
-    if (rating === "SELL") return "ro-sell";
+    // Positive calls read muted-green, negative calls muted-red; anything
+    // neutral (HOLD, or no rating) stays grey. ACCUMULATE and REDUCE are
+    // buy-/sell-leaning, so they inherit the same directional colour.
+    if (rating === "BUY" || rating === "ACCUMULATE") return "ro-buy";
+    if (rating === "SELL" || rating === "REDUCE") return "ro-sell";
     return "ro-hold";
   }
 
@@ -397,6 +537,13 @@
     card.appendChild(el("p", "sector-tag", item.sector + (item.date ? "  ·  " + item.date : "")));
     card.appendChild(el("h3", "card-title", item.title));
     card.appendChild(el("p", "card-summary", item.thesis));
+
+    // Illustrative sparkline (seeded from title, biased by rating direction)
+    var spark = el("canvas", "spark");
+    spark.setAttribute("data-seed", item.title);
+    spark.setAttribute("data-trend", String(trendForRating(item.rating)));
+    spark.setAttribute("aria-hidden", "true");
+    card.appendChild(spark);
 
     // Terminal-style readout strip: only lines that have values
     if (item.rating || item.targetPrice || item.impliedValue) {
@@ -428,6 +575,16 @@
           if (item.impliedValue){ ro2.appendChild(el("span", "ro-label", "IMPLIED")); ro2.appendChild(el("span", "ro-val", item.impliedValue)); }
           body.appendChild(ro2);
         }
+        // Illustrative terminal chart — clearly labelled, not real price data
+        var chartWrap = el("div", "model-chart");
+        var tcanvas = el("canvas");
+        tcanvas.setAttribute("data-terminal-chart", "");
+        tcanvas.setAttribute("data-seed", item.title);
+        tcanvas.setAttribute("data-trend", String(trendForRating(item.rating)));
+        tcanvas.setAttribute("aria-hidden", "true");
+        chartWrap.appendChild(tcanvas);
+        chartWrap.appendChild(el("p", "model-chart-label", "Illustrative price path — actual figures in the linked report"));
+        body.appendChild(chartWrap);
         // Primary file link (usually the research report PDF)…
         if (item.fileUrl) {
           var a = el("a", "modal-file-link", item.fileLabel || "View file");
@@ -456,6 +613,8 @@
         grid.appendChild(renderModelCard(item));
       }
     });
+    // draw the sparklines once the new cards have layout
+    requestAnimationFrame(drawAllSparks);
   }
 
   function renderFilters() {
@@ -554,13 +713,125 @@
     requestAnimationFrame(tick);
   }
 
+  /* ---------- 7. atmosphere: clock, ticker pulse, cursor light ------------ */
+
+  /* Live world-markets clock under the bio (MUM / LON / NYC). Decorative,
+     so it's aria-hidden. Seconds tick only when motion is allowed. */
+  function renderMarketClock() {
+    var links = byId("hero-links");
+    if (!links || typeof Intl === "undefined" || !Intl.DateTimeFormat) return;
+
+    var clock = el("div", "market-clock");
+    clock.setAttribute("aria-hidden", "true");
+    links.parentNode.insertBefore(clock, links);
+
+    var zones = [
+      { label: "MUM", tz: "Asia/Kolkata" },
+      { label: "LON", tz: "Europe/London" },
+      { label: "NYC", tz: "America/New_York" }
+    ];
+    function paint() {
+      var opts = { hour: "2-digit", minute: "2-digit", hour12: false };
+      if (!reducedMotion) opts.second = "2-digit";
+      var now = new Date();
+      clock.textContent = zones.map(function (z) {
+        opts.timeZone = z.tz;
+        return z.label + " " + new Intl.DateTimeFormat("en-GB", opts).format(now);
+      }).join("   ·   ");
+    }
+    paint();
+    if (!reducedMotion) setInterval(paint, 1000);
+  }
+
+  /* Live "reprint": every few seconds a random tape item briefly flashes,
+     the way a real ticker repaints a quote. Off under reduced motion. */
+  function startTickerPulse() {
+    if (reducedMotion) return;
+    var tape = byId("ticker");
+    if (!tape) return;
+    var items = tape.querySelectorAll(".ticker-item");
+    if (!items.length) return;
+    setInterval(function () {
+      var pick = items[Math.floor(Math.random() * items.length)];
+      pick.classList.remove("ticker-item-pulse");
+      void pick.offsetWidth;               // reflow so the animation restarts
+      pick.classList.add("ticker-item-pulse");
+    }, 2800);
+  }
+
+  /* Animated terminal wallpaper behind the masthead: a faint grid plus three
+     slow-drifting seeded "market lines". Restores the hero canvas the site
+     carried before. Under reduced motion it draws a single static frame. */
+  function drawHeroFrame(c, t) {
+    var env = setupCanvas(c);
+    if (!env) return;
+    var ctx = env.ctx, w = env.w, h = env.h;
+    // faint grid
+    ctx.strokeStyle = "rgba(174,185,201,0.05)";
+    ctx.lineWidth = 1;
+    var gs = 56, x, y;
+    for (x = 0; x < w; x += gs) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+    for (y = 0; y < h; y += gs) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+    // drifting market lines
+    var lines = [
+      { seed: "hero-a", color: "rgba(174,185,201,0.30)", amp: 60, speed: 0.00016, trend: 0.9 },
+      { seed: "hero-b", color: "rgba(233,235,239,0.16)", amp: 44, speed: 0.00011, trend: 0.5 },
+      { seed: "hero-c", color: "rgba(150,158,171,0.12)", amp: 70, speed: 0.00007, trend: 0.2 }
+    ];
+    lines.forEach(function (L) {
+      var r = chartRng(L.seed);
+      var phase = t * L.speed;
+      var n = 90, i, xx, base, wob, yy;
+      ctx.beginPath();
+      for (i = 0; i <= n; i++) {
+        xx = (i / n) * w;
+        base = h * 0.62 - (i / n) * L.trend * h * 0.22;
+        wob = Math.sin(i * 0.55 + phase * 6 + r() * 4) * L.amp * 0.35 +
+              Math.sin(i * 0.13 + phase * 2.4) * L.amp * 0.65;
+        yy = base + wob;
+        if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
+      }
+      ctx.strokeStyle = L.color;
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+    });
+  }
+
+  function startHeroCanvas() {
+    var mast = document.querySelector(".masthead");
+    if (!mast) return;
+    var c = el("canvas", "masthead-canvas");
+    c.setAttribute("aria-hidden", "true");
+    mast.insertBefore(c, mast.firstChild);   // behind text, above skyline
+    if (reducedMotion) { drawHeroFrame(c, 0); return; }
+    function loop(ts) { drawHeroFrame(c, ts); requestAnimationFrame(loop); }
+    requestAnimationFrame(loop);
+  }
+
+  /* Cursor-follow light on cards. Delegation means it also covers cards
+     rebuilt by the sector filter. Skipped on touch / reduced motion. */
+  function setupCardSpotlight() {
+    if (reducedMotion) return;
+    if (!window.matchMedia("(hover: hover)").matches) return;
+    document.addEventListener("pointermove", function (e) {
+      var card = e.target && e.target.closest ? e.target.closest(".card") : null;
+      if (!card) return;
+      var r = card.getBoundingClientRect();
+      card.style.setProperty("--mx", (((e.clientX - r.left) / r.width) * 100).toFixed(1) + "%");
+      card.style.setProperty("--my", (((e.clientY - r.top) / r.height) * 100).toFixed(1) + "%");
+    }, { passive: true });
+  }
+
   /* ---------- boot -------------------------------------------------------- */
 
   runBoot();
   renderMeta();
   renderHero();
+  startHeroCanvas();
   renderStats();
+  renderMarketClock();
   renderTicker();
+  startTickerPulse();
   setupModal();
   renderEducation();
   renderLeadership();
@@ -571,6 +842,8 @@
   renderSkills();
   renderContact();
   renderFooter();
-  setupReveals();   // must run last, after all cards exist
+  setupReveals();        // after all cards exist
+  setupCardSpotlight();  // after all cards exist
+  setupChartResize();    // keep sparklines crisp when the window resizes
 
 })();
