@@ -159,9 +159,11 @@ a:hover { color: var(--paper); }
    app.js. Sits above the darkened skyline, below the glow and the text. */
 .masthead-canvas {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
   z-index: 0;
   pointer-events: none;
+  /* explicit pixel size is set by app.js from the masthead's dimensions */
 }
 
 @keyframes kenburns {
