@@ -90,19 +90,29 @@
       box.appendChild(num);
       box.appendChild(el("span", "stat-label", s.label));
       wrap.appendChild(box);
-      if (!reducedMotion) countUp(num, s.value, s.suffix);
+      flapCount(num, s.value, s.suffix);
     });
   }
 
-  function countUp(node, target, suffix) {
-    var duration = 1400;                       // ms
-    var start = null;
+  /* Split-flap style counter: rolls upward toward the target, decelerating,
+     and every time the shown integer changes it triggers a quick mechanical
+     "flap" (a CSS keyframe) — like an airport/odometer board settling. */
+  function flapCount(node, target, suffix) {
+    if (reducedMotion) { node.textContent = target + suffix; return; }
+    var duration = 1500, start = null, shown = -1;
     function tick(ts) {
       if (start === null) start = ts;
       var p = Math.min(1, (ts - start) / duration);
-      var eased = 1 - Math.pow(1 - p, 3);      // ease-out cubic
-      node.textContent = Math.round(eased * target) + suffix;
+      var val = Math.round((1 - Math.pow(1 - p, 3)) * target);
+      if (val !== shown) {
+        shown = val;
+        node.textContent = val + suffix;
+        node.classList.remove("flap");
+        void node.offsetWidth;                 // restart the flap keyframe
+        node.classList.add("flap");
+      }
       if (p < 1) requestAnimationFrame(tick);
+      else node.classList.remove("flap");
     }
     requestAnimationFrame(tick);
   }
@@ -210,7 +220,7 @@
         backdrop.classList.add("open");
         // draw the illustrative chart now that the modal has layout width
         var tc = modal.querySelector("canvas[data-terminal-chart]");
-        if (tc) drawTerminalChart(tc);
+        if (tc) animateTerminalChart(tc);
       });
     });
     document.body.style.overflow = "hidden";
@@ -427,7 +437,20 @@
     return { ctx: ctx, w: w, h: h };
   }
 
-  function drawSpark(c) {
+  // Build the visible polyline up to fraction p (0..1) of the series, with a
+  // smoothly interpolated head so the line appears to draw itself on.
+  function partialPoints(data, X, Y, p) {
+    var last = (data.length - 1) * p, full = Math.floor(last), frac = last - full, pts = [], i;
+    for (i = 0; i <= full && i < data.length; i++) pts.push([X(i), Y(data[i])]);
+    if (full < data.length - 1 && frac > 0) {
+      pts.push([X(full) + (X(full + 1) - X(full)) * frac,
+                Y(data[full]) + (Y(data[full + 1]) - Y(data[full])) * frac]);
+    }
+    return pts;
+  }
+
+  function drawSpark(c, p) {
+    if (p === undefined) p = 1;
     var env = setupCanvas(c, 52);
     if (!env) return;
     var ctx = env.ctx, w = env.w, h = env.h;
@@ -437,23 +460,38 @@
     var Y = function (v) { return h - 4 - ((v - min) / (max - min || 1)) * (h - 8); };
     var up = data[data.length - 1] >= data[0];
     var col = up ? CHART_UP : CHART_DN, colA = up ? CHART_UP_A : CHART_DN_A;
-    // faint area fill
+    var pts = partialPoints(data, X, Y, p);
+    if (pts.length < 2) return;
+    // faint area fill under the drawn portion
     ctx.beginPath();
-    ctx.moveTo(X(0), Y(data[0]));
-    for (var i = 1; i < data.length; i++) ctx.lineTo(X(i), Y(data[i]));
-    ctx.lineTo(X(data.length - 1), h); ctx.lineTo(X(0), h); ctx.closePath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (var a = 1; a < pts.length; a++) ctx.lineTo(pts[a][0], pts[a][1]);
+    ctx.lineTo(pts[pts.length - 1][0], h); ctx.lineTo(pts[0][0], h); ctx.closePath();
     var g = ctx.createLinearGradient(0, 0, 0, h);
     g.addColorStop(0, "rgba(" + colA + ",0.14)");
     g.addColorStop(1, "rgba(" + colA + ",0)");
     ctx.fillStyle = g; ctx.fill();
     // line
     ctx.beginPath();
-    ctx.moveTo(X(0), Y(data[0]));
-    for (var j = 1; j < data.length; j++) ctx.lineTo(X(j), Y(data[j]));
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (var b = 1; b < pts.length; b++) ctx.lineTo(pts[b][0], pts[b][1]);
     ctx.strokeStyle = col; ctx.lineWidth = 1.4; ctx.stroke();
   }
 
-  function drawTerminalChart(c) {
+  function animateSpark(c) {
+    if (reducedMotion) { drawSpark(c, 1); return; }
+    var dur = 850, start = null;
+    function step(ts) {
+      if (start === null) start = ts;
+      var p = Math.min(1, (ts - start) / dur);
+      drawSpark(c, 1 - Math.pow(1 - p, 3));
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function drawTerminalChart(c, p) {
+    if (p === undefined) p = 1;
     var env = setupCanvas(c, 220);
     if (!env) return;
     var ctx = env.ctx, w = env.w, h = env.h;
@@ -464,49 +502,65 @@
     var padL = 6, padR = 6, padT = 12, padB = 16;
     var X = function (i) { return padL + (i / (data.length - 1)) * (w - padL - padR); };
     var Y = function (v) { return h - padB - ((v - min) / (max - min || 1)) * (h - padT - padB); };
-    // horizontal grid lines
-    ctx.strokeStyle = "rgba(174,185,201,0.08)"; ctx.lineWidth = 1;
+    // horizontal grid lines (always full)
+    ctx.strokeStyle = "rgba(" + (typeof CHART_GRID !== "undefined" ? CHART_GRID : "174,185,201") + ",0.08)"; ctx.lineWidth = 1;
     for (var gy = 0; gy <= 3; gy++) {
       var yy = padT + (gy / 3) * (h - padT - padB);
       ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(w - padR, yy); ctx.stroke();
     }
     var up = data[data.length - 1] >= data[0];
     var col = up ? CHART_UP : CHART_DN, colA = up ? CHART_UP_A : CHART_DN_A;
-    // area
-    ctx.beginPath(); ctx.moveTo(X(0), Y(data[0]));
-    for (var i = 1; i < data.length; i++) ctx.lineTo(X(i), Y(data[i]));
-    ctx.lineTo(X(data.length - 1), h - padB); ctx.lineTo(X(0), h - padB); ctx.closePath();
+    var pts = partialPoints(data, X, Y, p);
+    if (pts.length < 2) return;
+    // area under drawn portion
+    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+    for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.lineTo(pts[pts.length - 1][0], h - padB); ctx.lineTo(pts[0][0], h - padB); ctx.closePath();
     var g = ctx.createLinearGradient(0, padT, 0, h - padB);
     g.addColorStop(0, "rgba(" + colA + ",0.18)");
     g.addColorStop(1, "rgba(" + colA + ",0)");
     ctx.fillStyle = g; ctx.fill();
-    // line + last dot
-    ctx.beginPath(); ctx.moveTo(X(0), Y(data[0]));
-    for (var j = 1; j < data.length; j++) ctx.lineTo(X(j), Y(data[j]));
+    // line + moving head dot
+    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+    for (var j = 1; j < pts.length; j++) ctx.lineTo(pts[j][0], pts[j][1]);
     ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.stroke();
-    ctx.beginPath(); ctx.arc(X(data.length - 1), Y(data[data.length - 1]), 2.5, 0, Math.PI * 2);
+    var head = pts[pts.length - 1];
+    ctx.beginPath(); ctx.arc(head[0], head[1], 2.5, 0, Math.PI * 2);
     ctx.fillStyle = col; ctx.fill();
+  }
+
+  function animateTerminalChart(c) {
+    if (reducedMotion) { drawTerminalChart(c, 1); return; }
+    var dur = 900, start = null;
+    function step(ts) {
+      if (start === null) start = ts;
+      var p = Math.min(1, (ts - start) / dur);
+      drawTerminalChart(c, 1 - Math.pow(1 - p, 3));
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
   }
 
   function drawAllSparks() {
     var grid = byId("models-grid");
     if (!grid) return;
-    grid.querySelectorAll("canvas.spark").forEach(function (c) {
+    grid.querySelectorAll("canvas.spark").forEach(function (c, i) {
       if (c.getAttribute("data-drawn") === "1") return;
-      drawSpark(c);
       c.setAttribute("data-drawn", "1");
+      if (reducedMotion) { drawSpark(c, 1); return; }
+      setTimeout(function () { animateSpark(c); }, (i % 8) * 60);   // gentle stagger
     });
   }
 
-  // Redraw charts on resize (canvas is pixel-based, so it must be re-rendered)
+  // Redraw charts on resize (canvas is pixel-based, so it must be re-rendered).
+  // On resize we draw the final frame directly — no re-animation.
   function setupChartResize() {
     var t;
     window.addEventListener("resize", function () {
       clearTimeout(t);
       t = setTimeout(function () {
         var grid = byId("models-grid");
-        if (grid) grid.querySelectorAll("canvas.spark").forEach(function (c) { c.removeAttribute("data-drawn"); });
-        drawAllSparks();
+        if (grid) grid.querySelectorAll("canvas.spark").forEach(function (c) { drawSpark(c, 1); });
       }, 200);
     });
   }
@@ -882,17 +936,140 @@
     (function loop(ts) { draw(ts); requestAnimationFrame(loop); })(0);
   }
 
-  /* Cursor-follow light on cards. Delegation means it also covers cards
-     rebuilt by the sector filter. Skipped on touch / reduced motion. */
+  /* Cursor-follow light + 3D tilt on cards. Delegation covers cards rebuilt
+     by the sector filter. Skipped on touch / reduced motion. */
   function setupCardSpotlight() {
     if (reducedMotion) return;
     if (!window.matchMedia("(hover: hover)").matches) return;
+    var lastCard = null;
+    function reset(card) {
+      if (!card) return;
+      card.style.setProperty("--rx", "0deg");
+      card.style.setProperty("--ry", "0deg");
+    }
     document.addEventListener("pointermove", function (e) {
       var card = e.target && e.target.closest ? e.target.closest(".card") : null;
+      if (card !== lastCard) { reset(lastCard); lastCard = card; }
       if (!card) return;
       var r = card.getBoundingClientRect();
-      card.style.setProperty("--mx", (((e.clientX - r.left) / r.width) * 100).toFixed(1) + "%");
-      card.style.setProperty("--my", (((e.clientY - r.top) / r.height) * 100).toFixed(1) + "%");
+      var px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+      card.style.setProperty("--mx", (px * 100).toFixed(1) + "%");
+      card.style.setProperty("--my", (py * 100).toFixed(1) + "%");
+      card.style.setProperty("--ry", ((px - 0.5) * 6).toFixed(2) + "deg");
+      card.style.setProperty("--rx", ((0.5 - py) * 5).toFixed(2) + "deg");
+    }, { passive: true });
+  }
+
+  /* Magnetic hero / contact links — gently pull toward the cursor, spring
+     back on leave (the spring comes from the CSS transform transition). */
+  function setupMagnetic() {
+    if (reducedMotion || !window.matchMedia("(hover: hover)").matches) return;
+    document.querySelectorAll(".mast-link").forEach(function (a) {
+      a.addEventListener("pointermove", function (e) {
+        var r = a.getBoundingClientRect();
+        var mx = e.clientX - (r.left + r.width / 2);
+        var my = e.clientY - (r.top + r.height / 2);
+        a.style.transform = "translate(" + (mx * 0.3).toFixed(1) + "px," + (my * 0.4).toFixed(1) + "px)";
+      });
+      a.addEventListener("pointerleave", function () { a.style.transform = ""; });
+    });
+  }
+
+  /* Hero photo depth parallax — the masthead background drifts a few pixels
+     opposite the cursor, eased. Only visibly affects the light-theme photo. */
+  function setupHeroParallax() {
+    if (reducedMotion || !window.matchMedia("(hover: hover)").matches) return;
+    var mast = document.querySelector(".masthead");
+    if (!mast) return;
+    var tx = 0, ty = 0, cx = 0, cy = 0, raf = null;
+    function apply() {
+      cx += (tx - cx) * 0.08; cy += (ty - cy) * 0.08;
+      mast.style.backgroundPosition = "calc(50% + " + cx.toFixed(1) + "px) calc(38% + " + cy.toFixed(1) + "px)";
+      if (Math.abs(tx - cx) > 0.1 || Math.abs(ty - cy) > 0.1) raf = requestAnimationFrame(apply); else raf = null;
+    }
+    mast.addEventListener("pointermove", function (e) {
+      var r = mast.getBoundingClientRect();
+      tx = -((e.clientX - r.width / 2) / r.width) * 26;
+      ty = -((e.clientY - r.height / 2) / r.height) * 18;
+      if (!raf) raf = requestAnimationFrame(apply);
+    });
+    mast.addEventListener("pointerleave", function () { tx = 0; ty = 0; if (!raf) raf = requestAnimationFrame(apply); });
+  }
+
+  /* Grab-and-fling ticker: takes over from the CSS auto-scroll so the tape
+     can be dragged and thrown, decelerating with friction, then resuming its
+     drift. Under reduced motion the CSS static/scrollable tape is left alone. */
+  function setupTickerDrive() {
+    if (reducedMotion) return;
+    var wrap = document.querySelector(".ticker-wrap"), tape = byId("ticker");
+    if (!wrap || !tape) return;
+    var setW = tape.scrollWidth / 2;
+    if (!setW) return;
+    tape.style.animation = "none";                 // take over from CSS
+    var x = 0, vel = 0, autoSpeed = -0.55;
+    var dragging = false, hovering = false, lastX = 0, moved = 0;
+    function wrapX() { while (x <= -setW) x += setW; while (x > 0) x -= setW; }
+    (function frame() {
+      if (!dragging) {
+        if (Math.abs(vel) > 0.05) { x += vel; vel *= 0.95; }
+        else if (!hovering) { x += autoSpeed; }
+      }
+      wrapX();
+      tape.style.transform = "translateX(" + x.toFixed(2) + "px)";
+      requestAnimationFrame(frame);
+    })();
+    wrap.addEventListener("pointerenter", function () { hovering = true; });
+    wrap.addEventListener("pointerleave", function () { hovering = false; dragging = false; });
+    wrap.addEventListener("pointerdown", function (e) {
+      dragging = true; lastX = e.clientX; moved = 0; vel = 0;
+      if (wrap.setPointerCapture) { try { wrap.setPointerCapture(e.pointerId); } catch (err) {} }
+    });
+    wrap.addEventListener("pointermove", function (e) {
+      if (!dragging) return;
+      var dx = e.clientX - lastX; lastX = e.clientX;
+      x += dx; vel = dx; moved += Math.abs(dx);
+    });
+    wrap.addEventListener("pointerup", function () { dragging = false; });
+    wrap.addEventListener("pointercancel", function () { dragging = false; });
+    // a real drag shouldn't also fire a jump-to-section click
+    tape.addEventListener("click", function (e) {
+      if (moved > 6) { e.stopPropagation(); e.preventDefault(); moved = 0; }
+    }, true);
+    function remeasure() { var nw = tape.scrollWidth / 2; if (nw) setW = nw; }
+    window.addEventListener("resize", remeasure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
+  }
+
+  /* Engraved section rules ink in left-to-right as each header scrolls into
+     view. Rules are visible by default (no-JS safe); JS only adds the wipe. */
+  function setupSectionRules() {
+    if (reducedMotion || !("IntersectionObserver" in window)) return;
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add("inked"); obs.unobserve(en.target); }
+      });
+    }, { threshold: 0.25 });
+    document.querySelectorAll(".section-head").forEach(function (h) {
+      h.classList.add("pre-ink");
+      obs.observe(h);
+    });
+  }
+
+  /* Scroll-velocity shimmer — a --scroll-vel custom property (0..1) that the
+     vignette lightens with, so the "room" brightens subtly while you move and
+     settles when you stop. */
+  function setupScrollShimmer() {
+    if (reducedMotion) return;
+    var lastY = window.scrollY, vel = 0, raf = null, root = document.documentElement;
+    function loop() {
+      vel *= 0.9;
+      root.style.setProperty("--scroll-vel", Math.min(1, Math.abs(vel) / 42).toFixed(3));
+      if (Math.abs(vel) > 0.3) raf = requestAnimationFrame(loop);
+      else { raf = null; root.style.setProperty("--scroll-vel", "0"); }
+    }
+    window.addEventListener("scroll", function () {
+      var y = window.scrollY; vel = y - lastY; lastY = y;
+      if (!raf) raf = requestAnimationFrame(loop);
     }, { passive: true });
   }
 
@@ -919,5 +1096,10 @@
   setupReveals();        // after all cards exist
   setupCardSpotlight();  // after all cards exist
   setupChartResize();    // keep sparklines crisp when the window resizes
+  setupMagnetic();       // magnetic hero / contact links
+  setupHeroParallax();   // hero photo depth parallax
+  setupTickerDrive();    // grab-and-fling ticker
+  setupSectionRules();   // engraved rules ink in
+  setupScrollShimmer();  // scroll-velocity vignette shimmer
 
 })();
