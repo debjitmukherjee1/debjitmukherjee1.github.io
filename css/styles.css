@@ -102,7 +102,12 @@ body::after {
       transparent 0%,
       var(--vignette-mid) 68%,
       var(--vignette-edge) 100%);
+  /* scroll-velocity shimmer: the room lightens subtly as you move, settles
+     when you stop (--scroll-vel set 0..1 by app.js) */
+  opacity: calc(1 - var(--scroll-vel, 0) * 0.22);
+  transition: opacity 0.25s ease;
 }
+.ticker-wrap:active { cursor: grabbing; }
 
 img { max-width: 100%; display: block; }
 
@@ -268,6 +273,14 @@ a:hover { color: var(--paper); }
   font-size: 1.9rem;
   color: var(--paper);
   font-variant-numeric: tabular-nums;   /* digits don't jiggle while counting */
+  transform-origin: center top;
+}
+/* split-flap "tick": the value drops and settles each time it changes */
+.stat-value.flap { animation: flap 0.18s ease-out; }
+@keyframes flap {
+  0%   { transform: translateY(-45%) scaleY(0.55); opacity: 0.3; }
+  60%  { transform: translateY(6%)   scaleY(1.05); opacity: 1; }
+  100% { transform: translateY(0)    scaleY(1); }
 }
 .stat-label {
   font-family: var(--font-mono);
@@ -368,7 +381,9 @@ a:hover { color: var(--paper); }
   color: var(--paper);
   border: 1px solid var(--accent-faint);
   padding: 0.55rem 1.1rem;
-  transition: border-color 0.15s, color 0.15s;
+  /* transform spring gives the "magnetic" pull its snap-back */
+  transition: border-color 0.15s, color 0.15s, transform 0.3s cubic-bezier(0.34, 1.4, 0.5, 1);
+  will-change: transform;
 }
 .mast-link:hover { border-color: var(--accent); color: var(--accent); }
 .mast-link-primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
@@ -384,6 +399,8 @@ a:hover { color: var(--paper); }
   border-bottom: 1px solid var(--accent-faint);
   overflow: hidden;
   height: var(--ticker-h);
+  cursor: grab;                    /* grab-and-fling */
+  touch-action: pan-y;
   /* Soft fade at both edges so tape items dissolve in/out like a real
      terminal ticker, instead of being hard-sliced by the screen border. */
   -webkit-mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
@@ -480,17 +497,29 @@ a:hover { color: var(--paper); }
   display: flex;
   align-items: baseline;
   gap: 1rem;
-  border-bottom: 1px solid var(--accent-faint);
   padding-bottom: 0.7rem;
   margin-bottom: 0.35rem;
   position: relative;
 }
-.section-head::after {          /* second, thinner rule = engraved double line */
+/* Engraved double rule, drawn with two pseudo-lines so they can "ink in"
+   left-to-right on scroll. Visible by default (no-JS safe); app.js adds
+   .pre-ink (collapses them) then .inked (draws them). */
+.section-head::before,
+.section-head::after {
   content: "";
   position: absolute;
-  left: 0; right: 0; bottom: -4px;
-  border-bottom: 1px solid rgba(var(--ash-rgb), 0.12);
+  left: 0; right: 0;
+  border-bottom: 1px solid var(--accent-faint);
+  transform: scaleX(1);
+  transform-origin: left;
+  transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
+.section-head::before { bottom: 0; }
+.section-head::after  { bottom: -4px; border-bottom-color: rgba(var(--ash-rgb), 0.12); transition-delay: 0.1s; }
+.section-head.pre-ink::before,
+.section-head.pre-ink::after { transform: scaleX(0); }
+.section-head.pre-ink.inked::before,
+.section-head.pre-ink.inked::after { transform: scaleX(1); }
 
 .section-index {
   font-family: var(--font-mono);
@@ -519,6 +548,7 @@ a:hover { color: var(--paper); }
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.1rem;
   margin-top: 1.6rem;
+  perspective: 1100px;              /* depth for the 3D card tilt */
 }
 
 /* Registered custom props so the cursor light can EASE toward the pointer
@@ -526,11 +556,17 @@ a:hover { color: var(--paper); }
    browser doesn't support @property — the light just follows instantly. */
 @property --mx { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
 @property --my { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
+@property --rx { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@property --ry { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 
-/* Base card: quiet panel with a hairline; whole card is a button */
+/* Base card: quiet panel with a hairline; whole card is a button. Lift and
+   tilt are driven through custom properties (--lift by :hover, --rx/--ry by
+   app.js) so they compose in one springy transform. */
 .card {
   position: relative;
   overflow: hidden;
+  transform-style: preserve-3d;
+  transform: translateY(var(--lift, 0px)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
   background: var(--bg-raised);
   border: 1px solid rgba(var(--edge-rgb), 0.09);
   padding: 1.4rem 1.5rem 1.3rem;
@@ -550,8 +586,8 @@ a:hover { color: var(--paper); }
   width: 100%;
 }
 .card:hover {
+  --lift: -5px;
   border-color: var(--accent);
-  transform: translateY(-4px);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
 }
 
