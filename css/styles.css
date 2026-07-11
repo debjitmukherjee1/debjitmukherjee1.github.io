@@ -381,8 +381,8 @@ a:hover { color: var(--paper); }
   color: var(--paper);
   border: 1px solid var(--accent-faint);
   padding: 0.55rem 1.1rem;
-  /* transform spring gives the "magnetic" pull its snap-back */
-  transition: border-color 0.15s, color 0.15s, transform 0.3s cubic-bezier(0.34, 1.4, 0.5, 1);
+  /* clean ease (no overshoot) so the magnetic pull settles instead of wobbling */
+  transition: border-color 0.15s, color 0.15s, transform 0.2s ease-out;
   will-change: transform;
 }
 .mast-link:hover { border-color: var(--accent); color: var(--accent); }
@@ -1000,7 +1000,7 @@ a:hover { color: var(--paper); }
 
 /* ------------------------------ responsive ------------------------------- */
 @media (max-width: 640px) {
-  .section { padding: 3rem 1.1rem 0.5rem; }
+  .section { padding: 4.25rem 1.1rem 1.5rem; }   /* gallery rhythm, phone-scaled */
   .masthead { padding: 2.5rem 1.1rem 2rem; }
   .modal-body { padding: 1.4rem 1.2rem 1.8rem; }
   .card-grid { grid-template-columns: 1fr; }
@@ -1036,6 +1036,12 @@ a:hover { color: var(--paper); }
 
   /* Tighter stat row so four items sit cleanly two-by-two */
   .hero-stats { gap: 0.4rem 2rem; }
+
+  /* Light "daylight" theme — phone tuning: a better portrait crop of the
+     NYC photo, and a smaller disclaimer line. */
+  html.theme-light .masthead { background-position: 45% 32%; }
+  .footer-note { font-size: 0.58rem; }
+  .contact-links .mast-link { min-height: 44px; display: inline-flex; align-items: center; }
 }
 
 /* ============================ LIGHT THEME ==============================
@@ -1043,9 +1049,9 @@ a:hover { color: var(--paper); }
    Activated by class="theme-light" on <html>. Removing the class reverts
    to the dark theme, so both are preserved in one stylesheet. */
 html.theme-light {
-  --bg:          #e8e3d7;   /* warm ash / beige page base            */
-  --bg-raised:   #f4f0e7;   /* card / panel — warm off-white          */
-  --bg-inset:    #ded6c6;   /* ticker strip / deeper beige            */
+  --bg:          #e3ddce;   /* warm ash / beige page base — softened   */
+  --bg-raised:   #eee8dc;   /* card / panel — warm off-white, less glare */
+  --bg-inset:    #d8cfbd;   /* ticker strip / deeper beige            */
   --paper:       #23262d;   /* primary text — dark ink                */
   --paper-dim:   #6d675b;   /* secondary text — warm taupe            */
   --accent:      #45505f;   /* accent — deep slate                    */
@@ -1061,7 +1067,7 @@ html.theme-light .scene-bg { display: none; }        /* photo replaces the gener
 html.theme-light .masthead::before { display: none; }
 html.theme-light .masthead {
   background-image:
-    linear-gradient(rgba(233,228,217,0.82), rgba(233,228,217,0.8) 45%, rgba(233,228,217,0.93) 100%),
+    linear-gradient(rgba(227,221,206,0.82), rgba(227,221,206,0.8) 45%, rgba(227,221,206,0.93) 100%),
     url('../assets/images/bg-nyc.jpg');
   background-size: cover;
   background-position: center 38%;
