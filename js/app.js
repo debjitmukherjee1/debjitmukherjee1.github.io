@@ -967,9 +967,10 @@
     document.querySelectorAll(".mast-link").forEach(function (a) {
       a.addEventListener("pointermove", function (e) {
         var r = a.getBoundingClientRect();
-        var mx = e.clientX - (r.left + r.width / 2);
-        var my = e.clientY - (r.top + r.height / 2);
-        a.style.transform = "translate(" + (mx * 0.3).toFixed(1) + "px," + (my * 0.4).toFixed(1) + "px)";
+        // gentler pull + hard clamp so it stays composed, not fidgety
+        var mx = Math.max(-7, Math.min(7, (e.clientX - (r.left + r.width / 2)) * 0.15));
+        var my = Math.max(-5, Math.min(5, (e.clientY - (r.top + r.height / 2)) * 0.15));
+        a.style.transform = "translate(" + mx.toFixed(1) + "px," + my.toFixed(1) + "px)";
       });
       a.addEventListener("pointerleave", function () { a.style.transform = ""; });
     });
@@ -989,8 +990,8 @@
     }
     mast.addEventListener("pointermove", function (e) {
       var r = mast.getBoundingClientRect();
-      tx = -((e.clientX - r.width / 2) / r.width) * 26;
-      ty = -((e.clientY - r.height / 2) / r.height) * 18;
+      tx = -((e.clientX - r.width / 2) / r.width) * 8;   /* much subtler drift */
+      ty = -((e.clientY - r.height / 2) / r.height) * 5;
       if (!raf) raf = requestAnimationFrame(apply);
     });
     mast.addEventListener("pointerleave", function () { tx = 0; ty = 0; if (!raf) raf = requestAnimationFrame(apply); });
