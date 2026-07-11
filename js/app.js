@@ -610,13 +610,28 @@
     card.addEventListener("click", function () {
       openModal(function (body) {
         modalHeader(body, "MODEL · " + item.sector + (item.date ? " · " + item.date : ""), item.title, item.thesis);
-        body.appendChild(el("p", "modal-detail", item.detail));
+        // Tear-sheet metric band — reads like the masthead of a one-page note
         if (item.rating || item.targetPrice || item.impliedValue) {
-          var ro2 = el("div", "model-readout");
-          if (item.rating)      { ro2.appendChild(el("span", "ro-label", "RATING"));  ro2.appendChild(el("span", ratingClass(item.rating), item.rating)); }
-          if (item.targetPrice) { ro2.appendChild(el("span", "ro-label", "TP"));      ro2.appendChild(el("span", "ro-val", item.targetPrice)); }
-          if (item.impliedValue){ ro2.appendChild(el("span", "ro-label", "IMPLIED")); ro2.appendChild(el("span", "ro-val", item.impliedValue)); }
-          body.appendChild(ro2);
+          var ts = el("div", "tearsheet");
+          if (item.rating) {
+            var tc1 = el("div", "ts-cell");
+            tc1.appendChild(el("span", "ts-label", "Rating"));
+            tc1.appendChild(el("span", "ts-badge " + ratingClass(item.rating), item.rating));
+            ts.appendChild(tc1);
+          }
+          if (item.targetPrice) {
+            var tc2 = el("div", "ts-cell");
+            tc2.appendChild(el("span", "ts-label", "Target"));
+            tc2.appendChild(el("span", "ts-value", item.targetPrice));
+            ts.appendChild(tc2);
+          }
+          if (item.impliedValue) {
+            var tc3 = el("div", "ts-cell");
+            tc3.appendChild(el("span", "ts-label", "Implied"));
+            tc3.appendChild(el("span", "ts-value", item.impliedValue));
+            ts.appendChild(tc3);
+          }
+          body.appendChild(ts);
         }
         // Illustrative terminal chart — clearly labelled, not real price data
         var chartWrap = el("div", "model-chart");
@@ -628,6 +643,8 @@
         chartWrap.appendChild(tcanvas);
         chartWrap.appendChild(el("p", "model-chart-label", "Illustrative price path — actual figures in the linked report"));
         body.appendChild(chartWrap);
+        // the written thesis / detail sits under the numbers, like a note body
+        body.appendChild(el("p", "modal-detail", item.detail));
         // Primary file link (usually the research report PDF)…
         if (item.fileUrl) {
           var a = el("a", "modal-file-link", item.fileLabel || "View file");
@@ -1074,6 +1091,54 @@
     }, { passive: true });
   }
 
+  /* Display-case backdrop: one full-bleed layer behind everything that
+     crossfades to a section's photograph as that section reaches the middle
+     of the viewport — like walking a gallery. Light theme only. Each photo
+     is loaded first and only used if it exists, so missing files leave the
+     clean beige untouched (nothing to break). */
+  function setupStage() {
+    if (!document.documentElement.classList.contains("theme-light")) return;
+    if (!("IntersectionObserver" in window)) return;
+    var overlay = "linear-gradient(rgba(227,221,206,0.86), rgba(227,221,206,0.9)), ";
+    var map = {
+      leadership:  "assets/images/bg-hall.jpg",
+      models:      "assets/images/bg-district.jpg",
+      credentials: "assets/images/bg-ledger.jpg",
+      contact:     "assets/images/bg-wallst.jpg"
+    };
+    var available = {};
+    Object.keys(map).forEach(function (k) {
+      var img = new Image();
+      img.onload = function () { available[k] = map[k]; };
+      img.src = map[k];
+    });
+    var a = el("div", "stage-layer"), b = el("div", "stage-layer");
+    a.setAttribute("aria-hidden", "true"); b.setAttribute("aria-hidden", "true");
+    document.body.insertBefore(b, document.body.firstChild);
+    document.body.insertBefore(a, document.body.firstChild);
+    var layers = [a, b], active = 0, currentSrc = "__init";
+    function show(src) {
+      if (src === currentSrc) return;
+      currentSrc = src;
+      if (src) {
+        var incoming = layers[1 - active];
+        incoming.style.backgroundImage = overlay + "url('" + src + "')";
+        incoming.style.opacity = "1";
+        layers[active].style.opacity = "0";
+        active = 1 - active;
+      } else {
+        layers[0].style.opacity = "0";
+        layers[1].style.opacity = "0";
+      }
+    }
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) show(available[en.target.id] || null);
+      });
+    }, { rootMargin: "-45% 0px -45% 0px", threshold: 0 });
+    document.querySelectorAll("main .section").forEach(function (s) { obs.observe(s); });
+  }
+
   /* ---------- boot -------------------------------------------------------- */
 
   runBoot();
@@ -1102,5 +1167,6 @@
   setupTickerDrive();    // grab-and-fling ticker
   setupSectionRules();   // engraved rules ink in
   setupScrollShimmer();  // scroll-velocity vignette shimmer
+  setupStage();          // crossfading photographic backdrop per section
 
 })();
