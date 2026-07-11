@@ -1044,6 +1044,58 @@ a:hover { color: var(--paper); }
   .contact-links .mast-link { min-height: 44px; display: inline-flex; align-items: center; }
 }
 
+/* ---------------------- tear-sheet metric band (modal) ------------------ */
+.tearsheet {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.8rem;
+  align-items: flex-end;
+  padding: 0.9rem 0 1.1rem;
+  margin: 0.3rem 0 0.2rem;
+  border-top: 1px solid var(--accent-faint);
+  border-bottom: 1px solid var(--accent-faint);
+}
+.ts-cell { display: flex; flex-direction: column; gap: 0.35rem; }
+.ts-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+}
+.ts-value {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: var(--paper);
+  font-variant-numeric: tabular-nums;
+}
+.ts-badge {
+  align-self: flex-start;
+  width: max-content;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  padding: 0.28rem 0.7rem;
+  border: 1px solid currentColor;
+}
+.ts-badge.ro-buy  { color: var(--up); }
+.ts-badge.ro-sell { color: var(--down); }
+.ts-badge.ro-hold { color: var(--flat); }
+
+/* -------------------- display-case photographic backdrop ---------------- */
+.stage-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.1s ease;
+}
+
 /* ============================ LIGHT THEME ==============================
    "Daylight gallery" — warm ash/beige base with New York photography.
    Activated by class="theme-light" on <html>. Removing the class reverts
