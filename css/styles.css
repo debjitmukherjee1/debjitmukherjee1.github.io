@@ -173,37 +173,6 @@ a:hover { color: var(--paper); }
   transform: translateX(-3px);
 }
 
-/* Side tab — persistent link out to Meridian (a separate project). Placed
-   here (merged back in from a GitHub-side edit) instead of inline. Pure CSS
-   — no app.js hook needed. */
-.side-tab {
-  position: fixed;
-  top: 50%;
-  right: 0;
-  z-index: 90;                 /* above content/ticker(50), below modal(200) */
-  transform: translateY(-50%);
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  text-decoration: none;
-  color: var(--paper);
-  background: var(--bg-raised);
-  border: 1px solid var(--accent-faint);
-  border-right: none;
-  border-radius: 4px 0 0 4px;
-  padding: 1.1rem 0.6rem;
-  box-shadow: -3px 3px 14px rgba(0, 0, 0, 0.18);
-  transition: border-color 0.15s, color 0.15s, transform 0.2s ease-out;
-}
-.side-tab:hover, .side-tab:focus-visible {
-  border-color: var(--accent);
-  color: var(--accent);
-  transform: translateY(-50%) translateX(-3px);
-}
-
 /* --------------------- boot overlay (first visit only) ------------------ */
 .boot {
   position: fixed;
@@ -1080,10 +1049,6 @@ a:hover { color: var(--paper); }
      stacked tabs still fit short viewports. */
   .side-tab { font-size: 0.62rem; padding: 0.85rem 0.45rem; letter-spacing: 0.1em; }
   .side-tabs { gap: 0.3rem; }
-
-  /* Smaller + closer to the edge so it doesn't eat too much of a phone's
-     width; still a comfortable ~40px touch target. */
-  .side-tab { font-size: 0.62rem; padding: 0.85rem 0.45rem; letter-spacing: 0.1em; }
 
   /* Comfortable touch targets (~44px) for the small controls on phones */
   .mast-link,
