@@ -1139,6 +1139,34 @@
     document.querySelectorAll("main .section").forEach(function (s) { obs.observe(s); });
   }
 
+  /* Sticky-scroll "Approach" walkthrough: as each step block reaches the
+     middle of the viewport it becomes active, the pinned panel updates its
+     big number/word, and the progress rail fills. No-JS + reduced-motion
+     safe (all steps just read as a plain list). */
+  function setupApproach() {
+    var wrap = document.querySelector(".approach-wrap");
+    if (!wrap) return;
+    var steps = wrap.querySelectorAll(".approach-step");
+    var ticks = wrap.querySelectorAll(".approach-tick");
+    var numEl = byId("approach-num"), wordEl = byId("approach-word");
+    var words = ["SCREEN", "MODEL", "VALUE", "PUBLISH"];
+    function setActive(i) {
+      steps.forEach(function (s, idx) { s.classList.toggle("active", idx === i); });
+      ticks.forEach(function (t, idx) { t.classList.toggle("on", idx <= i); });
+      if (numEl) numEl.textContent = "0" + (i + 1);
+      if (wordEl) wordEl.textContent = words[i] || "";
+    }
+    if (reducedMotion || !("IntersectionObserver" in window)) { setActive(0); return; }
+    wrap.classList.add("scrollytelling");
+    setActive(0);
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) setActive(parseInt(en.target.getAttribute("data-step"), 10) || 0);
+      });
+    }, { rootMargin: "-45% 0px -45% 0px", threshold: 0 });
+    steps.forEach(function (s) { obs.observe(s); });
+  }
+
   /* ---------- boot -------------------------------------------------------- */
 
   runBoot();
@@ -1168,5 +1196,6 @@
   setupSectionRules();   // engraved rules ink in
   setupScrollShimmer();  // scroll-velocity vignette shimmer
   setupStage();          // crossfading photographic backdrop per section
+  setupApproach();       // sticky-scroll research-process walkthrough
 
 })();
