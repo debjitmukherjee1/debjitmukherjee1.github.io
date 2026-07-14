@@ -332,8 +332,8 @@ const siteData = {
     {
       title: "Hindustan Unilever (HINDUNILVR) — Investment Report",
       sector: "Consumer",
-      date: "May 2026",
-      thesis: "A high-quality franchise at a stretched valuation — accumulate on dips, don't chase.",
+      date: "Jul 2026",
+      thesis: "A high-quality franchise, fairly valued — hold what you own, don't chase it here.",
       rating: "",
       targetPrice: "",
       impliedValue: "",
