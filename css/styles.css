@@ -46,6 +46,7 @@
 
   --max-width: 1080px;
   --ticker-h: 44px;
+  --nav-h: 48px;      /* site-nav row, stacked sticky above the ticker */
 }
 
 /* ------------------------------- base ----------------------------------- */
@@ -133,45 +134,6 @@ a:hover { color: var(--paper); }
   z-index: 100;
 }
 .skip-link:focus { left: 0; }
-
-/* ------------------------- side tabs: Meridian, MarketPulse -------------- */
-/* Persistent links out to separate live projects. Reuses the .mast-link
-   visual vocabulary (mono, uppercase, bordered, ash-on-hover) rather than
-   inventing a new style, just docked to the viewport edge instead of
-   inline. Pure CSS -- no app.js hook needed. Stacked in a flex column so
-   adding another project later is just another <a class="side-tab">. */
-.side-tabs {
-  position: fixed;
-  top: 50%;
-  right: 0;
-  z-index: 90;                 /* above content/ticker(50), below modal(200) */
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.side-tab {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  text-decoration: none;
-  color: var(--paper);
-  background: var(--bg-raised);
-  border: 1px solid var(--accent-faint);
-  border-right: none;
-  border-radius: 4px 0 0 4px;
-  padding: 1.1rem 0.6rem;
-  box-shadow: -3px 3px 14px rgba(0, 0, 0, 0.18);
-  transition: border-color 0.15s, color 0.15s, transform 0.2s ease-out;
-}
-.side-tab:hover, .side-tab:focus-visible {
-  border-color: var(--accent);
-  color: var(--accent);
-  transform: translateX(-3px);
-}
 
 /* --------------------- boot overlay (first visit only) ------------------ */
 .boot {
@@ -431,7 +393,7 @@ a:hover { color: var(--paper); }
 /* ------------------------- THE TICKER (signature) ----------------------- */
 .ticker-wrap {
   position: sticky;
-  top: 0;
+  top: var(--nav-h);    /* sits directly below the sticky site-nav */
   z-index: 50;
   background: var(--bg-inset);
   border-top: 1px solid var(--accent-faint);
@@ -1044,12 +1006,6 @@ a:hover { color: var(--paper); }
   .modal-body { padding: 1.4rem 1.2rem 1.8rem; }
   .card-grid { grid-template-columns: 1fr; }
 
-  /* Smaller + closer to the edge so it doesn't eat too much of a phone's
-     width; still a comfortable ~40px touch target. Tighter gap so two
-     stacked tabs still fit short viewports. */
-  .side-tab { font-size: 0.62rem; padding: 0.85rem 0.45rem; letter-spacing: 0.1em; }
-  .side-tabs { gap: 0.3rem; }
-
   /* Comfortable touch targets (~44px) for the small controls on phones */
   .mast-link,
   .filter-btn {
@@ -1176,7 +1132,7 @@ a:hover { color: var(--paper); }
 }
 .approach-p { color: var(--paper-dim); font-size: 1.05rem; max-width: 32em; margin: 0; }
 
-.approach-visual { position: sticky; top: calc(var(--ticker-h) + 9vh); height: 58vh; }
+.approach-visual { position: sticky; top: calc(var(--nav-h) + var(--ticker-h) + 9vh); height: 58vh; }
 .approach-panel {
   position: relative;
   height: 100%;
@@ -1342,27 +1298,40 @@ a:hover { color: var(--paper); }
 
 /* ===== Multi-page redesign (2026) — nav, light headers, compact grid ===== */
 
-/* --- site nav: Overview / Research / Tools, present on all three pages --- */
+/* --- site nav: Overview / Research / Tools, present on all three pages.
+   Sticky and stacked directly above the ticker (also sticky) so the three
+   options stay visible the whole way down every page, not just at the top —
+   easy to scroll past and miss otherwise. Pill-style links (always-visible
+   border, bright text) so they read as three clickable destinations at a
+   glance rather than a quiet inline text row. --- */
 .site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 51;                 /* above the ticker (50), stacks right on top of it */
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0.9rem 1.5rem;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--nav-h);
+  padding: 0.6rem 1.5rem;
+  background: var(--bg-inset);
   border-bottom: 1px solid var(--accent-faint);
 }
 .site-nav a {
   font-family: var(--font-mono);
-  font-size: 0.74rem;
+  font-size: 0.78rem;
+  font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   text-decoration: none;
-  color: var(--paper-dim);
-  padding: 0.5rem 1rem;
-  border: 1px solid transparent;
+  color: var(--paper);
+  padding: 0.5rem 1.2rem;
+  border: 1px solid var(--accent-faint);
+  border-radius: 3px;
   transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
-.site-nav a:hover { color: var(--paper); }
+.site-nav a:hover { border-color: var(--accent); color: var(--accent); }
 .site-nav a[aria-current="page"] {
   color: var(--bg);
   background: var(--accent);
@@ -1416,7 +1385,7 @@ a:hover { color: var(--paper); }
 
 /* Anchor jumps (cross-page ticker links, in-page nav) land below the
    sticky ticker instead of underneath it. */
-.section { scroll-margin-top: calc(var(--ticker-h) + 1rem); }
+.section { scroll-margin-top: calc(var(--nav-h) + var(--ticker-h) + 1rem); }
 
 @media (max-width: 640px) {
   .page-header { padding: 3.5rem 1.1rem 1rem; }
