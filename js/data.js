@@ -2,8 +2,10 @@
    data.js — THE ONLY FILE YOU (OR A FUTURE AI) NEED TO EDIT FOR CONTENT.
    ----------------------------------------------------------------------------
    Every piece of text, every link, every image path on the site lives here.
-   The layout (index.html), styling (css/styles.css) and behaviour (js/app.js)
-   read from this file and never need to change for routine content updates.
+   The site is three pages — index.html (Overview), research.html (the full
+   report library) and tools.html (the tools grid) — all reading from this
+   one file, styled by css/styles.css and rendered by js/app.js. None of
+   those three ever need to change for routine content updates.
 
    RULES OF THUMB
    - To ADD an entry (a model, an internship, a credential…): copy an existing
@@ -13,12 +15,15 @@
    - File links (models, resume) point to files in "assets/files/".
    - Keep the quotes. If your text itself contains a double quote, use \" .
    - Each entry in `models:` carries a `market` field ("India" / "US" / "Macro")
-     used by the library's market filter and the desk strip.
-   - `tools:` lists the interactive web apps shown in the Tools & Live
-     Terminals section — status: "live" (needs a url) or "building" (leave
-     url "").
+     used by the library's market filter and the desk strip, and a `featured`
+     flag — set true on the handful you want shown in the compact preview on
+     the Overview page (index.html); the full list always lives on
+     research.html regardless.
+   - `tools:` lists the interactive web apps shown on tools.html — status:
+     "live" (needs a url) or "building" (leave url ""); `features` is a short
+     bullet list shown in the "how it works" detail view.
    - `pipeline:` lists upcoming coverage shown as ghost cards under the
-     research library.
+     research library on research.html.
    ========================================================================== */
 
 const siteData = {
@@ -59,21 +64,24 @@ const siteData = {
   },
 
   /* --------------------------------------------------------------------
-     TICKER — the scrolling tape under the masthead (the site's signature).
-     Each item: label, value, direction ("up" | "down" | "flat"), and
-     optionally sectionId to jump to when clicked. Valid sectionIds:
-     education, leadership, experience, models, credentials, skills, contact.
+     TICKER — the scrolling tape under the masthead (the site's signature),
+     shown on all three pages. Each item: label, value, direction ("up" |
+     "down" | "flat"), sectionId to jump to, and page — the file that
+     section actually lives on ("index.html" | "research.html" |
+     "tools.html"). Clicking scrolls same-page if you're already on that
+     page, otherwise navigates there first. Valid sectionIds: education,
+     leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "11 COMPANIES",            direction: "up",   sectionId: "models" },
-    { label: "GOOGL",      value: "BUY · TP $390",           direction: "up",   sectionId: "models" },
-    { label: "TCS",        value: "BUY · TP ₹2,502",         direction: "up",   sectionId: "models" },
-    { label: "V",          value: "BUY · TP $373",           direction: "up",   sectionId: "models" },
-    { label: "CFA L1",     value: "CANDIDATE · 2027",        direction: "up",   sectionId: "credentials" },
-    { label: "FIN & RESEARCH CLUB", value: "FOUNDER",        direction: "up",   sectionId: "leadership" },
-    { label: "B.COM (H&R)", value: "AMITY KOLKATA",          direction: "flat", sectionId: "education" },
-    { label: "INTERNSHIPS", value: "3 COMPLETED",            direction: "up",   sectionId: "experience" },
-    { label: "STATUS",     value: "OPEN TO OPPORTUNITIES",   direction: "up",   sectionId: "contact" }
+    { label: "COVERAGE",   value: "11 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "GOOGL",      value: "BUY · TP $390",           direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "TCS",        value: "BUY · TP ₹2,502",         direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "V",          value: "BUY · TP $373",           direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "CFA L1",     value: "CANDIDATE · 2027",        direction: "up",   sectionId: "credentials", page: "index.html" },
+    { label: "FIN & RESEARCH CLUB", value: "FOUNDER",        direction: "up",   sectionId: "leadership",  page: "index.html" },
+    { label: "B.COM (H&R)", value: "AMITY KOLKATA",          direction: "flat", sectionId: "education",   page: "index.html" },
+    { label: "INTERNSHIPS", value: "3 COMPLETED",            direction: "up",   sectionId: "experience",  page: "index.html" },
+    { label: "STATUS",     value: "OPEN TO OPPORTUNITIES",   direction: "up",   sectionId: "contact",     page: "index.html" }
   ],
 
   /* --------------------------------------------------------------------
@@ -242,6 +250,8 @@ const siteData = {
      sector: used for the filter buttons (new sectors appear automatically).
      market: "India" | "US" | "Macro" — used by the library's market filter
        and the desk strip's coverage count.
+     featured: true shows this entry in the compact preview on the Overview
+       page (index.html) — keep it to a handful across sectors/markets.
      rating / targetPrice / impliedValue: shown in the mono data readout —
        leave any of them "" to hide that line.
      fileUrl / fileLabel:   primary link (research report PDF).
@@ -252,6 +262,7 @@ const siteData = {
       title: "Alphabet Inc. (GOOGL) — Equity Research Note",
       sector: "Technology",
       market: "US",
+      featured: true,
       date: "Jun 2026",
       thesis: "The fastest-growing, most AI-advantaged mega-cap, trading at a market multiple.",
       rating: "BUY",
@@ -268,6 +279,7 @@ const siteData = {
       title: "Amazon.com (AMZN) — Equity Research Note",
       sector: "Consumer",
       market: "US",
+      featured: false,
       date: "Jul 2026",
       thesis: "A high-margin business wearing a low-margin costume — AWS and advertising carry the value.",
       rating: "BUY",
@@ -284,6 +296,7 @@ const siteData = {
       title: "Apple Inc. (AAPL) — Investment Report & DCF",
       sector: "Technology",
       market: "US",
+      featured: false,
       date: "Jun 2026",
       thesis: "Moat, ecosystem lock-in and services mix justify the premium — for long-term holders.",
       rating: "BUY",
@@ -300,6 +313,7 @@ const siteData = {
       title: "Tesla, Inc. (TSLA) — Equity Research Note",
       sector: "Autos & EV",
       market: "US",
+      featured: false,
       date: "Jun 2026",
       thesis: "Respect the optionality — but don't underwrite a trillion-dollar autonomy narrative with a spreadsheet.",
       rating: "HOLD",
@@ -316,6 +330,7 @@ const siteData = {
       title: "Visa Inc. (V) — Equity Research Report",
       sector: "Payments",
       market: "US",
+      featured: true,
       date: "Jun 2026",
       thesis: "A toll-booth on the cash-to-digital shift, with ~50% net margins and a fortress model.",
       rating: "BUY",
@@ -332,6 +347,7 @@ const siteData = {
       title: "Coca-Cola (KO) — Equity Research Note",
       sector: "Consumer",
       market: "US",
+      featured: false,
       date: "Jun 2026",
       thesis: "The archetypal quality defensive — pricing power does the heavy lifting; the dividend pays you to wait.",
       rating: "ACCUMULATE",
@@ -348,6 +364,7 @@ const siteData = {
       title: "Hindustan Unilever (HINDUNILVR) — Investment Report",
       sector: "Consumer",
       market: "India",
+      featured: false,
       date: "Jul 2026",
       thesis: "A high-quality franchise, fairly valued — hold what you own, don't chase it here.",
       rating: "HOLD",
@@ -364,6 +381,7 @@ const siteData = {
       title: "Tata Consultancy Services (TCS) — Equity Research Report",
       sector: "IT Services",
       market: "India",
+      featured: true,
       date: "Jun 2026",
       thesis: "The de-rating has overshot the fundamentals — highest operating margins in four years at ~16x earnings.",
       rating: "BUY",
@@ -380,6 +398,7 @@ const siteData = {
       title: "Infosys (INFY) — Equity Research Report",
       sector: "IT Services",
       market: "India",
+      featured: false,
       date: "Jul 2026",
       thesis: "Upgraded to ACCUMULATE — the price has fallen far more than the fundamentals have.",
       rating: "ACCUMULATE",
@@ -396,6 +415,7 @@ const siteData = {
       title: "HDFC Bank (HDFCBANK) — Equity Research Report",
       sector: "Banking",
       market: "India",
+      featured: false,
       date: "Jun 2026",
       thesis: "The ROE recovery is real — and already in the price.",
       rating: "HOLD",
@@ -412,6 +432,7 @@ const siteData = {
       title: "ICICI Bank (ICICIBANK) — Equity Research Report",
       sector: "Banking",
       market: "India",
+      featured: false,
       date: "Jul 2026",
       thesis: "Superb franchise — but the price has now run ahead of it.",
       rating: "REDUCE",
@@ -428,6 +449,7 @@ const siteData = {
       title: "India Import Dependency — Sectoral Overview (FY 2024–25)",
       sector: "Macro",
       market: "Macro",
+      featured: true,
       date: "2026",
       thesis: "The structural danger isn't the aggregate bill — it's the concentration of critical inputs in single suppliers.",
       rating: "",
@@ -452,35 +474,60 @@ const siteData = {
       status: "live",
       url: "https://debjitmukherjee1.github.io/meridian/",
       type: "VALUATION + MACRO",
-      summary: "A sentiment-adjusted valuation tool — blends fundamental fair value with a market-sentiment overlay across four markets, plus a macro-backdrop dashboard (inflation, growth, policy rates, FX)."
+      summary: "A sentiment-adjusted valuation tool — blends fundamental fair value with a market-sentiment overlay across four markets, plus a macro-backdrop dashboard (inflation, growth, policy rates, FX).",
+      features: [
+        "Blends fundamental fair value with a live market-sentiment overlay",
+        "Covers four markets side by side",
+        "Standalone macro-backdrop dashboard — inflation, growth, policy rates, FX"
+      ]
     },
     {
       name: "MarketPulse",
       status: "live",
       url: "https://debjitmukherjee1.github.io/marketpulse/",
       type: "MONITOR + SIM + RISK",
-      summary: "A global index monitor with a Monte Carlo simulator, portfolio backtester, and risk suite (correlation matrix, rolling volatility, historical VaR) — all computed in the browser."
+      summary: "A global index monitor with a Monte Carlo simulator, portfolio backtester, and risk suite (correlation matrix, rolling volatility, historical VaR) — all computed in the browser.",
+      features: [
+        "Global index monitor across major markets",
+        "Monte Carlo simulator for portfolio-path stress-testing",
+        "Backtester plus a risk suite — correlation matrix, rolling volatility, historical VaR"
+      ]
     },
     {
       name: "Ledger",
       status: "live",
       url: "https://debjitmukherjee1.github.io/ledger/",
       type: "TRACK RECORD",
-      summary: "A public, self-updating track record of every research call published — return since call, alpha vs benchmark, hit rate, upcoming earnings. Losers shown as prominently as winners."
+      summary: "A public, self-updating track record of every research call published — return since call, alpha vs benchmark, hit rate, upcoming earnings. Losers shown as prominently as winners.",
+      features: [
+        "Self-updating track record of every call published",
+        "Return since call and alpha vs. benchmark, side by side",
+        "Hit rate and upcoming earnings tracked live",
+        "Losers shown as prominently as winners — no survivorship bias"
+      ]
     },
     {
       name: "Abacus",
       status: "live",
       url: "https://debjitmukherjee1.github.io/abacus/",
       type: "TOOLKIT",
-      summary: "The analyst's toolkit — six calculators (DCF with sensitivity heatmap, comps, Black-Scholes options, bond math, WACC/CAPM, SIP/compounding) computed live client-side."
+      summary: "The analyst's toolkit — six calculators (DCF with sensitivity heatmap, comps, Black-Scholes options, bond math, WACC/CAPM, SIP/compounding) computed live client-side.",
+      features: [
+        "Six calculators: DCF with a sensitivity heatmap, comps, Black-Scholes options, bond math, WACC/CAPM, SIP/compounding",
+        "Every calculation runs client-side — nothing leaves the browser"
+      ]
     },
     {
       name: "Tenline",
       status: "live",
       url: "https://debjitmukherjee1.github.io/tenline/",
       type: "FUNDAMENTALS",
-      summary: "Ten years of any S&P 500 company's fundamentals — revenue, margins, FCF, ROIC, share count — charted straight from SEC filings. Ten years, ten lines, no narrative."
+      summary: "Ten years of any S&P 500 company's fundamentals — revenue, margins, FCF, ROIC, share count — charted straight from SEC filings. Ten years, ten lines, no narrative.",
+      features: [
+        "Ten years of fundamentals for any S&P 500 company",
+        "Revenue, margins, FCF, ROIC and share count, charted straight from SEC filings",
+        "No narrative overlay — just the ten lines"
+      ]
     }
   ],
 
