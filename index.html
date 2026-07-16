@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/styles.css?v=9">
+  <link rel="stylesheet" href="css/styles.css?v=10">
 </head>
 <body>
 
@@ -166,35 +166,73 @@
     </section>
 
     <!-- ==================================================================
-         05 · FINANCIAL MODELS & EQUITY RESEARCH — the centerpiece
+         05 · TOOLS & LIVE TERMINALS — interactive apps, rendered from
+         siteData.tools. Section is removed entirely if tools is empty/absent.
          ================================================================== -->
-    <section class="section section-models" id="models" aria-labelledby="models-title">
+    <section class="section" id="tools" aria-labelledby="tools-title">
       <div class="section-head">
         <span class="section-index" aria-hidden="true">05</span>
-        <h2 class="section-title" id="models-title">Financial Models &amp; Equity Research</h2>
+        <h2 class="section-title" id="tools-title">Tools &amp; Live Terminals</h2>
       </div>
-      <p class="section-note">Independent work. Filter by sector — each entry opens a summary with a link to the full file.</p>
-      <div class="filter-bar" id="sector-filters" role="group" aria-label="Filter models by sector"></div>
-      <div class="card-grid card-grid-models" id="models-grid"></div>
+      <p class="section-note">Interactive finance tools I build and run alongside the research — free, in the browser, no sign-up.</p>
+      <div class="card-grid" id="tools-grid"></div>
     </section>
 
     <!-- ==================================================================
-         06 · CREDENTIALS & CERTIFICATIONS
+         06 · FINANCIAL MODELS & EQUITY RESEARCH — the centerpiece
+         ================================================================== -->
+    <section class="section section-models" id="models" aria-labelledby="models-title">
+      <div class="section-head">
+        <span class="section-index" aria-hidden="true">06</span>
+        <h2 class="section-title" id="models-title">Financial Models &amp; Equity Research</h2>
+      </div>
+      <p class="section-note">Independent work — every note ships with its full Excel model. Filter by market, sector or rating, or search a name.</p>
+
+      <div class="desk-strip" id="desk-strip" aria-hidden="true"></div>
+
+      <div class="filter-row2">
+        <input class="lib-search" id="lib-search" type="search" placeholder="SEARCH TICKER / NAME…" aria-label="Search research library">
+        <div class="filter-row2-group" role="group" aria-label="Filter research library by market">
+          <span class="fdivider">MARKET</span>
+          <button class="filter-btn fx-market" type="button" data-m="All" aria-pressed="true">All</button>
+          <button class="filter-btn fx-market" type="button" data-m="India" aria-pressed="false">India</button>
+          <button class="filter-btn fx-market" type="button" data-m="US" aria-pressed="false">US</button>
+        </div>
+        <div class="filter-row2-group" role="group" aria-label="Filter research library by rating">
+          <span class="fdivider">RATING</span>
+          <button class="filter-btn fx-rating" type="button" data-r="All" aria-pressed="true">All</button>
+          <button class="filter-btn fx-rating" type="button" data-r="BUY" aria-pressed="false">Buy-rated</button>
+          <button class="filter-btn fx-rating" type="button" data-r="HOLD" aria-pressed="false">Hold</button>
+          <button class="filter-btn fx-rating" type="button" data-r="REDUCE" aria-pressed="false">Reduce</button>
+        </div>
+      </div>
+
+      <div class="filter-bar" id="sector-filters" role="group" aria-label="Filter models by sector"></div>
+      <div class="card-grid card-grid-models" id="models-grid"></div>
+
+      <div class="pipeline-wrap" id="pipeline-wrap">
+        <p class="pipe-head">— COMING TO COVERAGE —</p>
+        <div class="card-grid card-grid-models" id="pipeline-grid"></div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         07 · CREDENTIALS & CERTIFICATIONS
          ================================================================== -->
     <section class="section" id="credentials" aria-labelledby="credentials-title">
       <div class="section-head">
-        <span class="section-index" aria-hidden="true">06</span>
+        <span class="section-index" aria-hidden="true">07</span>
         <h2 class="section-title" id="credentials-title">Credentials &amp; Certifications</h2>
       </div>
       <ul class="credential-list" id="credentials-list"></ul>
     </section>
 
     <!-- ==================================================================
-         07 · SKILLS
+         08 · SKILLS
          ================================================================== -->
     <section class="section" id="skills" aria-labelledby="skills-title">
       <div class="section-head">
-        <span class="section-index" aria-hidden="true">07</span>
+        <span class="section-index" aria-hidden="true">08</span>
         <h2 class="section-title" id="skills-title">Skills</h2>
       </div>
       <div class="skills-wrap">
@@ -210,11 +248,11 @@
     </section>
 
     <!-- ==================================================================
-         08 · CONTACT
+         09 · CONTACT
          ================================================================== -->
     <section class="section section-contact" id="contact" aria-labelledby="contact-title">
       <div class="section-head">
-        <span class="section-index" aria-hidden="true">08</span>
+        <span class="section-index" aria-hidden="true">09</span>
         <h2 class="section-title" id="contact-title">Contact</h2>
       </div>
       <div class="contact-block" id="contact-block"></div>
@@ -246,7 +284,7 @@
   </div>
 
   <!-- Data first, then behaviour -->
-  <script src="js/data.js?v=2"></script>
-  <script src="js/app.js?v=9"></script>
+  <script src="js/data.js?v=3"></script>
+  <script src="js/app.js?v=10"></script>
 </body>
 </html>

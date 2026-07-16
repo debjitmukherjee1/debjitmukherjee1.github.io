@@ -383,9 +383,114 @@
     });
   }
 
+  /* ---------- 4b. tools & live terminals ---------------------------------- */
+
+  // Turns the text before the first " — " in a tool's summary into a
+  // lower-cased descriptive clause for its aria-label, e.g. "A sentiment-
+  // adjusted valuation tool — blends…" -> "a sentiment-adjusted valuation
+  // tool" (mirrors the hand-written side-tab aria-labels above).
+  function toolShortDesc(summary) {
+    var idx = summary.indexOf(" — ");
+    var phrase = idx === -1 ? summary : summary.slice(0, idx);
+    return phrase.charAt(0).toLowerCase() + phrase.slice(1);
+  }
+
+  function toolChrome() {
+    var chrome = el("div", "tool-chrome");
+    chrome.setAttribute("aria-hidden", "true");
+    chrome.appendChild(el("i"));
+    chrome.appendChild(el("i"));
+    chrome.appendChild(el("i"));
+    return chrome;
+  }
+
+  // Builds the tools grid from siteData.tools. The whole section is removed
+  // if the list is missing/empty, so older data.js files keep working.
+  function renderTools() {
+    var section = byId("tools");
+    var grid = byId("tools-grid");
+    if (!section || !grid || !siteData.tools || siteData.tools.length === 0) {
+      if (section) section.remove();
+      return;
+    }
+
+    siteData.tools.forEach(function (item) {
+      if (item.status === "live") {
+        var card = el("a", "card tool-card");
+        card.href = item.url;
+        card.target = "_blank";
+        card.rel = "noopener";
+        card.setAttribute("aria-label", "Open " + item.name + ", " + toolShortDesc(item.summary) + ", in a new tab");
+        card.appendChild(toolChrome());
+        card.appendChild(el("span", "tool-live", "LIVE"));
+        card.appendChild(el("h3", "card-title", item.name));
+        card.appendChild(el("p", "card-summary", item.summary));
+
+        var ro = el("div", "model-readout");
+        ro.appendChild(el("span", "ro-label", "TYPE"));
+        ro.appendChild(el("span", "ro-val", item.type));
+        ro.appendChild(el("span", "ro-label", "COST"));
+        ro.appendChild(el("span", "ro-val", "FREE"));
+        card.appendChild(ro);
+
+        card.appendChild(el("span", "tool-launch card-open-hint", "LAUNCH ↗"));
+        grid.appendChild(card);
+      } else {
+        var soon = el("div", "card tool-card is-soon");
+        soon.appendChild(toolChrome());
+        soon.appendChild(el("span", "tool-soon-tag", "IN DEVELOPMENT"));
+        soon.appendChild(el("h3", "card-title", item.name));
+        soon.appendChild(el("p", "card-summary", item.summary));
+
+        var ro2 = el("div", "model-readout");
+        ro2.appendChild(el("span", "ro-label", "STATUS"));
+        ro2.appendChild(el("span", "ro-val", "BUILDING"));
+        soon.appendChild(ro2);
+
+        grid.appendChild(soon);
+      }
+    });
+  }
+
   /* ---------- 5. models gallery + sector filter --------------------------- */
 
   var activeSector = "All";
+
+  /* Cross-filter state shared by the sector buttons, the market/rating chips
+     and the free-text search box (all added in the tools upgrade).
+     renderModels() is the single place that consults all of it together. */
+  var libraryFilter = { market: "All", rating: "All", query: "" };
+
+  // Prefer the explicit market field on the model; fall back to inferring
+  // it from the currency symbol in its price fields for entries that lack it.
+  function marketOf(m) {
+    if (m.market) return m.market;
+    if (m.sector === "Macro") return "Macro";
+    var s = (m.targetPrice || "") + (m.impliedValue || "");
+    if (s.indexOf("₹") !== -1) return "India";
+    if (s.indexOf("$") !== -1) return "US";
+    return "Other";
+  }
+
+  // Collapses the four ratings into the three chip groups — BUY covers
+  // ACCUMULATE, REDUCE covers SELL.
+  function ratingGroup(r) {
+    if (r === "BUY" || r === "ACCUMULATE") return "BUY";
+    if (r === "REDUCE" || r === "SELL") return "REDUCE";
+    if (r === "HOLD") return "HOLD";
+    return "OTHER";
+  }
+
+  function passesLibraryFilter(item) {
+    if (activeSector !== "All" && item.sector !== activeSector) return false;
+    if (libraryFilter.market !== "All" && marketOf(item) !== libraryFilter.market) return false;
+    if (libraryFilter.rating !== "All" && ratingGroup(item.rating) !== libraryFilter.rating) return false;
+    if (libraryFilter.query) {
+      var hay = (item.title + " " + item.thesis + " " + item.sector).toLowerCase();
+      if (hay.indexOf(libraryFilter.query) === -1) return false;
+    }
+    return true;
+  }
 
   /* ---- illustrative model charts ----------------------------------------
      Decorative "terminal" line charts: a deterministic random walk seeded
@@ -669,12 +774,85 @@
     var grid = byId("models-grid");
     grid.innerHTML = "";
     siteData.models.forEach(function (item) {
-      if (activeSector === "All" || item.sector === activeSector) {
+      if (passesLibraryFilter(item)) {
         grid.appendChild(renderModelCard(item));
       }
     });
     // draw the sparklines once the new cards have layout
     requestAnimationFrame(drawAllSparks);
+  }
+
+  /* Wires the market/rating chip row and the search box added in the tools
+     upgrade (static markup in index.html — .filter-row2). No-op if that
+     markup isn't present, so older builds of index.html keep working. */
+  function setupLibraryFilters() {
+    var row = document.querySelector(".filter-row2");
+    if (!row) return;
+
+    function wire(selector, apply) {
+      row.querySelectorAll(selector).forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          apply(btn);
+          row.querySelectorAll(selector).forEach(function (b) {
+            b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+          });
+          renderModels();
+        });
+      });
+    }
+    wire(".fx-market", function (btn) { libraryFilter.market = btn.getAttribute("data-m"); });
+    wire(".fx-rating", function (btn) { libraryFilter.rating = btn.getAttribute("data-r"); });
+
+    var search = byId("lib-search");
+    if (search) {
+      search.addEventListener("input", function (e) {
+        libraryFilter.query = e.target.value.trim().toLowerCase();
+        renderModels();
+      });
+    }
+  }
+
+  /* Desk strip: coverage / ratings / macro / pipeline counts, computed live
+     from siteData so the numbers can never drift out of sync with the
+     library itself. No-op if the markup isn't present. */
+  function renderDeskStrip() {
+    var strip = byId("desk-strip");
+    if (!strip) return;
+
+    var counts = { BUY: 0, ACCUMULATE: 0, HOLD: 0, REDUCE: 0 };
+    siteData.models.forEach(function (m) { if (counts[m.rating] !== undefined) counts[m.rating]++; });
+    var covered = siteData.models.filter(function (m) { return m.sector !== "Macro"; }).length;
+    var macroCount = siteData.models.length - covered;
+    var pipelineCount = (siteData.pipeline || []).length;
+
+    function stat(label, value) {
+      var span = el("span");
+      span.appendChild(document.createTextNode(label + " "));
+      span.appendChild(el("b", null, value));
+      strip.appendChild(span);
+    }
+    stat("COVERAGE", covered + " NAMES");
+    stat("RATINGS", counts.BUY + " BUY · " + counts.ACCUMULATE + " ACC · " + counts.HOLD + " HOLD · " + counts.REDUCE + " REDUCE");
+    stat("MACRO STUDIES", String(macroCount));
+    stat("PIPELINE", pipelineCount + " IN BUILD");
+  }
+
+  /* Pipeline: ghost cards for "coming to coverage", from siteData.pipeline.
+     The whole block (heading + grid) is removed if the list is empty/absent. */
+  function renderPipeline() {
+    var wrap = byId("pipeline-wrap");
+    if (!wrap) return;
+    if (!siteData.pipeline || siteData.pipeline.length === 0) { wrap.remove(); return; }
+
+    var grid = byId("pipeline-grid");
+    siteData.pipeline.forEach(function (item) {
+      var card = el("div", "card pipe-card");
+      card.appendChild(el("p", "sector-tag", item.label));
+      card.appendChild(el("h3", "card-title", item.title));
+      card.appendChild(el("p", "card-summary", item.summary));
+      if (item.tag) card.appendChild(el("span", "pipe-tag", item.tag));
+      grid.appendChild(card);
+    });
   }
 
   function renderFilters() {
@@ -1181,8 +1359,12 @@
   renderEducation();
   renderLeadership();
   renderExperience();
+  renderTools();
+  renderDeskStrip();
   renderFilters();
+  setupLibraryFilters();
   renderModels();
+  renderPipeline();
   renderCredentials();
   renderSkills();
   renderContact();
