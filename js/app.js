@@ -428,9 +428,9 @@
   /* ---------- 4b. tools & live terminals ---------------------------------- */
 
   // Turns the text before the first " — " in a tool's summary into a
-  // lower-cased descriptive clause for its aria-label, e.g. "A sentiment-
-  // adjusted valuation tool — blends…" -> "a sentiment-adjusted valuation
-  // tool" (mirrors the hand-written side-tab aria-labels above).
+  // lower-cased descriptive clause used as the modal's sub-line, e.g.
+  // "A sentiment-adjusted valuation tool — blends…" -> "a sentiment-
+  // adjusted valuation tool".
   function toolShortDesc(summary) {
     var idx = summary.indexOf(" — ");
     var phrase = idx === -1 ? summary : summary.slice(0, idx);
