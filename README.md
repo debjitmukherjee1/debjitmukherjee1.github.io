@@ -32,6 +32,22 @@ portfolio/
 `{ ... },` block, paste it into the list, and edit the values. Put the actual
 PDF/Excel file in `assets/files/` and set `fileUrl` to match, e.g.
 `"assets/files/infosys-dcf.pdf"`. New sectors automatically get a filter button.
+Set `market` to `"India"`, `"US"` or `"Macro"` — it drives the library's
+market filter and the auto-computed desk strip (coverage / ratings / macro
+counts). Leave `sector: "Macro"` studies out of the coverage count by using
+`market: "Macro"`.
+
+**Add a tool:** find the `tools:` list. Copy one existing block, paste it in,
+and edit the values. `status: "live"` needs a real `url` and renders as a
+clickable card that opens in a new tab; `status: "building"` should leave
+`url: ""` and renders as a dashed "IN DEVELOPMENT" card with no link. Leaving
+`tools:` out entirely (or emptying the list) hides the whole section.
+
+**Add an upcoming name to the pipeline:** find the `pipeline:` list. Copy one
+existing block, paste it in, and edit `label`, `title`, `summary` and `tag`
+(a short mono status like `"IN BUILD"`, `"QUEUED"` or `"SCHEDULED"`). These
+render as ghost cards under the research library. Emptying the list hides
+that row.
 
 **Add an internship:** find the `experience:` list. Copy an existing block,
 paste it at the top (newest first), edit the values.
