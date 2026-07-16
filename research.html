@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Research — Debjit Mukherjee</title>
+  <meta name="description" content="Independent equity research and DCF valuation models by Debjit Mukherjee — the full library, filterable by market, sector and rating.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Fonts: Fraunces (masthead & titles, optical-sized), Source Serif 4 (body), IBM Plex Mono (ticker & data) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css?v=11">
+</head>
+<body>
+
+  <!-- Living backdrop: one fixed canvas behind the whole page, painted by
+       app.js (drifting market lines → candlesticks → city-lights on scroll). -->
+  <canvas id="scene" class="scene-bg" aria-hidden="true"></canvas>
+
+  <!-- Skip link for keyboard users -->
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Side tabs — persistent links out to separate live projects. Pure
+       CSS/markup, no app.js hook needed. -->
+  <div class="side-tabs">
+    <a class="side-tab" href="https://debjitmukherjee1.github.io/meridian/"
+       target="_blank" rel="noopener"
+       aria-label="Open Meridian, a sentiment-adjusted valuation tool, in a new tab">
+      Open Meridian ↗
+    </a>
+    <a class="side-tab" href="https://debjitmukherjee1.github.io/marketpulse/"
+       target="_blank" rel="noopener"
+       aria-label="Open MarketPulse, a global index monitor and Monte Carlo simulator, in a new tab">
+      Open MarketPulse ↗
+    </a>
+  </div>
+
+  <!-- ======================================================================
+       BOOT OVERLAY — brief terminal-style loading sequence on first visit
+       (removed instantly for reduced-motion users and repeat visits).
+       ====================================================================== -->
+  <div class="boot" id="boot" aria-hidden="true">
+    <div class="boot-inner">
+      <span class="boot-label">DEBJIT MUKHERJEE · PORTFOLIO</span>
+      <span class="boot-pct" id="boot-pct">0%</span>
+      <div class="boot-bar"><div class="boot-fill" id="boot-fill"></div></div>
+      <span class="boot-sub">LOADING MARKET DATA</span>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       LIGHT PAGE HEADER — no hero/bio/stats (that's Overview's job); just
+       a kicker + title + sub, consistent with the masthead's letterhead
+       treatment at a smaller scale.
+       ====================================================================== -->
+  <header class="page-header">
+    <p class="page-kicker">DEBJIT MUKHERJEE · RESEARCH</p>
+    <h1 class="page-title">Research</h1>
+    <p class="page-sub">How an independent equity note gets made, and the full library of what's been published.</p>
+  </header>
+
+  <!-- ======================================================================
+       SITE NAV — Overview / Research / Tools. Present on all three pages;
+       app.js marks the current page aria-current="page".
+       ====================================================================== -->
+  <nav class="site-nav" aria-label="Site pages">
+    <a href="index.html">Overview</a>
+    <a href="research.html">Research</a>
+    <a href="tools.html">Tools</a>
+  </nav>
+
+  <!-- ======================================================================
+       THE TICKER — signature element. A scrolling tape of live "positions".
+       Items come from data.js (ticker). Each item is a button that scrolls
+       to its section (or navigates to another page first). Pauses on
+       hover/focus; static if reduced motion.
+       ====================================================================== -->
+  <div class="ticker-wrap" role="navigation" aria-label="Section ticker — click an item to jump to its section">
+    <div class="ticker" id="ticker">
+      <!-- ticker items injected by app.js (duplicated for a seamless loop) -->
+    </div>
+  </div>
+
+  <main id="main">
+
+    <!-- ==================================================================
+         01 · APPROACH — sticky-scroll research-process walkthrough
+         ================================================================== -->
+    <section class="section section-approach" id="approach" aria-labelledby="approach-title">
+      <div class="section-head">
+        <span class="section-index" aria-hidden="true">01</span>
+        <h2 class="section-title" id="approach-title">Approach</h2>
+      </div>
+      <p class="section-note">The methodology behind every note published below.</p>
+      <div class="approach-wrap">
+        <div class="approach-steps">
+          <article class="approach-step" data-step="0">
+            <span class="approach-kicker">01 · Screen</span>
+            <h3 class="approach-h">Not chosen for breadth</h3>
+            <p class="approach-p">Coverage is screened against a specific thesis — a mispriced re-rating, a sector inflection, a margin or governance debate — across technology, consumer, payments, banking, IT services and macro, then checked against public filings before a model is opened.</p>
+          </article>
+          <article class="approach-step" data-step="1">
+            <span class="approach-kicker">02 · Model</span>
+            <h3 class="approach-h">Three statements, then a DCF</h3>
+            <p class="approach-p">A full income statement, balance sheet and cash-flow build from the 10-K/annual report — historical ratio analysis, working-capital and capex assumptions — then a DCF, or an excess-return model for banks given book-value and regulatory capital dynamics.</p>
+          </article>
+          <article class="approach-step" data-step="2">
+            <span class="approach-kicker">03 · Value</span>
+            <h3 class="approach-h">One number isn't enough</h3>
+            <p class="approach-p">The DCF output is sensitivity-tested across WACC and terminal growth, run through scenario cases, and cross-checked against forward earnings, EV/EBITDA and peer comparables before a target is set.</p>
+          </article>
+          <article class="approach-step" data-step="3">
+            <span class="approach-kicker">04 · Publish</span>
+            <h3 class="approach-h">A rated, published note</h3>
+            <p class="approach-p">The thesis, numbers and risks go into a full research note with an explicit rating — BUY, ACCUMULATE, HOLD, REDUCE — published alongside the underlying Excel model, not just the conclusion.</p>
+          </article>
+        </div>
+        <aside class="approach-visual" aria-hidden="true">
+          <div class="approach-panel">
+            <div class="approach-rail">
+              <span class="approach-tick"></span>
+              <span class="approach-tick"></span>
+              <span class="approach-tick"></span>
+              <span class="approach-tick"></span>
+            </div>
+            <div class="approach-display">
+              <span class="approach-num" id="approach-num">01</span>
+              <span class="approach-word" id="approach-word">SCREEN</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         02 · FINANCIAL MODELS & EQUITY RESEARCH — the full library
+         ================================================================== -->
+    <section class="section section-models" id="models" aria-labelledby="models-title">
+      <div class="section-head">
+        <span class="section-index" aria-hidden="true">02</span>
+        <h2 class="section-title" id="models-title">Financial Models &amp; Equity Research</h2>
+      </div>
+      <p class="section-note">Independent work — every note ships with its full Excel model. Filter by market, sector or rating, or search a name.</p>
+
+      <div class="desk-strip" id="desk-strip" aria-hidden="true"></div>
+
+      <div class="filter-row2">
+        <input class="lib-search" id="lib-search" type="search" placeholder="SEARCH TICKER / NAME…" aria-label="Search research library">
+        <div class="filter-row2-group" role="group" aria-label="Filter research library by market">
+          <span class="fdivider">MARKET</span>
+          <button class="filter-btn fx-market" type="button" data-m="All" aria-pressed="true">All</button>
+          <button class="filter-btn fx-market" type="button" data-m="India" aria-pressed="false">India</button>
+          <button class="filter-btn fx-market" type="button" data-m="US" aria-pressed="false">US</button>
+        </div>
+        <div class="filter-row2-group" role="group" aria-label="Filter research library by rating">
+          <span class="fdivider">RATING</span>
+          <button class="filter-btn fx-rating" type="button" data-r="All" aria-pressed="true">All</button>
+          <button class="filter-btn fx-rating" type="button" data-r="BUY" aria-pressed="false">Buy-rated</button>
+          <button class="filter-btn fx-rating" type="button" data-r="HOLD" aria-pressed="false">Hold</button>
+          <button class="filter-btn fx-rating" type="button" data-r="REDUCE" aria-pressed="false">Reduce</button>
+        </div>
+      </div>
+
+      <div class="filter-bar" id="sector-filters" role="group" aria-label="Filter models by sector"></div>
+      <div class="card-grid card-grid-models" id="models-grid"></div>
+
+      <div class="pipeline-wrap" id="pipeline-wrap">
+        <p class="pipe-head">— COMING TO COVERAGE —</p>
+        <div class="card-grid card-grid-models" id="pipeline-grid"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-personal" id="footer-personal"></p>
+    <p class="footer-legal">Independent work — not investment advice. <span id="footer-year"></span></p>
+    <p class="footer-note">Photography is illustrative only (financial-district / New York imagery) and is not connected to, owned by, or representative of the work shown in this portfolio.</p>
+  </footer>
+
+  <!-- ======================================================================
+       DETAIL MODAL — a single reusable "pitch-book page" overlay.
+       app.js fills #modal-body when any card is opened. Esc / backdrop /
+       close button dismiss it; focus is trapped inside while open.
+       ====================================================================== -->
+  <div class="modal-backdrop" id="modal-backdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" id="modal">
+      <div class="modal-topbar">
+        <span class="modal-stamp" aria-hidden="true">DM · PORTFOLIO</span>
+        <button class="modal-close" id="modal-close" aria-label="Close detail view">×</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- injected -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Data first, then behaviour -->
+  <script src="js/data.js?v=4"></script>
+  <script src="js/app.js?v=11"></script>
+</body>
+</html>
