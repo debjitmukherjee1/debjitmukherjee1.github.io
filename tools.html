@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tools — Debjit Mukherjee</title>
+  <meta name="description" content="Interactive finance tools by Debjit Mukherjee — free, in the browser, no sign-up. Valuation, monitoring, track record and calculator terminals.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Fonts: Fraunces (masthead & titles, optical-sized), Source Serif 4 (body), IBM Plex Mono (ticker & data) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css?v=11">
+</head>
+<body>
+
+  <!-- Living backdrop: one fixed canvas behind the whole page, painted by
+       app.js (drifting market lines → candlesticks → city-lights on scroll). -->
+  <canvas id="scene" class="scene-bg" aria-hidden="true"></canvas>
+
+  <!-- Skip link for keyboard users -->
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Side tabs — persistent links out to separate live projects. Pure
+       CSS/markup, no app.js hook needed. -->
+  <div class="side-tabs">
+    <a class="side-tab" href="https://debjitmukherjee1.github.io/meridian/"
+       target="_blank" rel="noopener"
+       aria-label="Open Meridian, a sentiment-adjusted valuation tool, in a new tab">
+      Open Meridian ↗
+    </a>
+    <a class="side-tab" href="https://debjitmukherjee1.github.io/marketpulse/"
+       target="_blank" rel="noopener"
+       aria-label="Open MarketPulse, a global index monitor and Monte Carlo simulator, in a new tab">
+      Open MarketPulse ↗
+    </a>
+  </div>
+
+  <!-- ======================================================================
+       BOOT OVERLAY — brief terminal-style loading sequence on first visit
+       (removed instantly for reduced-motion users and repeat visits).
+       ====================================================================== -->
+  <div class="boot" id="boot" aria-hidden="true">
+    <div class="boot-inner">
+      <span class="boot-label">DEBJIT MUKHERJEE · PORTFOLIO</span>
+      <span class="boot-pct" id="boot-pct">0%</span>
+      <div class="boot-bar"><div class="boot-fill" id="boot-fill"></div></div>
+      <span class="boot-sub">LOADING MARKET DATA</span>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       LIGHT PAGE HEADER — no hero/bio/stats (that's Overview's job); just
+       a kicker + title + sub, consistent with the masthead's letterhead
+       treatment at a smaller scale.
+       ====================================================================== -->
+  <header class="page-header">
+    <p class="page-kicker">DEBJIT MUKHERJEE · TOOLS</p>
+    <h1 class="page-title">Tools &amp; Live Terminals</h1>
+    <p class="page-sub">Interactive finance tools I build and run alongside the research — free, in the browser, no sign-up.</p>
+  </header>
+
+  <!-- ======================================================================
+       SITE NAV — Overview / Research / Tools. Present on all three pages;
+       app.js marks the current page aria-current="page".
+       ====================================================================== -->
+  <nav class="site-nav" aria-label="Site pages">
+    <a href="index.html">Overview</a>
+    <a href="research.html">Research</a>
+    <a href="tools.html">Tools</a>
+  </nav>
+
+  <!-- ======================================================================
+       THE TICKER — signature element. A scrolling tape of live "positions".
+       Items come from data.js (ticker). Each item is a button that scrolls
+       to its section (or navigates to another page first). Pauses on
+       hover/focus; static if reduced motion.
+       ====================================================================== -->
+  <div class="ticker-wrap" role="navigation" aria-label="Section ticker — click an item to jump to its section">
+    <div class="ticker" id="ticker">
+      <!-- ticker items injected by app.js (duplicated for a seamless loop) -->
+    </div>
+  </div>
+
+  <main id="main">
+
+    <!-- ==================================================================
+         01 · TOOLS & LIVE TERMINALS — interactive apps, rendered from
+         siteData.tools. Each card opens the detail modal ("how it works")
+         with a "Launch ↗" link out. Section is removed entirely if tools
+         is empty/absent.
+         ================================================================== -->
+    <section class="section" id="tools" aria-labelledby="tools-title">
+      <div class="section-head">
+        <span class="section-index" aria-hidden="true">01</span>
+        <h2 class="section-title" id="tools-title">Tools &amp; Live Terminals</h2>
+      </div>
+      <p class="section-note">Open a card for what it does and how it works, then launch it.</p>
+      <div class="card-grid" id="tools-grid"></div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-personal" id="footer-personal"></p>
+    <p class="footer-legal">Independent work — not investment advice. <span id="footer-year"></span></p>
+    <p class="footer-note">Photography is illustrative only (financial-district / New York imagery) and is not connected to, owned by, or representative of the work shown in this portfolio.</p>
+  </footer>
+
+  <!-- ======================================================================
+       DETAIL MODAL — a single reusable "pitch-book page" overlay.
+       app.js fills #modal-body when any card is opened. Esc / backdrop /
+       close button dismiss it; focus is trapped inside while open.
+       ====================================================================== -->
+  <div class="modal-backdrop" id="modal-backdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" id="modal">
+      <div class="modal-topbar">
+        <span class="modal-stamp" aria-hidden="true">DM · PORTFOLIO</span>
+        <button class="modal-close" id="modal-close" aria-label="Close detail view">×</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- injected -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Data first, then behaviour -->
+  <script src="js/data.js?v=4"></script>
+  <script src="js/app.js?v=11"></script>
+</body>
+</html>

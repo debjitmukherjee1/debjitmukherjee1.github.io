@@ -1,11 +1,17 @@
 /* ============================================================================
    app.js — behaviour only. Reads everything from siteData (js/data.js).
    ----------------------------------------------------------------------------
-   You should NOT need to edit this file for content changes. It:
-     1. Fills the masthead, meta tags, footer and contact block
-     2. Builds the ticker (duplicated once for a seamless CSS loop)
-     3. Renders every section's cards from siteData
-     4. Runs the sector filter for the models gallery
+   You should NOT need to edit this file for content changes. This ONE file
+   is loaded by all three pages — index.html (Overview), research.html and
+   tools.html — so every renderer below guards against its target element
+   not existing (`if (!el) return;`) and simply no-ops on pages that don't
+   have that section. It:
+     1. Fills the masthead, meta tags, footer and contact block (Overview)
+     2. Builds the ticker (duplicated once for a seamless CSS loop) and the
+        Overview/Research/Tools site nav — both shown on every page
+     3. Renders every section's cards from siteData, per page
+     4. Runs the sector/market/rating/search filters for the models library
+        (research.html) and the featured-models preview (index.html)
      5. Runs the single reusable detail modal (open/close, focus trap, Esc)
    All code is intentionally plain and commented so a future AI or human can
    extend it safely.
@@ -32,13 +38,19 @@
 
   /* ---------- 1. meta, masthead, footer, contact ------------------------- */
 
+  // Research/Tools pages set their own <title>/<meta description> (they're
+  // not "Debjit Mukherjee — Equity Research..."); only Overview's masthead
+  // (unique id="top") uses the site-wide siteData.meta values.
   function renderMeta() {
+    if (!byId("top")) return;
     document.title = siteData.meta.siteTitle;
     var desc = document.querySelector('meta[name="description"]');
     if (desc) desc.setAttribute("content", siteData.meta.description);
   }
 
   function renderHero() {
+    if (!byId("hero-name")) return;   // Research/Tools have no masthead
+
     // The masthead is now transparent so the fixed living backdrop (the
     // drifting market lines) shows through behind the name. The old opaque
     // skyline layer is intentionally not applied.
@@ -80,6 +92,7 @@
   /* Stats row under the bio: numbers count up when they become visible */
   function renderStats() {
     var wrap = byId("hero-stats");
+    if (!wrap) return;   // Research/Tools have no masthead
     if (!siteData.hero.stats || siteData.hero.stats.length === 0) {
       wrap.remove();
       return;
@@ -163,6 +176,7 @@
 
   function renderContact() {
     var block = byId("contact-block");
+    if (!block) return;   // Research/Tools have no contact section
     var email = el("a", "contact-email", siteData.hero.email);
     email.href = "mailto:" + siteData.hero.email;
     block.appendChild(email);
@@ -175,9 +189,19 @@
 
   /* ---------- 2. the ticker ---------------------------------------------- */
 
+  // The file name of the page currently loaded ("index.html" for the root
+  // "/" URL too), used to decide whether a ticker item's section is on this
+  // page (scroll) or another one (navigate there first).
+  function currentPageFile() {
+    var name = location.pathname.split("/").pop();
+    return name || "index.html";
+  }
+
   function renderTicker() {
     var tape = byId("ticker");
+    if (!tape) return;
     var arrows = { up: "▲", down: "▼", flat: "—" };
+    var here = currentPageFile();
 
     // Build the set twice: the CSS animation translates -50%, so a duplicate
     // set makes the loop seamless. Duplicates are aria-hidden + untabbable.
@@ -194,12 +218,27 @@
         if (item.sectionId) {
           btn.setAttribute("aria-label", item.label + ": " + item.value + ". Jump to section.");
           btn.addEventListener("click", function () {
+            if (item.page && item.page !== here) {
+              location.href = item.page + "#" + item.sectionId;
+              return;
+            }
             var target = byId(item.sectionId);
             if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
           });
         }
         tape.appendChild(btn);
       });
+    });
+  }
+
+  /* Site nav (Overview / Research / Tools): marks the link matching the
+     current page aria-current="page". Same markup on all three pages, so
+     this is the only place that needs to know which one is "here". */
+  function setupNav() {
+    var here = currentPageFile();
+    document.querySelectorAll(".site-nav a").forEach(function (a) {
+      var href = a.getAttribute("href");
+      if (href === here) a.setAttribute("aria-current", "page");
     });
   }
 
@@ -321,6 +360,7 @@
 
   function renderEducation() {
     var grid = byId("education-grid");
+    if (!grid) return;   // Research/Tools don't have this section
     siteData.education.forEach(function (item) {
       grid.appendChild(makeCard(
         item.years, item.institution, item.degree, item.focus,
@@ -338,6 +378,7 @@
   function renderLeadership() {
     var featuredWrap = byId("leadership-featured");
     var grid = byId("leadership-grid");
+    if (!featuredWrap || !grid) return;   // Research/Tools don't have this section
 
     siteData.leadership.forEach(function (item) {
       var openDetail = function () {
@@ -369,6 +410,7 @@
 
   function renderExperience() {
     var grid = byId("experience-grid");
+    if (!grid) return;   // Research/Tools don't have this section
     siteData.experience.forEach(function (item) {
       grid.appendChild(makeCard(
         item.dates, item.company, item.role + (item.location ? " · " + item.location : ""), item.summary,
@@ -404,8 +446,11 @@
     return chrome;
   }
 
-  // Builds the tools grid from siteData.tools. The whole section is removed
-  // if the list is missing/empty, so older data.js files keep working.
+  // Builds the tools grid from siteData.tools. Live cards open the detail
+  // modal ("how it works" — summary, feature bullets, then a Launch link
+  // out) rather than linking out directly, so a visitor sees what a tool
+  // does before leaving the site. The whole section is removed if the list
+  // is missing/empty, so older data.js files keep working.
   function renderTools() {
     var section = byId("tools");
     var grid = byId("tools-grid");
@@ -416,11 +461,8 @@
 
     siteData.tools.forEach(function (item) {
       if (item.status === "live") {
-        var card = el("a", "card tool-card");
-        card.href = item.url;
-        card.target = "_blank";
-        card.rel = "noopener";
-        card.setAttribute("aria-label", "Open " + item.name + ", " + toolShortDesc(item.summary) + ", in a new tab");
+        var card = el("button", "card tool-card");
+        card.type = "button";
         card.appendChild(toolChrome());
         card.appendChild(el("span", "tool-live", "LIVE"));
         card.appendChild(el("h3", "card-title", item.name));
@@ -433,7 +475,19 @@
         ro.appendChild(el("span", "ro-val", "FREE"));
         card.appendChild(ro);
 
-        card.appendChild(el("span", "tool-launch card-open-hint", "LAUNCH ↗"));
+        card.appendChild(el("span", "card-open-hint", "OPEN ↗"));
+        card.addEventListener("click", function () {
+          openModal(function (body) {
+            modalHeader(body, "TOOL · " + item.type, item.name, toolShortDesc(item.summary));
+            body.appendChild(el("p", "modal-detail", item.summary));
+            modalBullets(body, item.features);
+            var launch = el("a", "modal-file-link", "Launch " + item.name + " ↗");
+            launch.href = item.url;
+            launch.target = "_blank";
+            launch.rel = "noopener";
+            body.appendChild(launch);
+          });
+        });
         grid.appendChild(card);
       } else {
         var soon = el("div", "card tool-card is-soon");
@@ -679,22 +733,28 @@
     return "ro-hold";
   }
 
-  function renderModelCard(item) {
+  // compact: true skips the sparkline and the readout strip, for the
+  // featured-models preview on Overview — same card, lighter look. The
+  // click → openModal wiring (and the modal itself) stays identical either
+  // way, so the detail view is always the full one.
+  function renderModelCard(item, compact) {
     var card = el("button", "card");
     card.type = "button";
     card.appendChild(el("p", "sector-tag", item.sector + (item.date ? "  ·  " + item.date : "")));
     card.appendChild(el("h3", "card-title", item.title));
     card.appendChild(el("p", "card-summary", item.thesis));
 
-    // Illustrative sparkline (seeded from title, biased by rating direction)
-    var spark = el("canvas", "spark");
-    spark.setAttribute("data-seed", item.title);
-    spark.setAttribute("data-trend", String(trendForRating(item.rating)));
-    spark.setAttribute("aria-hidden", "true");
-    card.appendChild(spark);
+    if (!compact) {
+      // Illustrative sparkline (seeded from title, biased by rating direction)
+      var spark = el("canvas", "spark");
+      spark.setAttribute("data-seed", item.title);
+      spark.setAttribute("data-trend", String(trendForRating(item.rating)));
+      spark.setAttribute("aria-hidden", "true");
+      card.appendChild(spark);
+    }
 
     // Terminal-style readout strip: only lines that have values
-    if (item.rating || item.targetPrice || item.impliedValue) {
+    if (!compact && (item.rating || item.targetPrice || item.impliedValue)) {
       var ro = el("div", "model-readout");
       if (item.rating) {
         ro.appendChild(el("span", "ro-label", "RATING"));
@@ -772,6 +832,7 @@
 
   function renderModels() {
     var grid = byId("models-grid");
+    if (!grid) return;   // full library only exists on research.html
     grid.innerHTML = "";
     siteData.models.forEach(function (item) {
       if (passesLibraryFilter(item)) {
@@ -780,6 +841,21 @@
     });
     // draw the sparklines once the new cards have layout
     requestAnimationFrame(drawAllSparks);
+  }
+
+  /* Compact featured-models preview on Overview (index.html): siteData.models
+     with featured:true, falling back to the first 4 if none are flagged, so
+     it's never empty. Reuses renderModelCard()'s modal wiring — the detail
+     view is identical to the full library's, just the card itself is
+     lighter (no sparkline/readout — see the compact param above). */
+  function renderCompactModels() {
+    var grid = byId("models-preview-grid");
+    if (!grid) return;
+    var featured = siteData.models.filter(function (m) { return m.featured === true; });
+    if (featured.length === 0) featured = siteData.models.slice(0, 4);
+    featured.slice(0, 4).forEach(function (item) {
+      grid.appendChild(renderModelCard(item, true));
+    });
   }
 
   /* Wires the market/rating chip row and the search box added in the tools
@@ -857,6 +933,7 @@
 
   function renderFilters() {
     var bar = byId("sector-filters");
+    if (!bar) return;   // full library only exists on research.html
 
     // Sector list is derived from the data, so new sectors in data.js
     // automatically get a filter button — no code change needed.
@@ -884,6 +961,7 @@
 
   function renderCredentials() {
     var list = byId("credentials-list");
+    if (!list) return;   // Research/Tools don't have this section
     siteData.credentials.forEach(function (item) {
       var li = el("li", "credential-item");
       var btn = el("button", "credential-btn");
@@ -913,11 +991,13 @@
   }
 
   function renderSkills() {
+    var technical = byId("skills-technical"), soft = byId("skills-soft");
+    if (!technical || !soft) return;   // Research/Tools don't have this section
     siteData.skills.technical.forEach(function (s) {
-      byId("skills-technical").appendChild(el("li", null, s));
+      technical.appendChild(el("li", null, s));
     });
     siteData.skills.soft.forEach(function (s) {
-      byId("skills-soft").appendChild(el("li", null, s));
+      soft.appendChild(el("li", null, s));
     });
   }
 
@@ -1279,10 +1359,11 @@
     if (!("IntersectionObserver" in window)) return;
     var overlay = "linear-gradient(rgba(227,221,206,0.86), rgba(227,221,206,0.9)), ";
     var map = {
-      leadership:  "assets/images/bg-hall.jpg",
-      models:      "assets/images/bg-district.jpg",
-      credentials: "assets/images/bg-ledger.jpg",
-      contact:     "assets/images/bg-wallst.jpg"
+      leadership:     "assets/images/bg-hall.jpg",
+      models:         "assets/images/bg-district.jpg",
+      "models-preview": "assets/images/bg-district.jpg",
+      credentials:    "assets/images/bg-ledger.jpg",
+      contact:        "assets/images/bg-wallst.jpg"
     };
     var available = {};
     Object.keys(map).forEach(function (k) {
@@ -1345,6 +1426,21 @@
     steps.forEach(function (s) { obs.observe(s); });
   }
 
+  /* Cross-page ticker links land on "page.html#section" — the browser's
+     native hash jump fires before the boot overlay clears and layout
+     settles, so it often lands short. Redo it once everything below has
+     rendered. */
+  function scrollToHash() {
+    if (!location.hash) return;
+    var target = byId(location.hash.slice(1));
+    if (!target) return;
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+      });
+    });
+  }
+
   /* ---------- boot -------------------------------------------------------- */
 
   runBoot();
@@ -1354,11 +1450,13 @@
   renderStats();
   renderMarketClock();
   renderTicker();
+  setupNav();
   startTickerPulse();
   setupModal();
   renderEducation();
   renderLeadership();
   renderExperience();
+  renderCompactModels();
   renderTools();
   renderDeskStrip();
   renderFilters();
@@ -1379,5 +1477,6 @@
   setupScrollShimmer();  // scroll-velocity vignette shimmer
   setupStage();          // crossfading photographic backdrop per section
   setupApproach();       // sticky-scroll research-process walkthrough
+  scrollToHash();        // re-run the #anchor jump once layout has settled
 
 })();

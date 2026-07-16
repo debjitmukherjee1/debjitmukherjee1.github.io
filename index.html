@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/styles.css?v=10">
+  <link rel="stylesheet" href="css/styles.css?v=11">
 </head>
 <body>
 
@@ -70,6 +70,16 @@
   </header>
 
   <!-- ======================================================================
+       SITE NAV — Overview / Research / Tools. Present on all three pages;
+       app.js marks the current page aria-current="page".
+       ====================================================================== -->
+  <nav class="site-nav" aria-label="Site pages">
+    <a href="index.html">Overview</a>
+    <a href="research.html">Research</a>
+    <a href="tools.html">Tools</a>
+  </nav>
+
+  <!-- ======================================================================
        THE TICKER — signature element. A scrolling tape of live "positions".
        Items come from data.js (ticker). Each item is a button that scrolls
        to its section. Pauses on hover/focus; static if reduced motion.
@@ -117,122 +127,38 @@
     </section>
 
     <!-- ==================================================================
-         04 · APPROACH — sticky-scroll research-process walkthrough
+         04 · FINANCIAL MODELS & EQUITY RESEARCH — compact preview.
+         renderCompactModels() picks siteData.models with featured:true
+         (falling back to the first 4) and skips the sparkline/readout for
+         a lighter look. Full library lives on research.html.
          ================================================================== -->
-    <section class="section section-approach" id="approach" aria-labelledby="approach-title">
+    <section class="section" id="models-preview" aria-labelledby="models-preview-title">
       <div class="section-head">
         <span class="section-index" aria-hidden="true">04</span>
-        <h2 class="section-title" id="approach-title">Approach</h2>
+        <h2 class="section-title" id="models-preview-title">Financial Models &amp; Equity Research</h2>
       </div>
-      <p class="section-note">How an independent equity note gets made — screen, model, value, publish.</p>
-      <div class="approach-wrap">
-        <div class="approach-steps">
-          <article class="approach-step" data-step="0">
-            <span class="approach-kicker">01 · Screen</span>
-            <h3 class="approach-h">Find the name</h3>
-            <p class="approach-p">Pick a company worth covering — across technology, consumer, payments, banking, IT services, and the occasional macro study.</p>
-          </article>
-          <article class="approach-step" data-step="1">
-            <span class="approach-kicker">02 · Model</span>
-            <h3 class="approach-h">Build the numbers</h3>
-            <p class="approach-p">Full financial-statement, balance-sheet and cash-flow analysis — then a DCF, or an excess-return model for the banks.</p>
-          </article>
-          <article class="approach-step" data-step="2">
-            <span class="approach-kicker">03 · Value</span>
-            <h3 class="approach-h">Stress-test the call</h3>
-            <p class="approach-p">Anchor a target on forward earnings, EV/EBITDA or cost of equity — cross-checked with sensitivity analysis and peer comparables.</p>
-          </article>
-          <article class="approach-step" data-step="3">
-            <span class="approach-kicker">04 · Publish</span>
-            <h3 class="approach-h">Write the note</h3>
-            <p class="approach-p">Turn it into a full equity report with a clear rating — BUY, ACCUMULATE, HOLD, REDUCE — and put it out.</p>
-          </article>
-        </div>
-        <aside class="approach-visual" aria-hidden="true">
-          <div class="approach-panel">
-            <div class="approach-rail">
-              <span class="approach-tick"></span>
-              <span class="approach-tick"></span>
-              <span class="approach-tick"></span>
-              <span class="approach-tick"></span>
-            </div>
-            <div class="approach-display">
-              <span class="approach-num" id="approach-num">01</span>
-              <span class="approach-word" id="approach-word">SCREEN</span>
-            </div>
-          </div>
-        </aside>
-      </div>
+      <p class="section-note">A sample of the coverage — independent equity notes, each shipped with its full Excel model.</p>
+      <div class="card-grid card-grid-compact" id="models-preview-grid"></div>
+      <a class="mast-link mast-link-primary models-preview-cta" href="research.html">View Full Research Library →</a>
     </section>
 
     <!-- ==================================================================
-         05 · TOOLS & LIVE TERMINALS — interactive apps, rendered from
-         siteData.tools. Section is removed entirely if tools is empty/absent.
-         ================================================================== -->
-    <section class="section" id="tools" aria-labelledby="tools-title">
-      <div class="section-head">
-        <span class="section-index" aria-hidden="true">05</span>
-        <h2 class="section-title" id="tools-title">Tools &amp; Live Terminals</h2>
-      </div>
-      <p class="section-note">Interactive finance tools I build and run alongside the research — free, in the browser, no sign-up.</p>
-      <div class="card-grid" id="tools-grid"></div>
-    </section>
-
-    <!-- ==================================================================
-         06 · FINANCIAL MODELS & EQUITY RESEARCH — the centerpiece
-         ================================================================== -->
-    <section class="section section-models" id="models" aria-labelledby="models-title">
-      <div class="section-head">
-        <span class="section-index" aria-hidden="true">06</span>
-        <h2 class="section-title" id="models-title">Financial Models &amp; Equity Research</h2>
-      </div>
-      <p class="section-note">Independent work — every note ships with its full Excel model. Filter by market, sector or rating, or search a name.</p>
-
-      <div class="desk-strip" id="desk-strip" aria-hidden="true"></div>
-
-      <div class="filter-row2">
-        <input class="lib-search" id="lib-search" type="search" placeholder="SEARCH TICKER / NAME…" aria-label="Search research library">
-        <div class="filter-row2-group" role="group" aria-label="Filter research library by market">
-          <span class="fdivider">MARKET</span>
-          <button class="filter-btn fx-market" type="button" data-m="All" aria-pressed="true">All</button>
-          <button class="filter-btn fx-market" type="button" data-m="India" aria-pressed="false">India</button>
-          <button class="filter-btn fx-market" type="button" data-m="US" aria-pressed="false">US</button>
-        </div>
-        <div class="filter-row2-group" role="group" aria-label="Filter research library by rating">
-          <span class="fdivider">RATING</span>
-          <button class="filter-btn fx-rating" type="button" data-r="All" aria-pressed="true">All</button>
-          <button class="filter-btn fx-rating" type="button" data-r="BUY" aria-pressed="false">Buy-rated</button>
-          <button class="filter-btn fx-rating" type="button" data-r="HOLD" aria-pressed="false">Hold</button>
-          <button class="filter-btn fx-rating" type="button" data-r="REDUCE" aria-pressed="false">Reduce</button>
-        </div>
-      </div>
-
-      <div class="filter-bar" id="sector-filters" role="group" aria-label="Filter models by sector"></div>
-      <div class="card-grid card-grid-models" id="models-grid"></div>
-
-      <div class="pipeline-wrap" id="pipeline-wrap">
-        <p class="pipe-head">— COMING TO COVERAGE —</p>
-        <div class="card-grid card-grid-models" id="pipeline-grid"></div>
-      </div>
-    </section>
-
-    <!-- ==================================================================
-         07 · CREDENTIALS & CERTIFICATIONS
+         05 · CREDENTIALS & CERTIFICATIONS
          ================================================================== -->
     <section class="section" id="credentials" aria-labelledby="credentials-title">
       <div class="section-head">
-        <span class="section-index" aria-hidden="true">07</span>
+        <span class="section-index" aria-hidden="true">05</span>
         <h2 class="section-title" id="credentials-title">Credentials &amp; Certifications</h2>
       </div>
       <ul class="credential-list" id="credentials-list"></ul>
     </section>
 
     <!-- ==================================================================
-         08 · SKILLS
+         06 · SKILLS
          ================================================================== -->
     <section class="section" id="skills" aria-labelledby="skills-title">
       <div class="section-head">
-        <span class="section-index" aria-hidden="true">08</span>
+        <span class="section-index" aria-hidden="true">06</span>
         <h2 class="section-title" id="skills-title">Skills</h2>
       </div>
       <div class="skills-wrap">
@@ -248,11 +174,11 @@
     </section>
 
     <!-- ==================================================================
-         09 · CONTACT
+         07 · CONTACT
          ================================================================== -->
     <section class="section section-contact" id="contact" aria-labelledby="contact-title">
       <div class="section-head">
-        <span class="section-index" aria-hidden="true">09</span>
+        <span class="section-index" aria-hidden="true">07</span>
         <h2 class="section-title" id="contact-title">Contact</h2>
       </div>
       <div class="contact-block" id="contact-block"></div>
@@ -284,7 +210,7 @@
   </div>
 
   <!-- Data first, then behaviour -->
-  <script src="js/data.js?v=3"></script>
-  <script src="js/app.js?v=10"></script>
+  <script src="js/data.js?v=4"></script>
+  <script src="js/app.js?v=11"></script>
 </body>
 </html>
