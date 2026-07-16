@@ -12,6 +12,13 @@
    - Image paths are relative to the site root, e.g. "assets/images/photo.jpg".
    - File links (models, resume) point to files in "assets/files/".
    - Keep the quotes. If your text itself contains a double quote, use \" .
+   - Each entry in `models:` carries a `market` field ("India" / "US" / "Macro")
+     used by the library's market filter and the desk strip.
+   - `tools:` lists the interactive web apps shown in the Tools & Live
+     Terminals section — status: "live" (needs a url) or "building" (leave
+     url "").
+   - `pipeline:` lists upcoming coverage shown as ghost cards under the
+     research library.
    ========================================================================== */
 
 const siteData = {
@@ -233,6 +240,8 @@ const siteData = {
   /* --------------------------------------------------------------------
      MODELS & EQUITY RESEARCH — the centerpiece gallery.
      sector: used for the filter buttons (new sectors appear automatically).
+     market: "India" | "US" | "Macro" — used by the library's market filter
+       and the desk strip's coverage count.
      rating / targetPrice / impliedValue: shown in the mono data readout —
        leave any of them "" to hide that line.
      fileUrl / fileLabel:   primary link (research report PDF).
@@ -242,6 +251,7 @@ const siteData = {
     {
       title: "Alphabet Inc. (GOOGL) — Equity Research Note",
       sector: "Technology",
+      market: "US",
       date: "Jun 2026",
       thesis: "The fastest-growing, most AI-advantaged mega-cap, trading at a market multiple.",
       rating: "BUY",
@@ -257,6 +267,7 @@ const siteData = {
     {
       title: "Amazon.com (AMZN) — Equity Research Note",
       sector: "Consumer",
+      market: "US",
       date: "Jul 2026",
       thesis: "A high-margin business wearing a low-margin costume — AWS and advertising carry the value.",
       rating: "BUY",
@@ -272,6 +283,7 @@ const siteData = {
     {
       title: "Apple Inc. (AAPL) — Investment Report & DCF",
       sector: "Technology",
+      market: "US",
       date: "Jun 2026",
       thesis: "Moat, ecosystem lock-in and services mix justify the premium — for long-term holders.",
       rating: "BUY",
@@ -287,6 +299,7 @@ const siteData = {
     {
       title: "Tesla, Inc. (TSLA) — Equity Research Note",
       sector: "Autos & EV",
+      market: "US",
       date: "Jun 2026",
       thesis: "Respect the optionality — but don't underwrite a trillion-dollar autonomy narrative with a spreadsheet.",
       rating: "HOLD",
@@ -302,6 +315,7 @@ const siteData = {
     {
       title: "Visa Inc. (V) — Equity Research Report",
       sector: "Payments",
+      market: "US",
       date: "Jun 2026",
       thesis: "A toll-booth on the cash-to-digital shift, with ~50% net margins and a fortress model.",
       rating: "BUY",
@@ -317,6 +331,7 @@ const siteData = {
     {
       title: "Coca-Cola (KO) — Equity Research Note",
       sector: "Consumer",
+      market: "US",
       date: "Jun 2026",
       thesis: "The archetypal quality defensive — pricing power does the heavy lifting; the dividend pays you to wait.",
       rating: "ACCUMULATE",
@@ -332,6 +347,7 @@ const siteData = {
     {
       title: "Hindustan Unilever (HINDUNILVR) — Investment Report",
       sector: "Consumer",
+      market: "India",
       date: "Jul 2026",
       thesis: "A high-quality franchise, fairly valued — hold what you own, don't chase it here.",
       rating: "HOLD",
@@ -347,6 +363,7 @@ const siteData = {
     {
       title: "Tata Consultancy Services (TCS) — Equity Research Report",
       sector: "IT Services",
+      market: "India",
       date: "Jun 2026",
       thesis: "The de-rating has overshot the fundamentals — highest operating margins in four years at ~16x earnings.",
       rating: "BUY",
@@ -362,6 +379,7 @@ const siteData = {
     {
       title: "Infosys (INFY) — Equity Research Report",
       sector: "IT Services",
+      market: "India",
       date: "Jul 2026",
       thesis: "Upgraded to ACCUMULATE — the price has fallen far more than the fundamentals have.",
       rating: "ACCUMULATE",
@@ -377,6 +395,7 @@ const siteData = {
     {
       title: "HDFC Bank (HDFCBANK) — Equity Research Report",
       sector: "Banking",
+      market: "India",
       date: "Jun 2026",
       thesis: "The ROE recovery is real — and already in the price.",
       rating: "HOLD",
@@ -392,6 +411,7 @@ const siteData = {
     {
       title: "ICICI Bank (ICICIBANK) — Equity Research Report",
       sector: "Banking",
+      market: "India",
       date: "Jul 2026",
       thesis: "Superb franchise — but the price has now run ahead of it.",
       rating: "REDUCE",
@@ -407,6 +427,7 @@ const siteData = {
     {
       title: "India Import Dependency — Sectoral Overview (FY 2024–25)",
       sector: "Macro",
+      market: "Macro",
       date: "2026",
       thesis: "The structural danger isn't the aggregate bill — it's the concentration of critical inputs in single suppliers.",
       rating: "",
@@ -419,6 +440,61 @@ const siteData = {
       fileLabel2: "Download the analysis (Excel)",
       thumbnail: ""
     }
+  ],
+
+  /* --------------------------------------------------------------------
+     TOOLS & LIVE TERMINALS — interactive apps. status: "live" | "building".
+     Live tools need url; building slots may leave url "".
+     -------------------------------------------------------------------- */
+  tools: [
+    {
+      name: "Meridian",
+      status: "live",
+      url: "https://debjitmukherjee1.github.io/meridian/",
+      type: "VALUATION + MACRO",
+      summary: "A sentiment-adjusted valuation tool — blends fundamental fair value with a market-sentiment overlay across four markets, plus a macro-backdrop dashboard (inflation, growth, policy rates, FX)."
+    },
+    {
+      name: "MarketPulse",
+      status: "live",
+      url: "https://debjitmukherjee1.github.io/marketpulse/",
+      type: "MONITOR + SIM + RISK",
+      summary: "A global index monitor with a Monte Carlo simulator, portfolio backtester, and risk suite (correlation matrix, rolling volatility, historical VaR) — all computed in the browser."
+    },
+    {
+      name: "Ledger",
+      status: "live",
+      url: "https://debjitmukherjee1.github.io/ledger/",
+      type: "TRACK RECORD",
+      summary: "A public, self-updating track record of every research call published — return since call, alpha vs benchmark, hit rate, upcoming earnings. Losers shown as prominently as winners."
+    },
+    {
+      name: "Abacus",
+      status: "live",
+      url: "https://debjitmukherjee1.github.io/abacus/",
+      type: "TOOLKIT",
+      summary: "The analyst's toolkit — six calculators (DCF with sensitivity heatmap, comps, Black-Scholes options, bond math, WACC/CAPM, SIP/compounding) computed live client-side."
+    },
+    {
+      name: "Tenline",
+      status: "live",
+      url: "https://debjitmukherjee1.github.io/tenline/",
+      type: "FUNDAMENTALS",
+      summary: "Ten years of any S&P 500 company's fundamentals — revenue, margins, FCF, ROIC, share count — charted straight from SEC filings. Ten years, ten lines, no narrative."
+    }
+  ],
+
+  /* --------------------------------------------------------------------
+     PIPELINE — upcoming coverage, shown as ghost cards under the library.
+     tag: short mono label e.g. "IN BUILD" | "QUEUED" | "SCHEDULED".
+     -------------------------------------------------------------------- */
+  pipeline: [
+    { label: "India · Nifty 50 · Expected Aug 2026", title: "Next India name",
+      summary: "Full model and research note in build — publishing on the regular schedule.", tag: "IN BUILD" },
+    { label: "US · S&P 500 · Expected Aug 2026", title: "Next US name",
+      summary: "Sector chosen for variety against existing coverage.", tag: "QUEUED" },
+    { label: "Thematic · Macro · Oct 2026", title: "Quarterly macro report",
+      summary: "The next seasonal deep-dive, tied back to the coverage universe.", tag: "SCHEDULED" }
   ],
 
   /* --------------------------------------------------------------------
