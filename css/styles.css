@@ -46,7 +46,6 @@
 
   --max-width: 1080px;
   --ticker-h: 44px;
-  --nav-h: 48px;      /* site-nav row, stacked sticky above the ticker */
 }
 
 /* ------------------------------- base ----------------------------------- */
@@ -134,6 +133,45 @@ a:hover { color: var(--paper); }
   z-index: 100;
 }
 .skip-link:focus { left: 0; }
+
+/* ------------------------- side tabs: Meridian, MarketPulse -------------- */
+/* Persistent links out to separate live projects. Reuses the .mast-link
+   visual vocabulary (mono, uppercase, bordered, ash-on-hover) rather than
+   inventing a new style, just docked to the viewport edge instead of
+   inline. Pure CSS -- no app.js hook needed. Stacked in a flex column so
+   adding another project later is just another <a class="side-tab">. */
+.side-tabs {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  z-index: 90;                 /* above content/ticker(50), below modal(200) */
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.side-tab {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--paper);
+  background: var(--bg-raised);
+  border: 1px solid var(--accent-faint);
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+  padding: 1.1rem 0.6rem;
+  box-shadow: -3px 3px 14px rgba(0, 0, 0, 0.18);
+  transition: border-color 0.15s, color 0.15s, transform 0.2s ease-out;
+}
+.side-tab:hover, .side-tab:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateX(-3px);
+}
 
 /* --------------------- boot overlay (first visit only) ------------------ */
 .boot {
@@ -393,7 +431,7 @@ a:hover { color: var(--paper); }
 /* ------------------------- THE TICKER (signature) ----------------------- */
 .ticker-wrap {
   position: sticky;
-  top: var(--nav-h);    /* sits directly below the sticky site-nav */
+  top: 0;
   z-index: 50;
   background: var(--bg-inset);
   border-top: 1px solid var(--accent-faint);
@@ -1006,6 +1044,12 @@ a:hover { color: var(--paper); }
   .modal-body { padding: 1.4rem 1.2rem 1.8rem; }
   .card-grid { grid-template-columns: 1fr; }
 
+  /* Smaller + closer to the edge so it doesn't eat too much of a phone's
+     width; still a comfortable ~40px touch target. Tighter gap so two
+     stacked tabs still fit short viewports. */
+  .side-tab { font-size: 0.62rem; padding: 0.85rem 0.45rem; letter-spacing: 0.1em; }
+  .side-tabs { gap: 0.3rem; }
+
   /* Comfortable touch targets (~44px) for the small controls on phones */
   .mast-link,
   .filter-btn {
@@ -1097,302 +1141,6 @@ a:hover { color: var(--paper); }
   transition: opacity 1.1s ease;
 }
 
-/* --------------------- approach: sticky-scroll walkthrough --------------- */
-.approach-wrap {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  margin-top: 1.6rem;
-  align-items: start;
-}
-.approach-steps { display: flex; flex-direction: column; }
-.approach-step {
-  min-height: 60vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.6rem;
-  transition: opacity 0.5s ease;
-}
-/* dimming of inactive steps only kicks in once JS is driving it (no-JS safe) */
-.scrollytelling .approach-step:not(.active) { opacity: 0.32; }
-.approach-kicker {
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-.approach-h {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
-  margin: 0;
-  line-height: 1.2;
-}
-.approach-p { color: var(--paper-dim); font-size: 1.05rem; max-width: 32em; margin: 0; }
-
-.approach-visual { position: sticky; top: calc(var(--nav-h) + var(--ticker-h) + 9vh); height: 58vh; }
-.approach-panel {
-  position: relative;
-  height: 100%;
-  border: 1px solid var(--accent-faint);
-  background: var(--bg-raised);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-.approach-rail {
-  position: absolute; left: 1.4rem; top: 0; bottom: 0;
-  display: flex; flex-direction: column; justify-content: center; gap: 0.9rem;
-}
-.approach-tick {
-  width: 10px; height: 10px; border-radius: 50%;
-  border: 1px solid var(--accent-faint);
-  transition: background 0.4s ease, border-color 0.4s ease;
-}
-.approach-tick.on { background: var(--accent); border-color: var(--accent); }
-.approach-display { text-align: center; }
-.approach-num {
-  display: block;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(4rem, 12vw, 8rem);
-  line-height: 1;
-  color: var(--paper);
-  font-variant-numeric: tabular-nums;
-}
-.approach-word {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.3em;
-  color: var(--accent);
-  margin-top: 0.7rem;
-}
-@media (max-width: 760px) {
-  .approach-wrap { grid-template-columns: 1fr; gap: 0; }
-  .approach-visual { display: none; }                 /* sticky panel is a desktop touch */
-  .approach-step {
-    min-height: 0;
-    padding: 1.4rem 0;
-    border-bottom: 1px solid var(--accent-faint);
-  }
-  .scrollytelling .approach-step:not(.active) { opacity: 1; }   /* show all on phones */
-}
-
-/* ===== Tools & library upgrade (2026) ===== */
-
-/* --- Tools section: live-terminal cards, same card language as the rest.
-   .card already supplies the panel look (background, border, hover lift);
-   these rules only adapt it for an <a> tag and add the tool-specific bits. */
-.tool-card { text-decoration: none; color: inherit; }
-
-.tool-chrome { display: flex; gap: 6px; margin-bottom: 0.75rem; }
-.tool-chrome i {
-  width: 9px; height: 9px; border-radius: 50%;
-  background: rgba(var(--edge-rgb), 0.22);
-  display: inline-block;
-}
-
-.tool-live {
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  color: var(--up);
-  margin-bottom: 0.1rem;
-}
-.tool-live::before { content: "● "; animation: toolpulse 1.8s infinite; }
-@keyframes toolpulse { 50% { opacity: 0.35; } }
-
-.tool-soon-tag {
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  color: var(--paper-dim);
-}
-.card.tool-card.is-soon { opacity: 0.72; border-style: dashed !important; cursor: default; }
-
-/* --- research desk strip (auto-computed from data.js, never goes stale) --- */
-.desk-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 2rem;
-  border: 1px solid var(--accent-faint);
-  background: rgba(var(--ash-rgb), 0.06);
-  padding: 0.8rem 1.1rem;
-  margin: 1.2rem 0 0;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
-  color: var(--paper-dim);
-}
-.desk-strip b { color: var(--paper); font-weight: 600; }
-
-/* --- extra filter row: search + market/rating chips (reuses .filter-btn) --- */
-.filter-row2 {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem 0.5rem;
-  align-items: center;
-  margin: 1rem 0 0;
-}
-.filter-row2-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-}
-.lib-search {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(var(--edge-rgb), 0.18);
-  background: var(--bg-inset);
-  color: var(--paper);
-  min-width: 220px;
-}
-.lib-search::placeholder { color: var(--paper-dim); }
-.lib-search:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.fdivider {
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--paper-dim);
-  margin-right: 0.1rem;
-}
-
-/* --- pipeline: "coming to coverage" ghost cards under the library --- */
-.pipe-head {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--paper-dim);
-  margin: 2.2rem 0 0.9rem;
-}
-.pipe-card { opacity: 0.78; border-style: dashed !important; cursor: default; }
-.pipe-card .card-open-hint { display: none; }
-.pipe-tag {
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  color: var(--paper-dim);
-  border: 1px solid var(--accent-faint);
-  border-radius: 3px;
-  padding: 0.2rem 0.55rem;
-  display: inline-block;
-  margin-top: 0.75rem;
-}
-
-@media (max-width: 640px) {
-  .lib-search { min-width: 0; flex: 1 1 100%; }
-  .desk-strip { font-size: 0.66rem; gap: 0.45rem 1.1rem; }
-}
-
-/* ===== Multi-page redesign (2026) — nav, light headers, compact grid ===== */
-
-/* --- site nav: Overview / Research / Tools, present on all three pages.
-   Sticky and stacked directly above the ticker (also sticky) so the three
-   options stay visible the whole way down every page, not just at the top —
-   easy to scroll past and miss otherwise. Pill-style links (always-visible
-   border, bright text) so they read as three clickable destinations at a
-   glance rather than a quiet inline text row. --- */
-.site-nav {
-  position: sticky;
-  top: 0;
-  z-index: 51;                 /* above the ticker (50), stacks right on top of it */
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.6rem;
-  min-height: var(--nav-h);
-  padding: 0.6rem 1.5rem;
-  background: var(--bg-inset);
-  border-bottom: 1px solid var(--accent-faint);
-}
-.site-nav a {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  text-decoration: none;
-  color: var(--paper);
-  padding: 0.5rem 1.2rem;
-  border: 1px solid var(--accent-faint);
-  border-radius: 3px;
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
-}
-.site-nav a:hover { border-color: var(--accent); color: var(--accent); }
-.site-nav a[aria-current="page"] {
-  color: var(--bg);
-  background: var(--accent);
-  border-color: var(--accent);
-}
-
-/* --- light page header: Research & Tools (no hero/bio/stats, just a
-   kicker + title + one-line sub — personal branding stays on Overview) --- */
-.page-header {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 4.5rem 1.5rem 1.5rem;
-  text-align: center;
-}
-.page-kicker {
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--paper-dim);
-  border-top: 1px solid var(--accent-faint);
-  border-bottom: 1px solid var(--accent-faint);
-  display: inline-block;
-  padding: 0.45rem 1.2rem;
-  margin: 0 0 1.4rem;
-}
-.page-title {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
-  margin: 0 0 0.6rem;
-  color: var(--paper);
-}
-.page-sub {
-  color: var(--paper-dim);
-  max-width: 40em;
-  margin: 0 auto;
-  font-size: 1.02rem;
-}
-
-/* --- compact grid: the featured-models preview on Overview — a tighter
-   column count than the full library grid so 3-4 cards read as a
-   deliberate teaser, not a truncated list. --- */
-.card-grid-compact {
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  max-width: 980px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.models-preview-cta { display: inline-block; margin-top: 1.6rem; }
-
-/* Anchor jumps (cross-page ticker links, in-page nav) land below the
-   sticky ticker instead of underneath it. */
-.section { scroll-margin-top: calc(var(--nav-h) + var(--ticker-h) + 1rem); }
-
-@media (max-width: 640px) {
-  .page-header { padding: 3.5rem 1.1rem 1rem; }
-  .site-nav { gap: 0.35rem; padding: 0.7rem 1rem; }
-  .site-nav a { padding: 0.6rem 0.8rem; min-height: 44px; display: inline-flex; align-items: center; }
-}
-
 /* ============================ LIGHT THEME ==============================
    "Daylight gallery" — warm ash/beige base with New York photography.
    Activated by class="theme-light" on <html>. Removing the class reverts
@@ -1440,5 +1188,89 @@ html.theme-light .card:hover { box-shadow: 0 16px 40px rgba(60, 54, 42, 0.16); }
   font-size: 0.62rem;
   letter-spacing: 0.08em;
   color: var(--paper-dim);
+  line-height: 1.6;
+}
+
+/* ===== Valuation methodology (2026) =========================================
+   The "Valuation Methodology" section reuses the existing card, grid,
+   model-readout and tear-sheet language. Only two things are new: the method
+   readout wraps a little more freely on the cards, and the model detail view
+   gains an ordered "How it's valued" block. All colours resolve through the
+   existing CSS variables, so both themes are covered automatically.        */
+
+/* On methodology cards the readout carries three label/value pairs, so let
+   the whole value hug its label and wrap onto its own line when tight. */
+.method-card .model-readout {
+  gap: 0.35rem 0.9rem;
+  line-height: 1.5;
+}
+.method-card .model-readout .ro-val,
+.method-card .model-readout .ro-buy,
+.method-card .model-readout .ro-sell { min-width: 0; }
+
+/* Multi-method block inside a model's detail view -------------------------- */
+.method-block {
+  margin-top: 1.4rem;
+  border-top: 1px solid var(--accent-faint);
+  padding-top: 1rem;
+}
+.method-block-head {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  margin: 0 0 0.6rem;
+}
+.method-note {
+  color: var(--paper);
+  font-size: 0.98rem;
+  margin: 0 0 0.9rem;
+}
+.method-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.method-item {
+  background: var(--bg-inset);
+  border: 1px solid rgba(var(--edge-rgb), 0.08);
+  border-left: 2px solid var(--accent-faint);
+  padding: 0.7rem 0.85rem;
+}
+.method-item-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.8rem;
+}
+.method-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.02rem;
+  color: var(--paper);
+}
+.method-role {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  border: 1px solid rgba(var(--edge-rgb), 0.16);
+  padding: 0.14rem 0.5rem;
+}
+/* Primary method flagged in the site's positive/"buy" accent, the same one
+   the ratings readout uses — a green pulse-free highlight, theme-aware. */
+.method-role-primary {
+  color: var(--up);
+  border-color: var(--up);
+}
+.method-detail {
+  color: var(--paper-dim);
+  font-size: 0.92rem;
+  margin: 0.4rem 0 0;
   line-height: 1.6;
 }
