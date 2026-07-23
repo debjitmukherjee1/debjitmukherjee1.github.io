@@ -1,17 +1,11 @@
 /* ============================================================================
    app.js — behaviour only. Reads everything from siteData (js/data.js).
    ----------------------------------------------------------------------------
-   You should NOT need to edit this file for content changes. This ONE file
-   is loaded by all three pages — index.html (Overview), research.html and
-   tools.html — so every renderer below guards against its target element
-   not existing (`if (!el) return;`) and simply no-ops on pages that don't
-   have that section. It:
-     1. Fills the masthead, meta tags, footer and contact block (Overview)
-     2. Builds the ticker (duplicated once for a seamless CSS loop) and the
-        Overview/Research/Tools site nav — both shown on every page
-     3. Renders every section's cards from siteData, per page
-     4. Runs the sector/market/rating/search filters for the models library
-        (research.html) and the featured-models preview (index.html)
+   You should NOT need to edit this file for content changes. It:
+     1. Fills the masthead, meta tags, footer and contact block
+     2. Builds the ticker (duplicated once for a seamless CSS loop)
+     3. Renders every section's cards from siteData
+     4. Runs the sector filter for the models gallery
      5. Runs the single reusable detail modal (open/close, focus trap, Esc)
    All code is intentionally plain and commented so a future AI or human can
    extend it safely.
@@ -38,19 +32,13 @@
 
   /* ---------- 1. meta, masthead, footer, contact ------------------------- */
 
-  // Research/Tools pages set their own <title>/<meta description> (they're
-  // not "Debjit Mukherjee — Equity Research..."); only Overview's masthead
-  // (unique id="top") uses the site-wide siteData.meta values.
   function renderMeta() {
-    if (!byId("top")) return;
     document.title = siteData.meta.siteTitle;
     var desc = document.querySelector('meta[name="description"]');
     if (desc) desc.setAttribute("content", siteData.meta.description);
   }
 
   function renderHero() {
-    if (!byId("hero-name")) return;   // Research/Tools have no masthead
-
     // The masthead is now transparent so the fixed living backdrop (the
     // drifting market lines) shows through behind the name. The old opaque
     // skyline layer is intentionally not applied.
@@ -92,7 +80,6 @@
   /* Stats row under the bio: numbers count up when they become visible */
   function renderStats() {
     var wrap = byId("hero-stats");
-    if (!wrap) return;   // Research/Tools have no masthead
     if (!siteData.hero.stats || siteData.hero.stats.length === 0) {
       wrap.remove();
       return;
@@ -176,7 +163,6 @@
 
   function renderContact() {
     var block = byId("contact-block");
-    if (!block) return;   // Research/Tools have no contact section
     var email = el("a", "contact-email", siteData.hero.email);
     email.href = "mailto:" + siteData.hero.email;
     block.appendChild(email);
@@ -189,19 +175,9 @@
 
   /* ---------- 2. the ticker ---------------------------------------------- */
 
-  // The file name of the page currently loaded ("index.html" for the root
-  // "/" URL too), used to decide whether a ticker item's section is on this
-  // page (scroll) or another one (navigate there first).
-  function currentPageFile() {
-    var name = location.pathname.split("/").pop();
-    return name || "index.html";
-  }
-
   function renderTicker() {
     var tape = byId("ticker");
-    if (!tape) return;
     var arrows = { up: "▲", down: "▼", flat: "—" };
-    var here = currentPageFile();
 
     // Build the set twice: the CSS animation translates -50%, so a duplicate
     // set makes the loop seamless. Duplicates are aria-hidden + untabbable.
@@ -218,27 +194,12 @@
         if (item.sectionId) {
           btn.setAttribute("aria-label", item.label + ": " + item.value + ". Jump to section.");
           btn.addEventListener("click", function () {
-            if (item.page && item.page !== here) {
-              location.href = item.page + "#" + item.sectionId;
-              return;
-            }
             var target = byId(item.sectionId);
             if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
           });
         }
         tape.appendChild(btn);
       });
-    });
-  }
-
-  /* Site nav (Overview / Research / Tools): marks the link matching the
-     current page aria-current="page". Same markup on all three pages, so
-     this is the only place that needs to know which one is "here". */
-  function setupNav() {
-    var here = currentPageFile();
-    document.querySelectorAll(".site-nav a").forEach(function (a) {
-      var href = a.getAttribute("href");
-      if (href === here) a.setAttribute("aria-current", "page");
     });
   }
 
@@ -343,6 +304,33 @@
     body.appendChild(grid);
   }
 
+  // Multi-method valuation block for a model's detail view. Renders the
+  // one-line methodologyNote and, if present, the ordered list of methods
+  // (Primary first, then cross-checks). Both are optional — a model without
+  // them renders exactly as before.
+  function modalMethods(body, note, methods) {
+    if (!note && (!methods || methods.length === 0)) return;
+    var wrap = el("div", "method-block");
+    wrap.appendChild(el("p", "method-block-head", "How it's valued"));
+    if (note) wrap.appendChild(el("p", "method-note", note));
+    if (methods && methods.length) {
+      var list = el("ul", "method-list");
+      methods.forEach(function (m) {
+        var li = el("li", "method-item");
+        var role = (m.role || "").toLowerCase();
+        var roleClass = role.indexOf("primary") === 0 ? "method-role method-role-primary" : "method-role";
+        var top = el("div", "method-item-head");
+        top.appendChild(el("span", "method-name", m.method));
+        if (m.role) top.appendChild(el("span", roleClass, m.role));
+        li.appendChild(top);
+        if (m.detail) li.appendChild(el("p", "method-detail", m.detail));
+        list.appendChild(li);
+      });
+      wrap.appendChild(list);
+    }
+    body.appendChild(wrap);
+  }
+
   /* ---------- 4. section renderers ---------------------------------------
      Every card is a <button> so it is keyboard-operable by default.       */
 
@@ -360,7 +348,6 @@
 
   function renderEducation() {
     var grid = byId("education-grid");
-    if (!grid) return;   // Research/Tools don't have this section
     siteData.education.forEach(function (item) {
       grid.appendChild(makeCard(
         item.years, item.institution, item.degree, item.focus,
@@ -378,7 +365,6 @@
   function renderLeadership() {
     var featuredWrap = byId("leadership-featured");
     var grid = byId("leadership-grid");
-    if (!featuredWrap || !grid) return;   // Research/Tools don't have this section
 
     siteData.leadership.forEach(function (item) {
       var openDetail = function () {
@@ -410,7 +396,6 @@
 
   function renderExperience() {
     var grid = byId("experience-grid");
-    if (!grid) return;   // Research/Tools don't have this section
     siteData.experience.forEach(function (item) {
       grid.appendChild(makeCard(
         item.dates, item.company, item.role + (item.location ? " · " + item.location : ""), item.summary,
@@ -425,126 +410,9 @@
     });
   }
 
-  /* ---------- 4b. tools & live terminals ---------------------------------- */
-
-  // Turns the text before the first " — " in a tool's summary into a
-  // lower-cased descriptive clause used as the modal's sub-line, e.g.
-  // "A sentiment-adjusted valuation tool — blends…" -> "a sentiment-
-  // adjusted valuation tool".
-  function toolShortDesc(summary) {
-    var idx = summary.indexOf(" — ");
-    var phrase = idx === -1 ? summary : summary.slice(0, idx);
-    return phrase.charAt(0).toLowerCase() + phrase.slice(1);
-  }
-
-  function toolChrome() {
-    var chrome = el("div", "tool-chrome");
-    chrome.setAttribute("aria-hidden", "true");
-    chrome.appendChild(el("i"));
-    chrome.appendChild(el("i"));
-    chrome.appendChild(el("i"));
-    return chrome;
-  }
-
-  // Builds the tools grid from siteData.tools. Live cards open the detail
-  // modal ("how it works" — summary, feature bullets, then a Launch link
-  // out) rather than linking out directly, so a visitor sees what a tool
-  // does before leaving the site. The whole section is removed if the list
-  // is missing/empty, so older data.js files keep working.
-  function renderTools() {
-    var section = byId("tools");
-    var grid = byId("tools-grid");
-    if (!section || !grid || !siteData.tools || siteData.tools.length === 0) {
-      if (section) section.remove();
-      return;
-    }
-
-    siteData.tools.forEach(function (item) {
-      if (item.status === "live") {
-        var card = el("button", "card tool-card");
-        card.type = "button";
-        card.appendChild(toolChrome());
-        card.appendChild(el("span", "tool-live", "LIVE"));
-        card.appendChild(el("h3", "card-title", item.name));
-        card.appendChild(el("p", "card-summary", item.summary));
-
-        var ro = el("div", "model-readout");
-        ro.appendChild(el("span", "ro-label", "TYPE"));
-        ro.appendChild(el("span", "ro-val", item.type));
-        ro.appendChild(el("span", "ro-label", "COST"));
-        ro.appendChild(el("span", "ro-val", "FREE"));
-        card.appendChild(ro);
-
-        card.appendChild(el("span", "card-open-hint", "OPEN ↗"));
-        card.addEventListener("click", function () {
-          openModal(function (body) {
-            modalHeader(body, "TOOL · " + item.type, item.name, toolShortDesc(item.summary));
-            body.appendChild(el("p", "modal-detail", item.summary));
-            modalBullets(body, item.features);
-            var launch = el("a", "modal-file-link", "Launch " + item.name + " ↗");
-            launch.href = item.url;
-            launch.target = "_blank";
-            launch.rel = "noopener";
-            body.appendChild(launch);
-          });
-        });
-        grid.appendChild(card);
-      } else {
-        var soon = el("div", "card tool-card is-soon");
-        soon.appendChild(toolChrome());
-        soon.appendChild(el("span", "tool-soon-tag", "IN DEVELOPMENT"));
-        soon.appendChild(el("h3", "card-title", item.name));
-        soon.appendChild(el("p", "card-summary", item.summary));
-
-        var ro2 = el("div", "model-readout");
-        ro2.appendChild(el("span", "ro-label", "STATUS"));
-        ro2.appendChild(el("span", "ro-val", "BUILDING"));
-        soon.appendChild(ro2);
-
-        grid.appendChild(soon);
-      }
-    });
-  }
-
   /* ---------- 5. models gallery + sector filter --------------------------- */
 
   var activeSector = "All";
-
-  /* Cross-filter state shared by the sector buttons, the market/rating chips
-     and the free-text search box (all added in the tools upgrade).
-     renderModels() is the single place that consults all of it together. */
-  var libraryFilter = { market: "All", rating: "All", query: "" };
-
-  // Prefer the explicit market field on the model; fall back to inferring
-  // it from the currency symbol in its price fields for entries that lack it.
-  function marketOf(m) {
-    if (m.market) return m.market;
-    if (m.sector === "Macro") return "Macro";
-    var s = (m.targetPrice || "") + (m.impliedValue || "");
-    if (s.indexOf("₹") !== -1) return "India";
-    if (s.indexOf("$") !== -1) return "US";
-    return "Other";
-  }
-
-  // Collapses the four ratings into the three chip groups — BUY covers
-  // ACCUMULATE, REDUCE covers SELL.
-  function ratingGroup(r) {
-    if (r === "BUY" || r === "ACCUMULATE") return "BUY";
-    if (r === "REDUCE" || r === "SELL") return "REDUCE";
-    if (r === "HOLD") return "HOLD";
-    return "OTHER";
-  }
-
-  function passesLibraryFilter(item) {
-    if (activeSector !== "All" && item.sector !== activeSector) return false;
-    if (libraryFilter.market !== "All" && marketOf(item) !== libraryFilter.market) return false;
-    if (libraryFilter.rating !== "All" && ratingGroup(item.rating) !== libraryFilter.rating) return false;
-    if (libraryFilter.query) {
-      var hay = (item.title + " " + item.thesis + " " + item.sector).toLowerCase();
-      if (hay.indexOf(libraryFilter.query) === -1) return false;
-    }
-    return true;
-  }
 
   /* ---- illustrative model charts ----------------------------------------
      Decorative "terminal" line charts: a deterministic random walk seeded
@@ -733,28 +601,22 @@
     return "ro-hold";
   }
 
-  // compact: true skips the sparkline and the readout strip, for the
-  // featured-models preview on Overview — same card, lighter look. The
-  // click → openModal wiring (and the modal itself) stays identical either
-  // way, so the detail view is always the full one.
-  function renderModelCard(item, compact) {
+  function renderModelCard(item) {
     var card = el("button", "card");
     card.type = "button";
     card.appendChild(el("p", "sector-tag", item.sector + (item.date ? "  ·  " + item.date : "")));
     card.appendChild(el("h3", "card-title", item.title));
     card.appendChild(el("p", "card-summary", item.thesis));
 
-    if (!compact) {
-      // Illustrative sparkline (seeded from title, biased by rating direction)
-      var spark = el("canvas", "spark");
-      spark.setAttribute("data-seed", item.title);
-      spark.setAttribute("data-trend", String(trendForRating(item.rating)));
-      spark.setAttribute("aria-hidden", "true");
-      card.appendChild(spark);
-    }
+    // Illustrative sparkline (seeded from title, biased by rating direction)
+    var spark = el("canvas", "spark");
+    spark.setAttribute("data-seed", item.title);
+    spark.setAttribute("data-trend", String(trendForRating(item.rating)));
+    spark.setAttribute("aria-hidden", "true");
+    card.appendChild(spark);
 
     // Terminal-style readout strip: only lines that have values
-    if (!compact && (item.rating || item.targetPrice || item.impliedValue)) {
+    if (item.rating || item.targetPrice || item.impliedValue) {
       var ro = el("div", "model-readout");
       if (item.rating) {
         ro.appendChild(el("span", "ro-label", "RATING"));
@@ -810,6 +672,8 @@
         body.appendChild(chartWrap);
         // the written thesis / detail sits under the numbers, like a note body
         body.appendChild(el("p", "modal-detail", item.detail));
+        // Optional multi-method valuation block (methodologyNote + methods)
+        modalMethods(body, item.methodologyNote, item.methods);
         // Primary file link (usually the research report PDF)…
         if (item.fileUrl) {
           var a = el("a", "modal-file-link", item.fileLabel || "View file");
@@ -832,10 +696,9 @@
 
   function renderModels() {
     var grid = byId("models-grid");
-    if (!grid) return;   // full library only exists on research.html
     grid.innerHTML = "";
     siteData.models.forEach(function (item) {
-      if (passesLibraryFilter(item)) {
+      if (activeSector === "All" || item.sector === activeSector) {
         grid.appendChild(renderModelCard(item));
       }
     });
@@ -843,97 +706,8 @@
     requestAnimationFrame(drawAllSparks);
   }
 
-  /* Compact featured-models preview on Overview (index.html): siteData.models
-     with featured:true, falling back to the first 4 if none are flagged, so
-     it's never empty. Reuses renderModelCard()'s modal wiring — the detail
-     view is identical to the full library's, just the card itself is
-     lighter (no sparkline/readout — see the compact param above). */
-  function renderCompactModels() {
-    var grid = byId("models-preview-grid");
-    if (!grid) return;
-    var featured = siteData.models.filter(function (m) { return m.featured === true; });
-    if (featured.length === 0) featured = siteData.models.slice(0, 4);
-    featured.slice(0, 4).forEach(function (item) {
-      grid.appendChild(renderModelCard(item, true));
-    });
-  }
-
-  /* Wires the market/rating chip row and the search box added in the tools
-     upgrade (static markup in index.html — .filter-row2). No-op if that
-     markup isn't present, so older builds of index.html keep working. */
-  function setupLibraryFilters() {
-    var row = document.querySelector(".filter-row2");
-    if (!row) return;
-
-    function wire(selector, apply) {
-      row.querySelectorAll(selector).forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          apply(btn);
-          row.querySelectorAll(selector).forEach(function (b) {
-            b.setAttribute("aria-pressed", b === btn ? "true" : "false");
-          });
-          renderModels();
-        });
-      });
-    }
-    wire(".fx-market", function (btn) { libraryFilter.market = btn.getAttribute("data-m"); });
-    wire(".fx-rating", function (btn) { libraryFilter.rating = btn.getAttribute("data-r"); });
-
-    var search = byId("lib-search");
-    if (search) {
-      search.addEventListener("input", function (e) {
-        libraryFilter.query = e.target.value.trim().toLowerCase();
-        renderModels();
-      });
-    }
-  }
-
-  /* Desk strip: coverage / ratings / macro / pipeline counts, computed live
-     from siteData so the numbers can never drift out of sync with the
-     library itself. No-op if the markup isn't present. */
-  function renderDeskStrip() {
-    var strip = byId("desk-strip");
-    if (!strip) return;
-
-    var counts = { BUY: 0, ACCUMULATE: 0, HOLD: 0, REDUCE: 0 };
-    siteData.models.forEach(function (m) { if (counts[m.rating] !== undefined) counts[m.rating]++; });
-    var covered = siteData.models.filter(function (m) { return m.sector !== "Macro"; }).length;
-    var macroCount = siteData.models.length - covered;
-    var pipelineCount = (siteData.pipeline || []).length;
-
-    function stat(label, value) {
-      var span = el("span");
-      span.appendChild(document.createTextNode(label + " "));
-      span.appendChild(el("b", null, value));
-      strip.appendChild(span);
-    }
-    stat("COVERAGE", covered + " NAMES");
-    stat("RATINGS", counts.BUY + " BUY · " + counts.ACCUMULATE + " ACC · " + counts.HOLD + " HOLD · " + counts.REDUCE + " REDUCE");
-    stat("MACRO STUDIES", String(macroCount));
-    stat("PIPELINE", pipelineCount + " IN BUILD");
-  }
-
-  /* Pipeline: ghost cards for "coming to coverage", from siteData.pipeline.
-     The whole block (heading + grid) is removed if the list is empty/absent. */
-  function renderPipeline() {
-    var wrap = byId("pipeline-wrap");
-    if (!wrap) return;
-    if (!siteData.pipeline || siteData.pipeline.length === 0) { wrap.remove(); return; }
-
-    var grid = byId("pipeline-grid");
-    siteData.pipeline.forEach(function (item) {
-      var card = el("div", "card pipe-card");
-      card.appendChild(el("p", "sector-tag", item.label));
-      card.appendChild(el("h3", "card-title", item.title));
-      card.appendChild(el("p", "card-summary", item.summary));
-      if (item.tag) card.appendChild(el("span", "pipe-tag", item.tag));
-      grid.appendChild(card);
-    });
-  }
-
   function renderFilters() {
     var bar = byId("sector-filters");
-    if (!bar) return;   // full library only exists on research.html
 
     // Sector list is derived from the data, so new sectors in data.js
     // automatically get a filter button — no code change needed.
@@ -957,11 +731,86 @@
     });
   }
 
+  /* ---------- 5b. valuation methodology ----------------------------------
+     The framework behind the coverage: why different businesses are valued
+     with different methods. Cards render from siteData.methodology; the whole
+     section removes itself if that data is missing (backwards compatible). */
+
+  function renderMethodology() {
+    var section = byId("methodology");
+    var grid = byId("methodology-grid");
+    var m = siteData.methodology;
+    if (!section || !grid || !m || !m.approaches || m.approaches.length === 0) {
+      if (section) section.remove();
+      return;
+    }
+
+    var intro = byId("methodology-intro");
+    if (intro) {
+      if (m.intro) intro.textContent = m.intro;
+      else intro.remove();
+    }
+
+    m.approaches.forEach(function (a) {
+      var card = el("button", "card method-card");
+      card.type = "button";
+      card.appendChild(el("p", "sector-tag", a.examples || ""));
+      card.appendChild(el("h3", "card-title", a.businessType));
+      if (a.summary) card.appendChild(el("p", "card-summary", a.summary));
+
+      // Terminal-style readout: primary method, cross-checks, and (if given)
+      // the method deliberately avoided — reuses the model-readout language.
+      var ro = el("div", "model-readout");
+      if (a.primary) {
+        ro.appendChild(el("span", "ro-label", "PRIMARY"));
+        ro.appendChild(el("span", "ro-buy", a.primary));
+      }
+      if (a.crossChecks) {
+        ro.appendChild(el("span", "ro-label", "CROSS-CHECK"));
+        ro.appendChild(el("span", "ro-val", a.crossChecks));
+      }
+      if (a.avoid) {
+        ro.appendChild(el("span", "ro-label", "NOT USED"));
+        ro.appendChild(el("span", "ro-sell", a.avoid));
+      }
+      card.appendChild(ro);
+
+      card.appendChild(el("span", "card-open-hint", "OPEN ↗"));
+      card.addEventListener("click", function () {
+        openModal(function (body) {
+          modalHeader(body, "METHODOLOGY · " + (a.examples || ""), a.businessType, a.summary || "");
+          var band = el("div", "tearsheet");
+          if (a.primary) {
+            var c1 = el("div", "ts-cell");
+            c1.appendChild(el("span", "ts-label", "Primary method"));
+            c1.appendChild(el("span", "ts-value", a.primary));
+            band.appendChild(c1);
+          }
+          if (a.crossChecks) {
+            var c2 = el("div", "ts-cell");
+            c2.appendChild(el("span", "ts-label", "Cross-checks"));
+            c2.appendChild(el("span", "ts-value", a.crossChecks));
+            band.appendChild(c2);
+          }
+          if (a.avoid) {
+            var c3 = el("div", "ts-cell");
+            c3.appendChild(el("span", "ts-label", "Not used"));
+            c3.appendChild(el("span", "ts-value", a.avoid));
+            band.appendChild(c3);
+          }
+          body.appendChild(band);
+          if (a.detail) body.appendChild(el("p", "modal-detail", a.detail));
+        });
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
   /* ---------- 6. credentials & skills ------------------------------------ */
 
   function renderCredentials() {
     var list = byId("credentials-list");
-    if (!list) return;   // Research/Tools don't have this section
     siteData.credentials.forEach(function (item) {
       var li = el("li", "credential-item");
       var btn = el("button", "credential-btn");
@@ -991,13 +840,11 @@
   }
 
   function renderSkills() {
-    var technical = byId("skills-technical"), soft = byId("skills-soft");
-    if (!technical || !soft) return;   // Research/Tools don't have this section
     siteData.skills.technical.forEach(function (s) {
-      technical.appendChild(el("li", null, s));
+      byId("skills-technical").appendChild(el("li", null, s));
     });
     siteData.skills.soft.forEach(function (s) {
-      soft.appendChild(el("li", null, s));
+      byId("skills-soft").appendChild(el("li", null, s));
     });
   }
 
@@ -1359,11 +1206,10 @@
     if (!("IntersectionObserver" in window)) return;
     var overlay = "linear-gradient(rgba(227,221,206,0.86), rgba(227,221,206,0.9)), ";
     var map = {
-      leadership:     "assets/images/bg-hall.jpg",
-      models:         "assets/images/bg-district.jpg",
-      "models-preview": "assets/images/bg-district.jpg",
-      credentials:    "assets/images/bg-ledger.jpg",
-      contact:        "assets/images/bg-wallst.jpg"
+      leadership:  "assets/images/bg-hall.jpg",
+      models:      "assets/images/bg-district.jpg",
+      credentials: "assets/images/bg-ledger.jpg",
+      contact:     "assets/images/bg-wallst.jpg"
     };
     var available = {};
     Object.keys(map).forEach(function (k) {
@@ -1398,49 +1244,6 @@
     document.querySelectorAll("main .section").forEach(function (s) { obs.observe(s); });
   }
 
-  /* Sticky-scroll "Approach" walkthrough: as each step block reaches the
-     middle of the viewport it becomes active, the pinned panel updates its
-     big number/word, and the progress rail fills. No-JS + reduced-motion
-     safe (all steps just read as a plain list). */
-  function setupApproach() {
-    var wrap = document.querySelector(".approach-wrap");
-    if (!wrap) return;
-    var steps = wrap.querySelectorAll(".approach-step");
-    var ticks = wrap.querySelectorAll(".approach-tick");
-    var numEl = byId("approach-num"), wordEl = byId("approach-word");
-    var words = ["SCREEN", "MODEL", "VALUE", "PUBLISH"];
-    function setActive(i) {
-      steps.forEach(function (s, idx) { s.classList.toggle("active", idx === i); });
-      ticks.forEach(function (t, idx) { t.classList.toggle("on", idx <= i); });
-      if (numEl) numEl.textContent = "0" + (i + 1);
-      if (wordEl) wordEl.textContent = words[i] || "";
-    }
-    if (reducedMotion || !("IntersectionObserver" in window)) { setActive(0); return; }
-    wrap.classList.add("scrollytelling");
-    setActive(0);
-    var obs = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (en.isIntersecting) setActive(parseInt(en.target.getAttribute("data-step"), 10) || 0);
-      });
-    }, { rootMargin: "-45% 0px -45% 0px", threshold: 0 });
-    steps.forEach(function (s) { obs.observe(s); });
-  }
-
-  /* Cross-page ticker links land on "page.html#section" — the browser's
-     native hash jump fires before the boot overlay clears and layout
-     settles, so it often lands short. Redo it once everything below has
-     rendered. */
-  function scrollToHash() {
-    if (!location.hash) return;
-    var target = byId(location.hash.slice(1));
-    if (!target) return;
-    requestAnimationFrame(function () {
-      requestAnimationFrame(function () {
-        target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
-      });
-    });
-  }
-
   /* ---------- boot -------------------------------------------------------- */
 
   runBoot();
@@ -1450,19 +1253,14 @@
   renderStats();
   renderMarketClock();
   renderTicker();
-  setupNav();
   startTickerPulse();
   setupModal();
   renderEducation();
   renderLeadership();
   renderExperience();
-  renderCompactModels();
-  renderTools();
-  renderDeskStrip();
   renderFilters();
-  setupLibraryFilters();
   renderModels();
-  renderPipeline();
+  renderMethodology();
   renderCredentials();
   renderSkills();
   renderContact();
@@ -1476,7 +1274,5 @@
   setupSectionRules();   // engraved rules ink in
   setupScrollShimmer();  // scroll-velocity vignette shimmer
   setupStage();          // crossfading photographic backdrop per section
-  setupApproach();       // sticky-scroll research-process walkthrough
-  scrollToHash();        // re-run the #anchor jump once layout has settled
 
 })();
