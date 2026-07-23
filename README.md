@@ -1,45 +1,26 @@
 # Debjit's Portfolio Website — Maintenance Guide
 
-This is a plain HTML/CSS/JavaScript website — three pages, no build step, no
-framework, no backend. Open `index.html` in a browser and it works. It's
-written so that a non-developer (or an AI assistant in a fresh conversation)
-can update it safely.
-
-## The three pages
-
-- **`index.html` — Overview.** The classy front door: who I am, education,
-  leadership, experience, credentials, skills, contact — plus a compact
-  preview of a few featured research reports.
-- **`research.html` — Research.** How the work gets made (Approach), then
-  the full report library: desk strip, market/sector/rating filters,
-  search, and the pipeline of what's coming next.
-- **`tools.html` — Tools.** The interactive web apps (Meridian, MarketPulse,
-  etc.) — each card opens a detail view explaining how it works before you
-  launch it.
-
-All three read from the same `js/data.js`, are styled by the same
-`css/styles.css`, and are driven by the same `js/app.js` (every renderer in
-that file simply no-ops on a page that doesn't have the section it targets).
+This is a plain HTML/CSS/JavaScript website. No build step, no framework, no
+backend. Open `index.html` in a browser and it works. It's written so that a
+non-developer (or an AI assistant in a fresh conversation) can update it safely.
 
 ## The one rule
 
 **All content lives in `js/data.js`. For routine updates, edit only that file.**
-Never touch `index.html`, `research.html`, `tools.html`, `css/styles.css`, or
-`js/app.js` unless you're deliberately changing the design or behaviour.
+Never touch `index.html`, `css/styles.css`, or `js/app.js` unless you're
+deliberately changing the design or behaviour.
 
 ## Folder structure
 
 ```
 portfolio/
-├── index.html         ← Overview page structure (don't edit for content)
-├── research.html      ← Research page structure (don't edit for content)
-├── tools.html          ← Tools page structure (don't edit for content)
+├── index.html          ← page structure (don't edit for content)
 ├── favicon.svg         ← browser-tab icon
 ├── css/
-│   └── styles.css     ← all styling, all three pages (don't edit for content)
+│   └── styles.css      ← all styling (don't edit for content)
 ├── js/
-│   ├── data.js        ← ★ ALL CONTENT — the only file you edit
-│   └── app.js         ← behaviour/rendering, all three pages (don't edit for content)
+│   ├── data.js         ← ★ ALL CONTENT — the only file you edit
+│   └── app.js          ← behaviour/rendering (don't edit for content)
 └── assets/
     ├── images/         ← photos (compressed JPG/PNG go here)
     └── files/          ← resume PDF, model PDFs/Excel files
@@ -50,26 +31,23 @@ portfolio/
 **Add a financial model:** find the `models:` list. Copy one existing
 `{ ... },` block, paste it into the list, and edit the values. Put the actual
 PDF/Excel file in `assets/files/` and set `fileUrl` to match, e.g.
-`"assets/files/infosys-dcf.pdf"`. New sectors automatically get a filter button
-on `research.html`. Set `market` to `"India"`, `"US"` or `"Macro"` — it drives
-the library's market filter and the auto-computed desk strip (coverage /
-ratings / macro counts). Leave `sector: "Macro"` studies out of the coverage
-count by using `market: "Macro"`. Set `featured: true` to show it in the
-compact preview on `index.html` (Overview) — keep this to a handful; the full
-list always lives on `research.html` regardless.
+`"assets/files/infosys-dcf.pdf"`. New sectors automatically get a filter button.
 
-**Add a tool:** find the `tools:` list on `tools.html`. Copy one existing
-block, paste it in, and edit the values. `status: "live"` needs a real `url`
-and renders as a card that opens a "how it works" detail view (summary +
-`features` bullet list + a Launch link); `status: "building"` should leave
-`url: ""` and renders as a dashed "IN DEVELOPMENT" card with no link. Leaving
-`tools:` out entirely (or emptying the list) hides the whole section.
+**Show how a company is valued (multi-method):** each `models:` entry may
+carry two optional fields (both safe to omit — leave them out and the card
+renders exactly as before):
+- `methodologyNote`: one plain sentence on *why* this business is valued the
+  way it is (shown in the detail view under a "How it's valued" heading).
+- `methods`: a list, primary method first, e.g.
+  `{ method: "FCFF discounted cash flow", role: "Primary", detail: "one line" }`.
+  Use `role: "Primary"` for the leading method and `role: "Cross-check"` for
+  the supporting ones. The Alphabet entry is a worked example.
 
-**Add an upcoming name to the pipeline:** find the `pipeline:` list. Copy one
-existing block, paste it in, and edit `label`, `title`, `summary` and `tag`
-(a short mono status like `"IN BUILD"`, `"QUEUED"` or `"SCHEDULED"`). These
-render as ghost cards under the research library. Emptying the list hides
-that row.
+**Edit the "Valuation Methodology" section:** it is driven by the
+`methodology:` object (an `intro` string plus an `approaches:` list, one card
+per business archetype — banks, IT services, staples, payments, diversified
+tech, hyper-growth). Copy an approach block to add one; delete the whole
+`methodology:` object to hide the section entirely.
 
 **Add an internship:** find the `experience:` list. Copy an existing block,
 paste it at the top (newest first), edit the values.
@@ -91,12 +69,10 @@ placeholder frame instead of breaking.
 
 **Change name / tagline / bio / email / LinkedIn:** edit the `hero:` section.
 
-**Change the ticker items:** edit the `ticker:` list (shown on all three
-pages). `direction` must be `"up"`, `"down"` or `"flat"`; `sectionId` (where
-clicking jumps to) must be one of: `education`, `leadership`, `experience`,
-`models`, `credentials`, `skills`, `contact`. Set `page` to whichever file
-that section actually lives on — `"index.html"` or `"research.html"` —
-clicking navigates there first if you're not already on it, then scrolls.
+**Change the ticker items:** edit the `ticker:` list. `direction` must be
+`"up"`, `"down"` or `"flat"`; `sectionId` (where clicking jumps to) must be one
+of: `education`, `leadership`, `experience`, `models`, `credentials`, `skills`,
+`contact`.
 
 **Change the browser-tab title / share description:** edit the `meta:` section.
 
@@ -105,10 +81,9 @@ clicking navigates there first if you're not already on it, then scrolls.
 - Keep the double quotes around every value. If your text contains a double
   quote, write it as `\"`.
 - Every entry in a list ends with a comma except optionally the last one.
-- After editing, open `index.html`, `research.html` and `tools.html` in a
-  browser. If a page comes up blank or a section is empty, you most likely
-  deleted a comma, quote, or brace — check your last edit (a broken
-  `data.js` breaks all three pages the same way, since they share it).
+- After editing, open `index.html` in a browser. If the page comes up blank or
+  a section is empty, you most likely deleted a comma, quote, or brace — check
+  your last edit.
 - Compress photos before adding them (aim for under ~300 KB each; any free
   online compressor works). Link model files, don't embed them.
 

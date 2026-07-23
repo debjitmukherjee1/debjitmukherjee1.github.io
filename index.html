@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/styles.css?v=12">
+  <link rel="stylesheet" href="css/styles.css?v=9">
 </head>
 <body>
 
@@ -24,6 +24,21 @@
 
   <!-- Skip link for keyboard users -->
   <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Side tabs — persistent links out to separate live projects. Pure
+       CSS/markup, no app.js hook needed. -->
+  <div class="side-tabs">
+    <a class="side-tab" href="https://debjitmukherjee1.github.io/meridian/"
+       target="_blank" rel="noopener"
+       aria-label="Open Meridian, a sentiment-adjusted valuation tool, in a new tab">
+      Open Meridian ↗
+    </a>
+    <a class="side-tab" href="https://debjitmukherjee1.github.io/marketpulse/"
+       target="_blank" rel="noopener"
+       aria-label="Open MarketPulse, a global index monitor and Monte Carlo simulator, in a new tab">
+      Open MarketPulse ↗
+    </a>
+  </div>
 
   <!-- ======================================================================
        BOOT OVERLAY — brief terminal-style loading sequence on first visit
@@ -53,16 +68,6 @@
       <!-- LinkedIn / Resume / Contact links injected from data.js -->
     </nav>
   </header>
-
-  <!-- ======================================================================
-       SITE NAV — Overview / Research / Tools. Present on all three pages;
-       app.js marks the current page aria-current="page".
-       ====================================================================== -->
-  <nav class="site-nav" aria-label="Site pages">
-    <a href="index.html">Overview</a>
-    <a href="research.html">Research</a>
-    <a href="tools.html">Tools</a>
-  </nav>
 
   <!-- ======================================================================
        THE TICKER — signature element. A scrolling tape of live "positions".
@@ -112,38 +117,49 @@
     </section>
 
     <!-- ==================================================================
-         04 · FINANCIAL MODELS & EQUITY RESEARCH — compact preview.
-         renderCompactModels() picks siteData.models with featured:true
-         (falling back to the first 4) and skips the sparkline/readout for
-         a lighter look. Full library lives on research.html.
+         04 · FINANCIAL MODELS & EQUITY RESEARCH — the centerpiece
          ================================================================== -->
-    <section class="section" id="models-preview" aria-labelledby="models-preview-title">
+    <section class="section section-models" id="models" aria-labelledby="models-title">
       <div class="section-head">
         <span class="section-index" aria-hidden="true">04</span>
-        <h2 class="section-title" id="models-preview-title">Financial Models &amp; Equity Research</h2>
+        <h2 class="section-title" id="models-title">Financial Models &amp; Equity Research</h2>
       </div>
-      <p class="section-note">A sample of the coverage — independent equity notes, each shipped with its full Excel model.</p>
-      <div class="card-grid card-grid-compact" id="models-preview-grid"></div>
-      <a class="mast-link mast-link-primary models-preview-cta" href="research.html">View Full Research Library →</a>
+      <p class="section-note">Independent work. Filter by sector — each entry opens a summary with a link to the full file.</p>
+      <div class="filter-bar" id="sector-filters" role="group" aria-label="Filter models by sector"></div>
+      <div class="card-grid card-grid-models" id="models-grid"></div>
     </section>
 
     <!-- ==================================================================
-         05 · CREDENTIALS & CERTIFICATIONS
+         05 · VALUATION METHODOLOGY — the framework behind the coverage.
+         Cards are rendered from siteData.methodology by app.js; the whole
+         section hides itself if that data is absent.
+         ================================================================== -->
+    <section class="section section-methodology" id="methodology" aria-labelledby="methodology-title">
+      <div class="section-head">
+        <span class="section-index" aria-hidden="true">05</span>
+        <h2 class="section-title" id="methodology-title">Valuation Methodology</h2>
+      </div>
+      <p class="section-note" id="methodology-intro"></p>
+      <div class="card-grid" id="methodology-grid"></div>
+    </section>
+
+    <!-- ==================================================================
+         06 · CREDENTIALS & CERTIFICATIONS
          ================================================================== -->
     <section class="section" id="credentials" aria-labelledby="credentials-title">
       <div class="section-head">
-        <span class="section-index" aria-hidden="true">05</span>
+        <span class="section-index" aria-hidden="true">06</span>
         <h2 class="section-title" id="credentials-title">Credentials &amp; Certifications</h2>
       </div>
       <ul class="credential-list" id="credentials-list"></ul>
     </section>
 
     <!-- ==================================================================
-         06 · SKILLS
+         07 · SKILLS
          ================================================================== -->
     <section class="section" id="skills" aria-labelledby="skills-title">
       <div class="section-head">
-        <span class="section-index" aria-hidden="true">06</span>
+        <span class="section-index" aria-hidden="true">07</span>
         <h2 class="section-title" id="skills-title">Skills</h2>
       </div>
       <div class="skills-wrap">
@@ -159,11 +175,11 @@
     </section>
 
     <!-- ==================================================================
-         07 · CONTACT
+         08 · CONTACT
          ================================================================== -->
     <section class="section section-contact" id="contact" aria-labelledby="contact-title">
       <div class="section-head">
-        <span class="section-index" aria-hidden="true">07</span>
+        <span class="section-index" aria-hidden="true">08</span>
         <h2 class="section-title" id="contact-title">Contact</h2>
       </div>
       <div class="contact-block" id="contact-block"></div>
@@ -195,7 +211,7 @@
   </div>
 
   <!-- Data first, then behaviour -->
-  <script src="js/data.js?v=4"></script>
-  <script src="js/app.js?v=12"></script>
+  <script src="js/data.js?v=3"></script>
+  <script src="js/app.js?v=9"></script>
 </body>
 </html>
