@@ -875,7 +875,7 @@ a:hover { color: var(--paper); }
   z-index: 200;
   /* animated open/close: app.js toggles the .open class */
   opacity: 0;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.4s ease;
 }
 .modal-backdrop.open { opacity: 1; }
 .modal-backdrop[hidden] { display: none; }
@@ -1441,4 +1441,187 @@ html.theme-light .card:hover { box-shadow: 0 16px 40px rgba(60, 54, 42, 0.16); }
   letter-spacing: 0.08em;
   color: var(--paper-dim);
   line-height: 1.6;
+}
+
+/* ============================================================================
+   2026 POLISH PASS — additive layer. Scroll-progress tape, ghost section
+   numerals, faint engraved (banknote) texture, coverage tally, a few quiet
+   micro-interactions and editorial type refinements. No dependencies; all of
+   it degrades gracefully and is quieted under reduced motion.
+   ========================================================================== */
+
+/* make each section a stacking context so its ghost numeral can sit behind
+   its own content and nothing else */
+.section { position: relative; isolation: isolate; }
+
+/* ---- oversized "ghost" section numeral, engraved faintly behind the head - */
+.section[data-ghost]::before {
+  content: attr(data-ghost);
+  position: absolute;
+  top: 2.6rem;
+  right: 0.5rem;
+  z-index: -1;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(5rem, 15vw, 10rem);
+  line-height: 0.8;
+  color: rgba(var(--edge-rgb), 0.05);
+  letter-spacing: -0.02em;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---- scroll-progress "tape": a hairline market-line tracking read depth -- */
+.scroll-tape {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 100%;
+  transform: scaleX(var(--sp, 0));
+  transform-origin: left center;
+  background: linear-gradient(90deg, rgba(var(--ash-rgb), 0.35), var(--accent));
+  z-index: 150;                 /* above ticker/nav (50), below modal (200) */
+  pointer-events: none;
+  will-change: transform;
+}
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-tape {
+      animation: scroll-tape-grow linear both;
+      animation-timeline: scroll(root block);
+    }
+    @keyframes scroll-tape-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  }
+}
+
+/* ---- title-card refrain: the four verbs light dim -> ink on scroll-in ---- */
+.reveal-band {
+  max-width: var(--max-width);
+  margin: 3.5rem auto 0;
+  padding: 2.4rem 1.5rem;
+  text-align: center;
+}
+.reveal-line {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 4.6vw, 2.9rem);
+  line-height: 1.3;
+  letter-spacing: 0.005em;
+  margin: 0;
+}
+.reveal-line .rw {
+  color: rgba(var(--edge-rgb), 0.2);
+  transition: color 0.45s ease;
+}
+.reveal-line .rw.lit { color: var(--paper); }
+.reveal-line .rw + .rw { margin-left: 0.35em; }
+
+/* ---- coverage rating tally at the Models header ------------------------- */
+.coverage-tally { margin-top: 1.2rem; max-width: 34rem; }
+.ct-bar {
+  display: flex;
+  height: 11px;
+  border: 1px solid var(--accent-faint);
+  background: var(--bg-inset);
+  overflow: hidden;
+}
+.ct-seg { height: 100%; width: 0; transition: width 0.9s cubic-bezier(0.2, 0.7, 0.3, 1); }
+.ct-seg.buy    { background: var(--up); }
+.ct-seg.acc    { background: rgba(var(--candle-up-rgb), 0.5); }
+.ct-seg.hold   { background: var(--flat); }
+.ct-seg.reduce { background: var(--down); }
+.ct-legend {
+  display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem;
+  margin-top: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--paper-dim);
+}
+.ct-legend span { display: inline-flex; align-items: center; }
+.ct-legend b { color: var(--paper); font-weight: 600; margin-right: 0.4em; font-variant-numeric: tabular-nums; }
+.ct-dot { width: 8px; height: 8px; margin-right: 0.45em; display: inline-block; }
+.ct-dot.buy    { background: var(--up); }
+.ct-dot.acc    { background: rgba(var(--candle-up-rgb), 0.5); }
+.ct-dot.hold   { background: var(--flat); }
+.ct-dot.reduce { background: var(--down); }
+
+/* ---- live "showing N" count under the sector filters -------------------- */
+.models-count {
+  font-family: var(--font-mono);
+  font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--paper-dim);
+  margin: 1rem 0 0;
+}
+.models-count b { color: var(--paper); font-variant-numeric: tabular-nums; }
+
+/* ---- copy-email chip in the contact block ------------------------------- */
+.contact-copy {
+  font-family: var(--font-mono);
+  font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-dim);
+  background: none;
+  border: 1px solid var(--accent-faint);
+  padding: 0.3rem 0.6rem;
+  margin-left: 0.6rem;
+  cursor: pointer;
+  vertical-align: middle;
+  transition: color 0.15s, border-color 0.15s;
+}
+.contact-copy:hover { color: var(--paper); border-color: var(--paper-dim); }
+.contact-copy.copied { color: var(--up); border-color: var(--up); }
+
+/* ---- tactile press on small controls ------------------------------------ */
+.filter-btn:active,
+.modal-file-link:active,
+.contact-copy:active,
+.credential-btn:active { transform: translateY(1px); }
+
+/* ---- ink-stamp entrance for the rating badge when a model opens ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .modal-backdrop.open .ts-badge { animation: ts-stamp 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  @keyframes ts-stamp {
+    0%   { transform: scale(1.28) rotate(-4deg); opacity: 0; }
+    60%  { transform: scale(0.96) rotate(1.5deg); opacity: 1; }
+    100% { transform: none; }
+  }
+}
+
+/* ---- circular reveal of the modal panel from the click point ------------ */
+.modal.modal-revealing { transform: none !important; transition: none !important; }
+
+/* ---- faint engraved "security paper" crosshatch over the masthead -------- */
+.masthead::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;                    /* above bg/photo, below the text (z-index 1) */
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(60deg,  rgba(var(--edge-rgb), 0.6) 0 0.5px, transparent 0.5px 8px),
+    repeating-linear-gradient(-60deg, rgba(var(--edge-rgb), 0.6) 0 0.5px, transparent 0.5px 8px);
+  opacity: 0.035;
+}
+
+/* ---- editorial figures + ligatures in the serif prose ------------------- */
+.masthead-bio, .card-summary, .modal-detail, .modal-sub,
+.section-note, .footer-personal, .approach-p, .reveal-line {
+  font-feature-settings: "liga" 1, "dlig" 1, "onum" 1, "kern" 1;
+}
+
+/* ---- draw-in underline on the contact email (extends the rule above) ----- */
+.contact-email {
+  text-decoration: none;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  padding-bottom: 2px;
+  transition: background-size 0.35s ease, color 0.15s;
+}
+.contact-email:hover, .contact-email:focus-visible { background-size: 100% 1px; color: var(--paper); }
+
+/* ---- reduced-motion: quiet this layer ----------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-line .rw { color: var(--paper) !important; transition: none !important; }
+  .ct-seg, .contact-email, .scroll-tape { transition: none !important; }
 }
