@@ -313,8 +313,10 @@
         modal.style.clipPath = from;
         var done = function () { modal.style.clipPath = ""; modal.classList.remove("modal-revealing"); };
         try {
+          // gentle, smooth ease-out expansion (slower than a snap so it reads
+          // as the panel unfolding rather than popping)
           var anim = modal.animate([{ clipPath: from }, { clipPath: to }],
-            { duration: 460, easing: "cubic-bezier(0.4, 0, 0.2, 1)" });
+            { duration: 720, easing: "cubic-bezier(0.22, 1, 0.36, 1)" });
           anim.finished.then(done).catch(done);
         } catch (e) { done(); }
         var tc = modal.querySelector("canvas[data-terminal-chart]");
@@ -1487,11 +1489,11 @@
     if (!("IntersectionObserver" in window)) return;
     var overlay = "linear-gradient(rgba(227,221,206,0.86), rgba(227,221,206,0.9)), ";
     var map = {
-      leadership:     "assets/images/bg-hall.jpg",
-      models:         "assets/images/bg-district.jpg",
-      "models-preview": "assets/images/bg-district.jpg",
-      credentials:    "assets/images/bg-ledger.jpg",
-      contact:        "assets/images/bg-wallst.jpg"
+      leadership:     "/assets/images/bg-hall.jpg",
+      models:         "/assets/images/bg-district.jpg",
+      "models-preview": "/assets/images/bg-district.jpg",
+      credentials:    "/assets/images/bg-ledger.jpg",
+      contact:        "/assets/images/bg-wallst.jpg"
     };
     var available = {};
     Object.keys(map).forEach(function (k) {
