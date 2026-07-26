@@ -63,8 +63,10 @@
       img.alt = "Portrait of " + siteData.hero.name;
       img.addEventListener("error", function () { frame.remove(); });
       frame.appendChild(img);
-      var kicker = byId("masthead-kicker");
-      kicker.parentNode.insertBefore(frame, kicker.nextSibling);
+      // sits just above the name (the old "confidential" kicker it used to
+      // anchor to has been removed)
+      var nameEl = byId("hero-name");
+      nameEl.parentNode.insertBefore(frame, nameEl);
     }
 
     byId("hero-name").textContent = siteData.hero.name;
@@ -130,6 +132,27 @@
     requestAnimationFrame(tick);
   }
 
+  /* Small integer tween used by the "showing N" model counter — rolls from the
+     previous value to the new one when the sector filter changes. */
+  function rollNumber(node, to) {
+    var from = parseInt(node.getAttribute("data-n") || "0", 10) || 0;
+    node.setAttribute("data-n", String(to));
+    // Always show the correct final value up front — so the number is right
+    // even if requestAnimationFrame is throttled (e.g. a background tab). The
+    // roll below is a pure enhancement layered on top.
+    node.textContent = String(to);
+    if (reducedMotion || from === to) return;
+    var dur = 450, start = null;
+    function step(ts) {
+      if (start === null) start = ts;
+      var p = Math.min(1, (ts - start) / dur);
+      node.textContent = String(Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) requestAnimationFrame(step);
+      else node.textContent = String(to);
+    }
+    requestAnimationFrame(step);
+  }
+
   /* Scroll reveal: cards and headers fade-rise in as they enter the
      viewport, staggered within each group. Classes are removed again after
      the entrance so they can't interfere with hover transitions. */
@@ -180,6 +203,21 @@
     var email = el("a", "contact-email", siteData.hero.email);
     email.href = "mailto:" + siteData.hero.email;
     block.appendChild(email);
+
+    // quick copy-to-clipboard chip next to the address (recruiter convenience)
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      var copy = el("button", "contact-copy", "Copy");
+      copy.type = "button";
+      copy.setAttribute("aria-label", "Copy email address to clipboard");
+      copy.addEventListener("click", function () {
+        navigator.clipboard.writeText(siteData.hero.email).then(function () {
+          copy.textContent = "Copied ✓";
+          copy.classList.add("copied");
+          setTimeout(function () { copy.textContent = "Copy"; copy.classList.remove("copied"); }, 1600);
+        }).catch(function () {});
+      });
+      block.appendChild(copy);
+    }
 
     var row = el("div", "contact-links");
     row.appendChild(makeLink(siteData.hero.resumeUrl, "Download Resume", "mast-link mast-link-primary", true));
@@ -246,6 +284,11 @@
 
   var backdrop, modal, closeBtn, lastFocused = null;
 
+  // Where the last pointer press landed, so the modal can open with a circular
+  // reveal that emanates from the click point (falls back to panel centre for
+  // keyboard opens). Recorded in setupModal().
+  var lastPointer = null;
+
   function openModal(buildBody) {
     var body = byId("modal-body");
     body.innerHTML = "";           // clear previous content
@@ -253,16 +296,42 @@
 
     lastFocused = document.activeElement;
     backdrop.hidden = false;
-    // next frame, add .open so the CSS fade/rise transition plays
-    requestAnimationFrame(function () {
-      requestAnimationFrame(function () {
-        backdrop.classList.add("open");
-        // draw the illustrative chart now that the modal has layout width
+    document.body.style.overflow = "hidden";
+
+    function afterPaint(fn) { requestAnimationFrame(function () { requestAnimationFrame(fn); }); }
+    var canReveal = !reducedMotion && typeof modal.animate === "function";
+
+    if (canReveal) {
+      // dim backdrop fades in (CSS), and the panel clip-reveals from the click
+      backdrop.classList.add("open");
+      modal.classList.add("modal-revealing");
+      afterPaint(function () {
+        var r = modal.getBoundingClientRect();
+        var px = lastPointer ? lastPointer.x - r.left : r.width / 2;
+        var py = lastPointer ? lastPointer.y - r.top : r.height / 2;
+        var far = Math.hypot(Math.max(px, r.width - px), Math.max(py, r.height - py));
+        var from = "circle(0px at " + px.toFixed(0) + "px " + py.toFixed(0) + "px)";
+        var to = "circle(" + Math.ceil(far) + "px at " + px.toFixed(0) + "px " + py.toFixed(0) + "px)";
+        modal.style.clipPath = from;
+        var done = function () { modal.style.clipPath = ""; modal.classList.remove("modal-revealing"); };
+        try {
+          // gentle, smooth ease-out expansion (slower than a snap so it reads
+          // as the panel unfolding rather than popping)
+          var anim = modal.animate([{ clipPath: from }, { clipPath: to }],
+            { duration: 720, easing: "cubic-bezier(0.22, 1, 0.36, 1)" });
+          anim.finished.then(done).catch(done);
+        } catch (e) { done(); }
         var tc = modal.querySelector("canvas[data-terminal-chart]");
         if (tc) animateTerminalChart(tc);
       });
-    });
-    document.body.style.overflow = "hidden";
+    } else {
+      // fallback: the original fade / rise
+      afterPaint(function () {
+        backdrop.classList.add("open");
+        var tc = modal.querySelector("canvas[data-terminal-chart]");
+        if (tc) animateTerminalChart(tc);
+      });
+    }
     closeBtn.focus();
   }
 
@@ -278,6 +347,12 @@
     backdrop = byId("modal-backdrop");
     modal = byId("modal");
     closeBtn = byId("modal-close");
+
+    // remember the click point (capture phase, before any card handler) so the
+    // modal can open with a circular reveal from there
+    document.addEventListener("pointerdown", function (e) {
+      lastPointer = { x: e.clientX, y: e.clientY };
+    }, true);
 
     closeBtn.addEventListener("click", closeModal);
     backdrop.addEventListener("click", function (e) {
@@ -834,13 +909,70 @@
     var grid = byId("models-grid");
     if (!grid) return;   // full library only exists on research.html
     grid.innerHTML = "";
+    var shown = 0;
     siteData.models.forEach(function (item) {
       if (passesLibraryFilter(item)) {
         grid.appendChild(renderModelCard(item));
+        shown++;
       }
     });
+    // roll the "showing N" counter to the new visible count
+    var countEl = byId("models-count");
+    if (countEl) rollNumber(countEl, shown);
     // draw the sparklines once the new cards have layout
     requestAnimationFrame(drawAllSparks);
+  }
+
+  /* Coverage rating distribution — a compact stacked bar + legend at the
+     Models header, computed live from siteData.models so it can never drift
+     from the library. No-op if the container isn't on the page. */
+  function renderCoverageTally() {
+    var wrap = byId("coverage-tally");
+    if (!wrap) return;
+    var order = [
+      { key: "BUY", cls: "buy", label: "BUY" },
+      { key: "ACCUMULATE", cls: "acc", label: "ACC" },
+      { key: "HOLD", cls: "hold", label: "HOLD" },
+      { key: "REDUCE", cls: "reduce", label: "REDUCE" }
+    ];
+    var counts = { BUY: 0, ACCUMULATE: 0, HOLD: 0, REDUCE: 0 };
+    siteData.models.forEach(function (m) { if (counts[m.rating] !== undefined) counts[m.rating]++; });
+    var total = order.reduce(function (s, o) { return s + counts[o.key]; }, 0);
+    if (total === 0) { wrap.remove(); return; }
+
+    var bar = el("div", "ct-bar");
+    var segs = [];
+    order.forEach(function (o) {
+      if (counts[o.key] === 0) return;
+      var seg = el("div", "ct-seg " + o.cls);
+      seg.setAttribute("data-w", ((counts[o.key] / total) * 100).toFixed(2) + "%");
+      seg.title = counts[o.key] + " " + o.label;
+      bar.appendChild(seg);
+      segs.push(seg);
+    });
+    wrap.appendChild(bar);
+
+    var legend = el("div", "ct-legend");
+    order.forEach(function (o) {
+      if (counts[o.key] === 0) return;
+      var span = el("span");
+      span.appendChild(el("i", "ct-dot " + o.cls));
+      span.appendChild(el("b", null, String(counts[o.key])));
+      span.appendChild(document.createTextNode(o.label));
+      legend.appendChild(span);
+    });
+    wrap.appendChild(legend);
+
+    // grow segments from zero once laid out (instant under reduced motion)
+    if (reducedMotion) {
+      segs.forEach(function (s) { s.style.width = s.getAttribute("data-w"); });
+    } else {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          segs.forEach(function (s) { s.style.width = s.getAttribute("data-w"); });
+        });
+      });
+    }
   }
 
   /* Compact featured-models preview on Overview (index.html): siteData.models
@@ -1426,6 +1558,46 @@
     steps.forEach(function (s) { obs.observe(s); });
   }
 
+  /* Scroll-progress tape: reflects scroll depth into --sp (0..1). Only runs
+     when the browser lacks native CSS scroll() timelines — otherwise the CSS
+     drives the bar off the main thread and this no-ops. Works under reduced
+     motion too (it's a position indicator, not an animation). */
+  function setupScrollTape() {
+    var tape = byId("scroll-tape");
+    if (!tape) return;
+    if (window.CSS && CSS.supports && CSS.supports("animation-timeline: scroll()")) return;
+    var root = document.documentElement;
+    function upd() {
+      var h = root.scrollHeight - window.innerHeight;
+      var p = h > 0 ? window.scrollY / h : 0;
+      tape.style.setProperty("--sp", Math.max(0, Math.min(1, p)).toFixed(4));
+    }
+    upd();
+    window.addEventListener("scroll", upd, { passive: true });
+    window.addEventListener("resize", upd);
+  }
+
+  /* Title-card refrain: the four verbs light from dim to ink, staggered, when
+     the band scrolls into view. Reduced motion / no-IntersectionObserver just
+     shows them all lit. */
+  function setupRevealLine() {
+    var line = document.querySelector(".reveal-line");
+    if (!line) return;
+    var words = line.querySelectorAll(".rw");
+    if (reducedMotion || !("IntersectionObserver" in window)) {
+      words.forEach(function (w) { w.classList.add("lit"); });
+      return;
+    }
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        words.forEach(function (w, i) { setTimeout(function () { w.classList.add("lit"); }, i * 150); });
+        obs.unobserve(en.target);
+      });
+    }, { threshold: 0.6 });
+    obs.observe(line);
+  }
+
   /* Cross-page ticker links land on "page.html#section" — the browser's
      native hash jump fires before the boot overlay clears and layout
      settles, so it often lands short. Redo it once everything below has
@@ -1462,6 +1634,7 @@
   renderFilters();
   setupLibraryFilters();
   renderModels();
+  renderCoverageTally();
   renderPipeline();
   renderCredentials();
   renderSkills();
@@ -1477,6 +1650,8 @@
   setupScrollShimmer();  // scroll-velocity vignette shimmer
   setupStage();          // crossfading photographic backdrop per section
   setupApproach();       // sticky-scroll research-process walkthrough
+  setupScrollTape();     // top scroll-progress tape (JS fallback path)
+  setupRevealLine();     // "Screen. Model. Value. Publish." title-card refrain
   scrollToHash();        // re-run the #anchor jump once layout has settled
 
 })();
