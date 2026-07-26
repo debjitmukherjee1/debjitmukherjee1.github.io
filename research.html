@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/styles.css?v=12">
+  <link rel="stylesheet" href="css/styles.css?v=14">
 </head>
 <body>
 
@@ -22,6 +22,10 @@
 
   <!-- Skip link for keyboard users -->
   <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Scroll-progress "tape" (see index.html). Native CSS scroll() timeline
+       where supported, else app.js (setupScrollTape). -->
+  <div class="scroll-tape" id="scroll-tape" aria-hidden="true"></div>
 
   <!-- ======================================================================
        BOOT OVERLAY — brief terminal-style loading sequence on first visit
@@ -74,7 +78,7 @@
     <!-- ==================================================================
          01 · APPROACH — sticky-scroll research-process walkthrough
          ================================================================== -->
-    <section class="section section-approach" id="approach" aria-labelledby="approach-title">
+    <section class="section section-approach" id="approach" data-ghost="01" aria-labelledby="approach-title">
       <div class="section-head">
         <span class="section-index" aria-hidden="true">01</span>
         <h2 class="section-title" id="approach-title">Approach</h2>
@@ -123,7 +127,7 @@
     <!-- ==================================================================
          02 · FINANCIAL MODELS & EQUITY RESEARCH — the full library
          ================================================================== -->
-    <section class="section section-models" id="models" aria-labelledby="models-title">
+    <section class="section section-models" id="models" data-ghost="02" aria-labelledby="models-title">
       <div class="section-head">
         <span class="section-index" aria-hidden="true">02</span>
         <h2 class="section-title" id="models-title">Financial Models &amp; Equity Research</h2>
@@ -150,6 +154,7 @@
       </div>
 
       <div class="filter-bar" id="sector-filters" role="group" aria-label="Filter models by sector"></div>
+      <p class="models-count" aria-live="polite">Showing <b id="models-count">0</b> of the library</p>
       <div class="card-grid card-grid-models" id="models-grid"></div>
 
       <div class="pipeline-wrap" id="pipeline-wrap">
@@ -185,6 +190,6 @@
 
   <!-- Data first, then behaviour -->
   <script src="js/data.js?v=4"></script>
-  <script src="js/app.js?v=12"></script>
+  <script src="js/app.js?v=14"></script>
 </body>
 </html>
