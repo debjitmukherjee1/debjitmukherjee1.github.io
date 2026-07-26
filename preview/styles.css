@@ -875,7 +875,7 @@ a:hover { color: var(--paper); }
   z-index: 200;
   /* animated open/close: app.js toggles the .open class */
   opacity: 0;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.4s ease;
 }
 .modal-backdrop.open { opacity: 1; }
 .modal-backdrop[hidden] { display: none; }
