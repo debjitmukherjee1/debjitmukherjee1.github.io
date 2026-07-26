@@ -1,0 +1,1627 @@
+/* ============================================================================
+   styles.css — ALL visual styling. Content editors should not need this file.
+   ----------------------------------------------------------------------------
+   THEME: high-finance print material. Deep navy-black base like a pitch-book
+   cover; cool white/grey type like engraved letterhead; a single ash-steel
+   accent used only for hairline rules, small caps and active states.
+   Palette is strictly black / white / grey / navy / ash — no warm metallics.
+   SIGNATURE ELEMENT: the scrolling ticker tape under the masthead. Everything
+   else stays quiet and disciplined around it.
+   ========================================================================== */
+
+/* ----------------------------- design tokens ---------------------------- */
+:root {
+  --bg:          #0a0e18;   /* page base — near-black navy            */
+  --bg-raised:   #101624;   /* card / panel surface                   */
+  --bg-inset:    #060910;   /* ticker strip, modal top bar            */
+  --paper:       #e9ebef;   /* primary text — cool paper white        */
+  --paper-dim:   #969eab;   /* secondary text — grey                  */
+  --accent:      #aeb9c9;   /* the one accent — brushed ash-steel     */
+  --accent-faint: rgba(var(--ash-rgb), 0.26); /* hairlines             */
+  --up:          #6fae85;   /* ticker up / BUY                        */
+  --down:        #bd6a5f;   /* ticker down / SELL                     */
+  --flat:        #8b93a5;   /* ticker flat / HOLD                     */
+
+  /* Hairline / border bases as RGB triplets so a theme is just a flip.
+     Almost every border in the file resolves to one of these two. */
+  --edge-rgb: 233, 235, 239;   /* primary hairline base                 */
+  --ash-rgb: 174, 185, 201;    /* ash hairline / accent base            */
+
+  /* Living-backdrop scene colours (read by app.js), as RGB triplets. */
+  --scene-grid-rgb: 174, 185, 201;
+  --scene-line1-rgb: 174, 185, 201;
+  --scene-line2-rgb: 233, 235, 239;
+  --scene-line3-rgb: 150, 158, 171;
+  --candle-up-rgb: 111, 174, 133;
+  --candle-down-rgb: 189, 106, 95;
+  --scene-glow-rgb: 191, 201, 215;
+
+  /* Cinematic vignette stops (over the backdrop). */
+  --vignette-mid:  rgba(8, 11, 18, 0.35);
+  --vignette-edge: rgba(5, 7, 13, 0.62);
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body:    "Source Serif 4", Georgia, serif;
+  --font-mono:    "IBM Plex Mono", "Courier New", monospace;
+
+  --max-width: 1080px;
+  --ticker-h: 44px;
+  --nav-h: 48px;      /* site-nav row, stacked sticky above the ticker */
+}
+
+/* ------------------------------- base ----------------------------------- */
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; font-optical-sizing: auto; }
+
+/* Fraunces has playful "wonk/soft" axes; pin them off so display text stays
+   sharp and letterpress-clean rather than quirky. */
+.masthead-name,
+.section-title,
+.card-title,
+.modal-title,
+.contact-email,
+.masthead-tagline { font-variation-settings: "SOFT" 0, "WONK" 0; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  /* faint ledger-line texture: horizontal rules every 8px, barely visible */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 7px,
+    rgba(var(--edge-rgb), 0.015) 7px,
+    rgba(var(--edge-rgb), 0.015) 8px
+  );
+}
+
+/* The living backdrop canvas, fixed behind everything (painted by app.js). */
+.scene-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  display: block;
+}
+
+/* Cinematic vignette over the backdrop: a soft pool of light toward the top-
+   centre falling to shadow at the edges — the "lit display case" depth. Sits
+   above the scene, below all content. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(135% 95% at 50% 30%,
+      transparent 0%,
+      var(--vignette-mid) 68%,
+      var(--vignette-edge) 100%);
+  /* scroll-velocity shimmer: the room lightens subtly as you move, settles
+     when you stop (--scroll-vel set 0..1 by app.js) */
+  opacity: calc(1 - var(--scroll-vel, 0) * 0.22);
+  transition: opacity 0.25s ease;
+}
+.ticker-wrap:active { cursor: grabbing; }
+
+img { max-width: 100%; display: block; }
+
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--paper); }
+
+/* Visible focus everywhere — keyboard users must always see where they are */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: var(--bg);
+  padding: 0.5rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  z-index: 100;
+}
+.skip-link:focus { left: 0; }
+
+/* --------------------- boot overlay (first visit only) ------------------ */
+.boot {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: var(--bg-inset);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.45s ease;
+}
+.boot.done { opacity: 0; pointer-events: none; }
+
+.boot-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  font-family: var(--font-mono);
+}
+.boot-label {
+  font-size: 0.66rem;
+  letter-spacing: 0.32em;
+  color: var(--paper-dim);
+}
+.boot-pct {
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--paper);
+  font-variant-numeric: tabular-nums;
+}
+.boot-bar {
+  width: 220px;
+  height: 2px;
+  background: rgba(var(--edge-rgb), 0.12);
+}
+.boot-fill { height: 100%; width: 0; background: var(--accent); }
+.boot-sub {
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  color: var(--paper-dim);
+}
+
+/* ------------------------------ masthead -------------------------------- */
+/* Engraved-letterhead treatment: centered, small-caps kicker between double
+   hairlines, large display name, restrained links row.                     */
+/* Full-bleed so the backdrop photo reaches both edges; the text inside
+   centers itself via its own max-widths. position/overflow contain the
+   slowly-zooming backdrop layer (.masthead-bg, created by app.js). */
+.masthead {
+  width: 100%;
+  min-height: 100vh;                 /* full-screen cinematic intro */
+  padding: 4rem 1.5rem 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Backdrop photo layer — sits behind the content and slowly zooms
+   (a "Ken Burns" drift) so the masthead feels alive without moving text. */
+.masthead-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 30%;
+  z-index: 0;
+  animation: kenburns 30s ease-in-out infinite alternate;
+}
+.masthead > *:not(.masthead-bg):not(.masthead-canvas) { position: relative; z-index: 1; }
+
+/* Animated terminal wallpaper (grid + drifting market lines), drawn by
+   app.js. Sits above the darkened skyline, below the glow and the text. */
+.masthead-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* explicit pixel size is set by app.js from the masthead's dimensions */
+}
+
+@keyframes kenburns {
+  from { transform: scale(1); }
+  to   { transform: scale(1.09); }
+}
+
+/* Soft "lighting": a slow-drifting cool glow bloom over the darkened
+   backdrop. Sits above the skyline (z0) and below the text (z1); screen
+   blend so it adds light rather than a flat wash. Palette-safe ash + steel. */
+.masthead::before {
+  content: "";
+  position: absolute;
+  inset: -25% -15% 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(55% 55% at 28% 18%, rgba(var(--ash-rgb), 0.12), transparent 62%),
+    radial-gradient(52% 55% at 80% 42%, rgba(96, 124, 166, 0.14), transparent 64%);
+  animation: hero-glow 20s ease-in-out infinite alternate;
+}
+@keyframes hero-glow {
+  from { transform: translate3d(-2%, -1%, 0) scale(1);   opacity: 0.72; }
+  to   { transform: translate3d(3%, 2%, 0)  scale(1.12); opacity: 1; }
+}
+
+/* Masthead entrance: each element rises in, slightly staggered */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+.masthead-kicker   { animation: rise-in 0.7s ease-out 0.05s both; }
+.masthead-portrait { animation: rise-in 0.7s ease-out 0.15s both; }
+.masthead-name     { animation: rise-in 0.7s ease-out 0.25s both; }
+.masthead-tagline  { animation: rise-in 0.7s ease-out 0.35s both; }
+.masthead-bio      { animation: rise-in 0.7s ease-out 0.45s both; }
+.hero-stats        { animation: rise-in 0.7s ease-out 0.55s both; }
+.masthead-links    { animation: rise-in 0.7s ease-out 0.65s both; }
+
+/* Count-up stats row under the bio */
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 3rem;
+  margin: 0 0 1.9rem;
+}
+.stat { text-align: center; }
+.stat-value {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.9rem;
+  color: var(--paper);
+  font-variant-numeric: tabular-nums;   /* digits don't jiggle while counting */
+  transform-origin: center top;
+}
+/* split-flap "tick": the value drops and settles each time it changes */
+.stat-value.flap { animation: flap 0.18s ease-out; }
+@keyframes flap {
+  0%   { transform: translateY(-45%) scaleY(0.55); opacity: 0.3; }
+  60%  { transform: translateY(6%)   scaleY(1.05); opacity: 1; }
+  100% { transform: translateY(0)    scaleY(1); }
+}
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+}
+
+/* When a backdrop photo is set in data.js, app.js adds this class and the
+   image (under a heavy navy gradient so type stays crisp). */
+.masthead-hasbg {
+  background-size: cover;
+  background-position: center 30%;
+  border-bottom: 1px solid var(--accent-faint);
+}
+
+/* Framed portrait: double hairline "engraved plate" frame */
+.masthead-portrait {
+  width: 138px;
+  height: 168px;
+  margin: 0 auto 1.6rem;
+  padding: 5px;
+  border: 1px solid var(--accent-faint);
+  outline: 1px solid rgba(var(--ash-rgb), 0.12);
+  outline-offset: 4px;
+  background: var(--bg-inset);
+}
+.masthead-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(25%) contrast(1.03);
+}
+
+.masthead-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.32em;
+  color: var(--paper-dim);
+  border-top: 1px solid var(--accent-faint);
+  border-bottom: 1px solid var(--accent-faint);
+  display: inline-block;
+  padding: 0.45rem 1.2rem;
+  margin: 0 0 2rem;
+}
+
+.masthead-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  letter-spacing: 0.02em;
+  margin: 0 0 0.4rem;
+  color: var(--paper);
+}
+
+.masthead-tagline {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1rem, 2.4vw, 1.25rem);
+  color: var(--accent);
+  margin: 0 auto 1.2rem;
+  max-width: 46em;
+}
+
+.masthead-bio {
+  color: var(--paper-dim);
+  max-width: 40em;
+  margin: 0 auto 1.8rem;
+}
+
+/* Live world-markets clock — a small terminal readout under the bio.
+   Text is filled + ticked by app.js; here we just style it. */
+.market-clock {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.15em;
+  color: var(--paper-dim);
+  font-variant-numeric: tabular-nums;
+  margin: 0 0 1.7rem;
+  animation: rise-in 0.7s ease-out 0.6s both;
+}
+
+.masthead-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.mast-link {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--paper);
+  border: 1px solid var(--accent-faint);
+  padding: 0.55rem 1.1rem;
+  /* clean ease (no overshoot) so the magnetic pull settles instead of wobbling */
+  transition: border-color 0.15s, color 0.15s, transform 0.2s ease-out;
+  will-change: transform;
+}
+.mast-link:hover { border-color: var(--accent); color: var(--accent); }
+.mast-link-primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.mast-link-primary:hover { background: var(--paper); border-color: var(--paper); color: var(--bg); }
+
+/* ------------------------- THE TICKER (signature) ----------------------- */
+.ticker-wrap {
+  position: sticky;
+  top: var(--nav-h);    /* sits directly below the sticky site-nav */
+  z-index: 50;
+  background: var(--bg-inset);
+  border-top: 1px solid var(--accent-faint);
+  border-bottom: 1px solid var(--accent-faint);
+  overflow: hidden;
+  height: var(--ticker-h);
+  cursor: grab;                    /* grab-and-fling */
+  touch-action: pan-y;
+  /* Soft fade at both edges so tape items dissolve in/out like a real
+     terminal ticker, instead of being hard-sliced by the screen border. */
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
+}
+
+.ticker {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: max-content;
+  animation: ticker-scroll 45s linear infinite;
+}
+
+/* pause when the user is reading or tabbing through it */
+.ticker-wrap:hover .ticker,
+.ticker-wrap:focus-within .ticker { animation-play-state: paused; }
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }  /* items are duplicated once, so -50% loops seamlessly */
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55em;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  padding: 0.55rem 1.6rem;
+  background: none;
+  border: none;
+  border-right: 1px solid rgba(var(--edge-rgb), 0.08);
+  color: var(--paper);
+  cursor: pointer;
+}
+.ticker-item:hover .ticker-label { color: var(--accent); }
+
+.ticker-label { color: var(--paper-dim); font-weight: 600; transition: color 0.15s; }
+.ticker-value { color: var(--paper); }
+.ticker-dir-up   { color: var(--up); }
+.ticker-dir-down { color: var(--down); }
+.ticker-dir-flat { color: var(--flat); }
+
+/* Live "reprint": app.js briefly adds .ticker-item-pulse to a random item
+   so a quote flashes like a real tape. Faint ash glow, settles to normal. */
+.ticker-item-pulse .ticker-value {
+  animation: tick-flash 0.9s ease-out;
+}
+@keyframes tick-flash {
+  0%   { color: var(--accent); text-shadow: 0 0 10px rgba(var(--ash-rgb), 0.55); }
+  100% { color: var(--paper);  text-shadow: none; }
+}
+
+/* Reduced motion: the tape stands still and can be scrolled by hand,
+   and ALL animation (entrances, reveals, zoom, counters) is switched off. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .ticker { animation: none; }
+  .ticker-wrap { overflow-x: auto; }
+  .ticker-item-dup { display: none; }  /* hide the duplicate set */
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  /* no cursor light, no drifting hero glow when reduced motion is on */
+  .card::after { display: none; }
+  .masthead::before { opacity: 0.5; }
+}
+
+/* Scroll reveal: app.js adds .reveal to cards/headers, then .revealed when
+   they enter the viewport. --reveal-delay staggers items in the same row. */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.7s ease var(--reveal-delay, 0s),
+    transform 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) var(--reveal-delay, 0s);
+}
+.reveal.revealed { opacity: 1; transform: none; }
+
+/* ------------------------------ sections -------------------------------- */
+.section {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 6.5rem 1.5rem 3rem;       /* generous rhythm — each section is an exhibit */
+}
+
+/* Engraved section header: index number + small-caps title over a double rule */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding-bottom: 0.7rem;
+  margin-bottom: 0.35rem;
+  position: relative;
+}
+/* Engraved double rule, drawn with two pseudo-lines so they can "ink in"
+   left-to-right on scroll. Visible by default (no-JS safe); app.js adds
+   .pre-ink (collapses them) then .inked (draws them). */
+.section-head::before,
+.section-head::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  border-bottom: 1px solid var(--accent-faint);
+  transform: scaleX(1);
+  transform-origin: left;
+  transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.section-head::before { bottom: 0; }
+.section-head::after  { bottom: -4px; border-bottom-color: rgba(var(--ash-rgb), 0.12); transition-delay: 0.1s; }
+.section-head.pre-ink::before,
+.section-head.pre-ink::after { transform: scaleX(0); }
+.section-head.pre-ink.inked::before,
+.section-head.pre-ink.inked::after { transform: scaleX(1); }
+
+.section-index {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.section-note {
+  color: var(--paper-dim);
+  font-size: 0.95rem;
+  margin: 1.1rem 0 0;
+}
+
+/* ------------------------------- cards ---------------------------------- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.1rem;
+  margin-top: 1.6rem;
+  perspective: 1100px;              /* depth for the 3D card tilt */
+}
+
+/* Registered custom props so the cursor light can EASE toward the pointer
+   (a physics-like lag) instead of snapping. Falls back gracefully if the
+   browser doesn't support @property — the light just follows instantly. */
+@property --mx { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
+@property --my { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
+@property --rx { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@property --ry { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+
+/* Base card: quiet panel with a hairline; whole card is a button. Lift and
+   tilt are driven through custom properties (--lift by :hover, --rx/--ry by
+   app.js) so they compose in one springy transform. */
+.card {
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transform: translateY(var(--lift, 0px)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  background: var(--bg-raised);
+  border: 1px solid rgba(var(--edge-rgb), 0.09);
+  padding: 1.4rem 1.5rem 1.3rem;
+  text-align: left;
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  cursor: pointer;
+  /* springy lift with a hint of overshoot = "smooth physics" */
+  transition:
+    border-color 0.2s ease,
+    transform 0.4s cubic-bezier(0.34, 1.4, 0.5, 1),
+    box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  width: 100%;
+}
+.card:hover {
+  --lift: -5px;
+  border-color: var(--accent);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Keep the card's real content above the cursor light */
+.card > * { position: relative; z-index: 1; }
+
+/* Cursor-follow light sheen. Position (--mx/--my) is set by app.js on
+   pointer move; the eased @property transition gives it inertia. */
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(var(--ash-rgb), 0.10), transparent 62%);
+  transition: opacity 0.4s ease, --mx 0.18s ease-out, --my 0.18s ease-out;
+}
+.card:hover::after { opacity: 1; }
+
+.card-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0;
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.card-sub {
+  color: var(--paper-dim);
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.card-summary { margin: 0.2rem 0 0; font-size: 0.95rem; color: var(--paper); }
+
+.card-open-hint {
+  margin-top: auto;
+  padding-top: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  color: var(--paper-dim);
+}
+.card:hover .card-open-hint { color: var(--accent); }
+
+/* Featured leadership card: full width, ash-steel left rule */
+.card-featured {
+  border-left: 3px solid var(--accent);
+  margin-top: 1.6rem;
+}
+.card-featured .card-title { font-size: 1.45rem; }
+
+.badge-launching {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 0.2rem 0.6rem;
+  margin-left: 0.6rem;
+  vertical-align: middle;
+}
+
+/* ------------------------ models: the centerpiece ----------------------- */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.4rem;
+}
+
+.filter-btn {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: none;
+  color: var(--paper-dim);
+  border: 1px solid rgba(var(--edge-rgb), 0.14);
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.filter-btn:hover { color: var(--paper); border-color: var(--paper-dim); }
+.filter-btn[aria-pressed="true"] {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Model card: adds the terminal-style data readout strip */
+.model-readout {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  background: var(--bg-inset);
+  border: 1px solid rgba(var(--edge-rgb), 0.08);
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.2rem;
+}
+.model-readout .ro-label { color: var(--paper-dim); }
+.model-readout .ro-buy  { color: var(--up); font-weight: 600; }
+.model-readout .ro-sell { color: var(--down); font-weight: 600; }
+.model-readout .ro-hold { color: var(--flat); font-weight: 600; }
+.model-readout .ro-val  { color: var(--paper); }
+
+.sector-tag {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Illustrative sparkline on each model card */
+.spark {
+  width: 100%;
+  height: 52px;
+  display: block;
+  margin: 0.6rem 0 0.1rem;
+}
+
+/* Illustrative terminal chart inside the model detail view */
+.model-chart {
+  margin-top: 1.4rem;
+  border: 1px solid rgba(var(--edge-rgb), 0.08);
+  background: var(--bg-inset);
+  padding: 0.7rem 0.8rem 0.5rem;
+}
+.model-chart canvas {
+  width: 100%;
+  height: 220px;
+  display: block;
+}
+.model-chart-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  margin: 0.5rem 0 0;
+}
+
+/* --------------------------- credentials list --------------------------- */
+.credential-list {
+  list-style: none;
+  margin: 1.6rem 0 0;
+  padding: 0;
+}
+
+.credential-item { border-bottom: 1px solid rgba(var(--edge-rgb), 0.08); }
+
+.credential-btn {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.2rem 1.5rem;
+  align-items: center;
+  background: none;
+  border: none;
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  text-align: left;
+  padding: 1rem 0.25rem;
+  cursor: pointer;
+}
+.credential-btn:hover .credential-name { color: var(--accent); }
+
+.credential-name { font-weight: 600; transition: color 0.15s; }
+.credential-issuer { grid-column: 1; color: var(--paper-dim); font-size: 0.88rem; }
+
+.credential-status {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  text-align: right;
+}
+
+.credential-bar {
+  grid-column: 1 / -1;
+  height: 3px;
+  background: rgba(var(--edge-rgb), 0.08);
+  margin-top: 0.35rem;
+}
+.credential-bar-fill { height: 100%; background: var(--accent); }
+
+/* -------------------------------- skills -------------------------------- */
+.skills-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1.6rem;
+}
+@media (max-width: 640px) { .skills-wrap { grid-template-columns: 1fr; } }
+
+.skills-subhead {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.9rem;
+}
+
+.skill-tags {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.skill-tags li {
+  border: 1px solid rgba(var(--edge-rgb), 0.14);
+  padding: 0.35rem 0.85rem;
+  font-size: 0.9rem;
+  color: var(--paper);
+}
+
+/* ------------------------------- contact --------------------------------- */
+.contact-block {
+  margin-top: 1.8rem;
+  text-align: center;
+  padding: 2.4rem 1.5rem;
+  border: 1px solid var(--accent-faint);
+  background: var(--bg-raised);
+}
+
+.contact-email {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 3vw, 1.6rem);
+  display: inline-block;
+  margin-bottom: 1.4rem;
+}
+
+.contact-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.75rem; }
+
+/* -------------------------------- footer --------------------------------- */
+.site-footer {
+  max-width: var(--max-width);
+  margin: 3rem auto 0;
+  padding: 1.8rem 1.5rem 2.6rem;
+  border-top: 1px solid var(--accent-faint);
+  text-align: center;
+}
+.footer-personal { color: var(--paper-dim); font-style: italic; font-size: 0.95rem; margin: 0 0 0.5rem; }
+.footer-legal {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  margin: 0;
+}
+
+/* ------------------------- modal: pitch-book page ------------------------ */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 6, 12, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  z-index: 200;
+  /* animated open/close: app.js toggles the .open class */
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.modal-backdrop.open { opacity: 1; }
+.modal-backdrop[hidden] { display: none; }
+
+.modal {
+  transform: translateY(18px) scale(0.985);
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1);
+  background: var(--bg-raised);
+  border: 1px solid var(--accent-faint);
+  max-width: 720px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+}
+
+.modal-backdrop.open .modal { transform: none; }
+
+.modal-topbar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-inset);
+  border-bottom: 1px solid var(--accent-faint);
+  padding: 0.6rem 1.1rem;
+}
+
+.modal-stamp {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.28em;
+  color: var(--accent);
+}
+
+.modal-close {
+  background: none;
+  border: 1px solid rgba(var(--edge-rgb), 0.2);
+  color: var(--paper);
+  font-size: 1.15rem;
+  line-height: 1;
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+}
+.modal-close:hover { border-color: var(--accent); color: var(--accent); }
+
+.modal-body { padding: 1.8rem 2rem 2.2rem; }
+
+.modal-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.5rem;
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin: 0 0 0.3rem;
+  line-height: 1.3;
+}
+
+.modal-sub { color: var(--paper-dim); font-size: 0.95rem; margin: 0 0 1.2rem; }
+
+.modal-rule { border: none; border-top: 1px solid var(--accent-faint); margin: 1.2rem 0; }
+
+.modal-body ul { padding-left: 1.2rem; margin: 0.8rem 0; }
+.modal-body li { margin-bottom: 0.5rem; }
+
+.modal-detail { color: var(--paper); }
+
+.modal-photos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.8rem;
+  margin-top: 1.2rem;
+}
+.modal-photo figcaption { font-size: 0.8rem; color: var(--paper-dim); margin-top: 0.35rem; }
+
+/* Placeholder frame shown when a photo file isn't there yet (Phase 1) */
+.photo-placeholder {
+  aspect-ratio: 4 / 3;
+  border: 1px dashed rgba(var(--ash-rgb), 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  color: var(--paper-dim);
+  background: repeating-linear-gradient(
+    45deg, transparent 0 10px, rgba(var(--edge-rgb), 0.03) 10px 20px
+  );
+}
+
+.modal-file-link {
+  display: inline-block;
+  margin-top: 1.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 0.65rem 1.3rem;
+}
+.modal-file-link:hover { background: var(--paper); color: var(--bg); }
+
+/* Secondary file link (e.g. Excel model): outlined, sits next to the primary */
+.modal-file-link-secondary {
+  background: none;
+  color: var(--paper);
+  border: 1px solid var(--accent-faint);
+  margin-left: 0.6rem;
+}
+.modal-file-link-secondary:hover { background: none; color: var(--accent); border-color: var(--accent); }
+
+/* ------------------------------ responsive ------------------------------- */
+@media (max-width: 640px) {
+  .section { padding: 4.25rem 1.1rem 1.5rem; }   /* gallery rhythm, phone-scaled */
+  .masthead { padding: 2.5rem 1.1rem 2rem; }
+  .modal-body { padding: 1.4rem 1.2rem 1.8rem; }
+  .card-grid { grid-template-columns: 1fr; }
+
+  /* Comfortable touch targets (~44px) for the small controls on phones */
+  .mast-link,
+  .filter-btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .mast-link  { padding: 0.75rem 1.1rem; }
+  .filter-btn { padding: 0.6rem 1rem; }
+  .modal-close { width: 2.75rem; height: 2.75rem; }
+
+  /* Ease the wide letter-spacing so the long confidential line and the
+     tape don't crowd a ~390px screen */
+  .masthead-kicker {
+    letter-spacing: 0.2em;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.6rem;
+  }
+  .ticker-item { padding: 0.55rem 1.15rem; }
+
+  /* Stack the two modal action buttons full-width so they never overflow */
+  .modal-file-link,
+  .modal-file-link-secondary {
+    display: block;
+    text-align: center;
+    margin-left: 0;
+  }
+  .modal-file-link-secondary { margin-top: 0.7rem; }
+
+  /* Tighter stat row so four items sit cleanly two-by-two */
+  .hero-stats { gap: 0.4rem 2rem; }
+
+  /* Light "daylight" theme — phone tuning: a better portrait crop of the
+     NYC photo, and a smaller disclaimer line. */
+  html.theme-light .masthead { background-position: 45% 32%; }
+  .footer-note { font-size: 0.58rem; }
+  .contact-links .mast-link { min-height: 44px; display: inline-flex; align-items: center; }
+}
+
+/* ---------------------- tear-sheet metric band (modal) ------------------ */
+.tearsheet {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.8rem;
+  align-items: flex-end;
+  padding: 0.9rem 0 1.1rem;
+  margin: 0.3rem 0 0.2rem;
+  border-top: 1px solid var(--accent-faint);
+  border-bottom: 1px solid var(--accent-faint);
+}
+.ts-cell { display: flex; flex-direction: column; gap: 0.35rem; }
+.ts-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+}
+.ts-value {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: var(--paper);
+  font-variant-numeric: tabular-nums;
+}
+.ts-badge {
+  align-self: flex-start;
+  width: max-content;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  padding: 0.28rem 0.7rem;
+  border: 1px solid currentColor;
+}
+.ts-badge.ro-buy  { color: var(--up); }
+.ts-badge.ro-sell { color: var(--down); }
+.ts-badge.ro-hold { color: var(--flat); }
+
+/* -------------------- display-case photographic backdrop ---------------- */
+.stage-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.1s ease;
+}
+
+/* --------------------- approach: sticky-scroll walkthrough --------------- */
+.approach-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-top: 1.6rem;
+  align-items: start;
+}
+.approach-steps { display: flex; flex-direction: column; }
+.approach-step {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.6rem;
+  transition: opacity 0.5s ease;
+}
+/* dimming of inactive steps only kicks in once JS is driving it (no-JS safe) */
+.scrollytelling .approach-step:not(.active) { opacity: 0.32; }
+.approach-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.approach-h {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+  margin: 0;
+  line-height: 1.2;
+}
+.approach-p { color: var(--paper-dim); font-size: 1.05rem; max-width: 32em; margin: 0; }
+
+.approach-visual { position: sticky; top: calc(var(--nav-h) + var(--ticker-h) + 9vh); height: 58vh; }
+.approach-panel {
+  position: relative;
+  height: 100%;
+  border: 1px solid var(--accent-faint);
+  background: var(--bg-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.approach-rail {
+  position: absolute; left: 1.4rem; top: 0; bottom: 0;
+  display: flex; flex-direction: column; justify-content: center; gap: 0.9rem;
+}
+.approach-tick {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1px solid var(--accent-faint);
+  transition: background 0.4s ease, border-color 0.4s ease;
+}
+.approach-tick.on { background: var(--accent); border-color: var(--accent); }
+.approach-display { text-align: center; }
+.approach-num {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(4rem, 12vw, 8rem);
+  line-height: 1;
+  color: var(--paper);
+  font-variant-numeric: tabular-nums;
+}
+.approach-word {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  margin-top: 0.7rem;
+}
+@media (max-width: 760px) {
+  .approach-wrap { grid-template-columns: 1fr; gap: 0; }
+  .approach-visual { display: none; }                 /* sticky panel is a desktop touch */
+  .approach-step {
+    min-height: 0;
+    padding: 1.4rem 0;
+    border-bottom: 1px solid var(--accent-faint);
+  }
+  .scrollytelling .approach-step:not(.active) { opacity: 1; }   /* show all on phones */
+}
+
+/* ===== Tools & library upgrade (2026) ===== */
+
+/* --- Tools section: live-terminal cards, same card language as the rest.
+   .card already supplies the panel look (background, border, hover lift);
+   these rules only adapt it for an <a> tag and add the tool-specific bits. */
+.tool-card { text-decoration: none; color: inherit; }
+
+.tool-chrome { display: flex; gap: 6px; margin-bottom: 0.75rem; }
+.tool-chrome i {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: rgba(var(--edge-rgb), 0.22);
+  display: inline-block;
+}
+
+.tool-live {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--up);
+  margin-bottom: 0.1rem;
+}
+.tool-live::before { content: "● "; animation: toolpulse 1.8s infinite; }
+@keyframes toolpulse { 50% { opacity: 0.35; } }
+
+.tool-soon-tag {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--paper-dim);
+}
+.card.tool-card.is-soon { opacity: 0.72; border-style: dashed !important; cursor: default; }
+
+/* --- research desk strip (auto-computed from data.js, never goes stale) --- */
+.desk-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  border: 1px solid var(--accent-faint);
+  background: rgba(var(--ash-rgb), 0.06);
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: var(--paper-dim);
+}
+.desk-strip b { color: var(--paper); font-weight: 600; }
+
+/* --- extra filter row: search + market/rating chips (reuses .filter-btn) --- */
+.filter-row2 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 0.5rem;
+  align-items: center;
+  margin: 1rem 0 0;
+}
+.filter-row2-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+.lib-search {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(var(--edge-rgb), 0.18);
+  background: var(--bg-inset);
+  color: var(--paper);
+  min-width: 220px;
+}
+.lib-search::placeholder { color: var(--paper-dim); }
+.lib-search:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.fdivider {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  margin-right: 0.1rem;
+}
+
+/* --- pipeline: "coming to coverage" ghost cards under the library --- */
+.pipe-head {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  margin: 2.2rem 0 0.9rem;
+}
+.pipe-card { opacity: 0.78; border-style: dashed !important; cursor: default; }
+.pipe-card .card-open-hint { display: none; }
+.pipe-tag {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--paper-dim);
+  border: 1px solid var(--accent-faint);
+  border-radius: 3px;
+  padding: 0.2rem 0.55rem;
+  display: inline-block;
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .lib-search { min-width: 0; flex: 1 1 100%; }
+  .desk-strip { font-size: 0.66rem; gap: 0.45rem 1.1rem; }
+}
+
+/* ===== Multi-page redesign (2026) — nav, light headers, compact grid ===== */
+
+/* --- site nav: Overview / Research / Tools, present on all three pages.
+   Sticky and stacked directly above the ticker (also sticky) so the three
+   options stay visible the whole way down every page, not just at the top —
+   easy to scroll past and miss otherwise. Pill-style links (always-visible
+   border, bright text) so they read as three clickable destinations at a
+   glance rather than a quiet inline text row. --- */
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 51;                 /* above the ticker (50), stacks right on top of it */
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--nav-h);
+  padding: 0.6rem 1.5rem;
+  background: var(--bg-inset);
+  border-bottom: 1px solid var(--accent-faint);
+}
+.site-nav a {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--paper);
+  padding: 0.5rem 1.2rem;
+  border: 1px solid var(--accent-faint);
+  border-radius: 3px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.site-nav a:hover { border-color: var(--accent); color: var(--accent); }
+.site-nav a[aria-current="page"] {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* --- light page header: Research & Tools (no hero/bio/stats, just a
+   kicker + title + one-line sub — personal branding stays on Overview) --- */
+.page-header {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 4.5rem 1.5rem 1.5rem;
+  text-align: center;
+}
+.page-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  border-top: 1px solid var(--accent-faint);
+  border-bottom: 1px solid var(--accent-faint);
+  display: inline-block;
+  padding: 0.45rem 1.2rem;
+  margin: 0 0 1.4rem;
+}
+.page-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  margin: 0 0 0.6rem;
+  color: var(--paper);
+}
+.page-sub {
+  color: var(--paper-dim);
+  max-width: 40em;
+  margin: 0 auto;
+  font-size: 1.02rem;
+}
+
+/* --- compact grid: the featured-models preview on Overview — a tighter
+   column count than the full library grid so 3-4 cards read as a
+   deliberate teaser, not a truncated list. --- */
+.card-grid-compact {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  max-width: 980px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.models-preview-cta { display: inline-block; margin-top: 1.6rem; }
+
+/* Anchor jumps (cross-page ticker links, in-page nav) land below the
+   sticky ticker instead of underneath it. */
+.section { scroll-margin-top: calc(var(--nav-h) + var(--ticker-h) + 1rem); }
+
+@media (max-width: 640px) {
+  .page-header { padding: 3.5rem 1.1rem 1rem; }
+  .site-nav { gap: 0.35rem; padding: 0.7rem 1rem; }
+  .site-nav a { padding: 0.6rem 0.8rem; min-height: 44px; display: inline-flex; align-items: center; }
+}
+
+/* ============================ LIGHT THEME ==============================
+   "Daylight gallery" — warm ash/beige base with New York photography.
+   Activated by class="theme-light" on <html>. Removing the class reverts
+   to the dark theme, so both are preserved in one stylesheet. */
+html.theme-light {
+  --bg:          #e3ddce;   /* warm ash / beige page base — softened   */
+  --bg-raised:   #eee8dc;   /* card / panel — warm off-white, less glare */
+  --bg-inset:    #d8cfbd;   /* ticker strip / deeper beige            */
+  --paper:       #23262d;   /* primary text — dark ink                */
+  --paper-dim:   #6d675b;   /* secondary text — warm taupe            */
+  --accent:      #45505f;   /* accent — deep slate                    */
+  --up:          #3f7d5a;
+  --down:        #a8564a;
+  --flat:        #7c7568;
+  --edge-rgb: 45, 48, 56;
+  --ash-rgb: 96, 98, 104;
+  --vignette-mid:  rgba(60, 54, 42, 0.05);
+  --vignette-edge: rgba(45, 40, 30, 0.16);
+}
+html.theme-light .scene-bg { display: none; }        /* photo replaces the generated scene */
+html.theme-light .masthead::before { display: none; }
+html.theme-light .masthead {
+  background-image:
+    linear-gradient(rgba(227,221,206,0.82), rgba(227,221,206,0.8) 45%, rgba(227,221,206,0.93) 100%),
+    url('../assets/images/bg-nyc.jpg');
+  background-size: cover;
+  background-position: center 38%;
+  border-bottom: 1px solid rgba(var(--edge-rgb), 0.18);
+}
+html.theme-light .masthead-bio {
+  color: #292c33;
+  text-shadow: 0 1px 3px rgba(236, 231, 221, 0.75);
+}
+html.theme-light .masthead-tagline {
+  color: #3a4655;
+  text-shadow: 0 1px 3px rgba(236, 231, 221, 0.6);
+}
+html.theme-light .card:hover { box-shadow: 0 16px 40px rgba(60, 54, 42, 0.16); }
+
+/* footer disclaimer on imagery */
+.footer-note {
+  max-width: 46em;
+  margin: 0.8rem auto 0;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: var(--paper-dim);
+  line-height: 1.6;
+}
+
+/* ============================================================================
+   2026 POLISH PASS — additive layer. Scroll-progress tape, ghost section
+   numerals, faint engraved (banknote) texture, coverage tally, a few quiet
+   micro-interactions and editorial type refinements. No dependencies; all of
+   it degrades gracefully and is quieted under reduced motion.
+   ========================================================================== */
+
+/* make each section a stacking context so its ghost numeral can sit behind
+   its own content and nothing else */
+.section { position: relative; isolation: isolate; }
+
+/* ---- oversized "ghost" section numeral, engraved faintly behind the head - */
+.section[data-ghost]::before {
+  content: attr(data-ghost);
+  position: absolute;
+  top: 2.6rem;
+  right: 0.5rem;
+  z-index: -1;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(5rem, 15vw, 10rem);
+  line-height: 0.8;
+  color: rgba(var(--edge-rgb), 0.05);
+  letter-spacing: -0.02em;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---- scroll-progress "tape": a hairline market-line tracking read depth -- */
+.scroll-tape {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 100%;
+  transform: scaleX(var(--sp, 0));
+  transform-origin: left center;
+  background: linear-gradient(90deg, rgba(var(--ash-rgb), 0.35), var(--accent));
+  z-index: 150;                 /* above ticker/nav (50), below modal (200) */
+  pointer-events: none;
+  will-change: transform;
+}
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-tape {
+      animation: scroll-tape-grow linear both;
+      animation-timeline: scroll(root block);
+    }
+    @keyframes scroll-tape-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  }
+}
+
+/* ---- title-card refrain: the four verbs light dim -> ink on scroll-in ---- */
+.reveal-band {
+  max-width: var(--max-width);
+  margin: 3.5rem auto 0;
+  padding: 2.4rem 1.5rem;
+  text-align: center;
+}
+.reveal-line {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 4.6vw, 2.9rem);
+  line-height: 1.3;
+  letter-spacing: 0.005em;
+  margin: 0;
+}
+.reveal-line .rw {
+  color: rgba(var(--edge-rgb), 0.2);
+  transition: color 0.45s ease;
+}
+.reveal-line .rw.lit { color: var(--paper); }
+.reveal-line .rw + .rw { margin-left: 0.35em; }
+
+/* ---- coverage rating tally at the Models header ------------------------- */
+.coverage-tally { margin-top: 1.2rem; max-width: 34rem; }
+.ct-bar {
+  display: flex;
+  height: 11px;
+  border: 1px solid var(--accent-faint);
+  background: var(--bg-inset);
+  overflow: hidden;
+}
+.ct-seg { height: 100%; width: 0; transition: width 0.9s cubic-bezier(0.2, 0.7, 0.3, 1); }
+.ct-seg.buy    { background: var(--up); }
+.ct-seg.acc    { background: rgba(var(--candle-up-rgb), 0.5); }
+.ct-seg.hold   { background: var(--flat); }
+.ct-seg.reduce { background: var(--down); }
+.ct-legend {
+  display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem;
+  margin-top: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--paper-dim);
+}
+.ct-legend span { display: inline-flex; align-items: center; }
+.ct-legend b { color: var(--paper); font-weight: 600; margin-right: 0.4em; font-variant-numeric: tabular-nums; }
+.ct-dot { width: 8px; height: 8px; margin-right: 0.45em; display: inline-block; }
+.ct-dot.buy    { background: var(--up); }
+.ct-dot.acc    { background: rgba(var(--candle-up-rgb), 0.5); }
+.ct-dot.hold   { background: var(--flat); }
+.ct-dot.reduce { background: var(--down); }
+
+/* ---- live "showing N" count under the sector filters -------------------- */
+.models-count {
+  font-family: var(--font-mono);
+  font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--paper-dim);
+  margin: 1rem 0 0;
+}
+.models-count b { color: var(--paper); font-variant-numeric: tabular-nums; }
+
+/* ---- copy-email chip in the contact block ------------------------------- */
+.contact-copy {
+  font-family: var(--font-mono);
+  font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--paper-dim);
+  background: none;
+  border: 1px solid var(--accent-faint);
+  padding: 0.3rem 0.6rem;
+  margin-left: 0.6rem;
+  cursor: pointer;
+  vertical-align: middle;
+  transition: color 0.15s, border-color 0.15s;
+}
+.contact-copy:hover { color: var(--paper); border-color: var(--paper-dim); }
+.contact-copy.copied { color: var(--up); border-color: var(--up); }
+
+/* ---- tactile press on small controls ------------------------------------ */
+.filter-btn:active,
+.modal-file-link:active,
+.contact-copy:active,
+.credential-btn:active { transform: translateY(1px); }
+
+/* ---- ink-stamp entrance for the rating badge when a model opens ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .modal-backdrop.open .ts-badge { animation: ts-stamp 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  @keyframes ts-stamp {
+    0%   { transform: scale(1.28) rotate(-4deg); opacity: 0; }
+    60%  { transform: scale(0.96) rotate(1.5deg); opacity: 1; }
+    100% { transform: none; }
+  }
+}
+
+/* ---- circular reveal of the modal panel from the click point ------------ */
+.modal.modal-revealing { transform: none !important; transition: none !important; }
+
+/* ---- faint engraved "security paper" crosshatch over the masthead -------- */
+.masthead::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;                    /* above bg/photo, below the text (z-index 1) */
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(60deg,  rgba(var(--edge-rgb), 0.6) 0 0.5px, transparent 0.5px 8px),
+    repeating-linear-gradient(-60deg, rgba(var(--edge-rgb), 0.6) 0 0.5px, transparent 0.5px 8px);
+  opacity: 0.035;
+}
+
+/* ---- editorial figures + ligatures in the serif prose ------------------- */
+.masthead-bio, .card-summary, .modal-detail, .modal-sub,
+.section-note, .footer-personal, .approach-p, .reveal-line {
+  font-feature-settings: "liga" 1, "dlig" 1, "onum" 1, "kern" 1;
+}
+
+/* ---- draw-in underline on the contact email (extends the rule above) ----- */
+.contact-email {
+  text-decoration: none;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  padding-bottom: 2px;
+  transition: background-size 0.35s ease, color 0.15s;
+}
+.contact-email:hover, .contact-email:focus-visible { background-size: 100% 1px; color: var(--paper); }
+
+/* ---- reduced-motion: quiet this layer ----------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-line .rw { color: var(--paper) !important; transition: none !important; }
+  .ct-seg, .contact-email, .scroll-tape { transition: none !important; }
+}
