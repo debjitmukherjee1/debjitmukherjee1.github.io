@@ -135,13 +135,18 @@
   function rollNumber(node, to) {
     var from = parseInt(node.getAttribute("data-n") || "0", 10) || 0;
     node.setAttribute("data-n", String(to));
-    if (reducedMotion || from === to) { node.textContent = String(to); return; }
+    // Always show the correct final value up front — so the number is right
+    // even if requestAnimationFrame is throttled (e.g. a background tab). The
+    // roll below is a pure enhancement layered on top.
+    node.textContent = String(to);
+    if (reducedMotion || from === to) return;
     var dur = 450, start = null;
     function step(ts) {
       if (start === null) start = ts;
       var p = Math.min(1, (ts - start) / dur);
       node.textContent = String(Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3))));
       if (p < 1) requestAnimationFrame(step);
+      else node.textContent = String(to);
     }
     requestAnimationFrame(step);
   }
