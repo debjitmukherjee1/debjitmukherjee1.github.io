@@ -207,6 +207,19 @@ const siteData = {
      -------------------------------------------------------------------- */
   experience: [
     {
+      company: "Vireo Capital Research",
+      role: "Student Equity Research Analyst",
+      dates: "Jul 2026 – present",
+      location: "Remote",
+      summary: "Independent equity research contributor — authoring U.S.-listed company reports and valuation models for editorial review and publication.",
+      bullets: [
+        "Author full equity research notes and DCF/comps valuation models on U.S.-listed companies, rebuilt to Vireo's house template and methodology",
+        "Reconcile each valuation against an independent model — intrinsic value and blended target within ±2%, rating identical — before editorial submission",
+        "Apply Vireo's house approach: a DCF-driven intrinsic value with a 70/30 blended target, comps as a cross-check, and any divergence explained in the thesis"
+      ],
+      photos: []
+    },
+    {
       company: "Prasuta Capital (Prasuta Ventures Pvt. Ltd.)",
       role: "Finance Consultant Intern",
       dates: "Summer 2026",
