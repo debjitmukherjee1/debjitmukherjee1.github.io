@@ -56,8 +56,8 @@ const siteData = {
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
-      { value: 11, suffix: "",  label: "Companies covered" },
-      { value: 12, suffix: "",  label: "Research reports & models" },
+      { value: 12, suffix: "",  label: "Companies covered" },
+      { value: 13, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
@@ -73,7 +73,8 @@ const siteData = {
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "11 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COVERAGE",   value: "12 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "RELIANCE",   value: "HOLD · FV ₹1,361",        direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "GOOGL",      value: "BUY · TP $410",           direction: "up",   sectionId: "models",      page: "research.html" },
     { label: "TCS",        value: "BUY · TP ₹2,502",         direction: "up",   sectionId: "models",      page: "research.html" },
     { label: "V",          value: "HOLD · TP $355",          direction: "flat", sectionId: "models",      page: "research.html" },
@@ -370,6 +371,23 @@ const siteData = {
       fileUrl: "assets/files/coca-cola-research-note.pdf",
       fileLabel: "Read the research note (PDF)",
       fileUrl2: "assets/files/coca-cola-business-model.xlsx",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
+    {
+      title: "Reliance Industries (RELIANCE) — Equity Research Report",
+      sector: "Conglomerate",
+      market: "India",
+      featured: true,
+      date: "Aug 2026",
+      thesis: "Four businesses in one holding structure — and an expected return below the government bond yield.",
+      rating: "HOLD",
+      targetPrice: "₹1,361 (+4.5%)",
+      impliedValue: "",
+      detail: "India's largest company, valued sum-of-the-parts on FY27E EBITDA because a refinery, a telecom network and a grocery chain do not share a multiple: Jio at 15x but only 66.4% owned, Retail at 24x on ~85%, O2C at 7x, upstream at 5x, New Energy at invested capital — less ₹1.23 lakh crore net debt, giving ₹1,423. A DCF returns ₹1,156, below the market price, because a decade of heavy capex has held ROE at 8.9% against a ~12–13% cost of equity. Blended fair value ₹1,361 versus ₹1,302. The rating is a hurdle-rate call: a ~5% expected total return sits below India's 7.1% ten-year G-sec, so the Street's ₹1,640–1,690 (which needs Jio at 17–19x and Retail at 28–32x simultaneously) is a bet on a re-rating the Jio IPO has yet to confirm.",
+      fileUrl: "assets/files/reliance-research-report.pdf",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "assets/files/reliance-financial-model.xlsx",
       fileLabel2: "Download the model (Excel)",
       thumbnail: ""
     },
