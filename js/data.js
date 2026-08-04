@@ -56,8 +56,8 @@ const siteData = {
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
-      { value: 11, suffix: "",  label: "Companies covered" },
-      { value: 12, suffix: "",  label: "Research reports & models" },
+      { value: 12, suffix: "",  label: "Companies covered" },
+      { value: 13, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
@@ -73,7 +73,8 @@ const siteData = {
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "11 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COVERAGE",   value: "12 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "RELIANCE",   value: "VALUATION NOTE",        direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "GOOGL",      value: "BUY · TP $410",           direction: "up",   sectionId: "models",      page: "research.html" },
     { label: "TCS",        value: "VALUATION NOTE",         direction: "up",   sectionId: "models",      page: "research.html" },
     { label: "V",          value: "HOLD · TP $355",          direction: "flat", sectionId: "models",      page: "research.html" },
@@ -370,6 +371,23 @@ const siteData = {
       fileUrl: "assets/files/coca-cola-research-note.pdf",
       fileLabel: "Read the research note (PDF)",
       fileUrl2: "assets/files/coca-cola-business-model.xlsx",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
+    {
+      title: "Reliance Industries (RELIANCE) — Equity Research Report",
+      sector: "Conglomerate",
+      market: "India",
+      featured: true,
+      date: "Aug 2026",
+      thesis: "Four businesses in one holding structure — and an expected return below the government bond yield.",
+      rating: "",
+      targetPrice: "",
+      impliedValue: "",
+      detail: "",
+      fileUrl: "",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "",
       fileLabel2: "Download the model (Excel)",
       thumbnail: ""
     },
