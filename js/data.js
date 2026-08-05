@@ -56,8 +56,8 @@ const siteData = {
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
-      { value: 12, suffix: "",  label: "Companies covered" },
-      { value: 13, suffix: "",  label: "Research reports & models" },
+      { value: 13, suffix: "",  label: "Companies covered" },
+      { value: 14, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
@@ -73,9 +73,10 @@ const siteData = {
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "12 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COVERAGE",   value: "13 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "MSFT",       value: "HOLD · FV $488",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "RELIANCE",   value: "HOLD · FV ₹1,361",        direction: "flat", sectionId: "models",      page: "research.html" },
-    { label: "GOOGL",      value: "BUY · TP $410",           direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "GOOGL",      value: "HOLD · FV $384",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "TCS",        value: "BUY · TP ₹2,502",         direction: "up",   sectionId: "models",      page: "research.html" },
     { label: "V",          value: "HOLD · TP $355",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "CFA L1",     value: "CANDIDATE · 2027",        direction: "up",   sectionId: "credentials", page: "index.html" },
@@ -277,15 +278,32 @@ const siteData = {
       sector: "Technology",
       market: "US",
       featured: true,
-      date: "Jul 2026",
-      thesis: "The fastest-growing, most AI-advantaged mega-cap, trading at a market multiple.",
-      rating: "BUY",
-      targetPrice: "$410 (+11%)",
+      date: "Aug 2026",
+      thesis: "A better business than it was in July, at a price that already pays for it — the capex bill is now the story.",
+      rating: "HOLD",
+      targetPrice: "$384 (+6%)",
       impliedValue: "",
-      detail: "Q1 2026 revenue of $109.9bn (+22%) — the first non-holiday quarter ever above $100bn — with Google Cloud +63% to a ~$20bn run-rate at 33% margins and a $462bn backlog. At ~27x forward earnings, a market multiple for the fastest-growing mega-cap. Fair value ~$410 (~30x FY26E EPS ~$13.7), ~11% above ~$370; the swing factor is whether $180–190bn of 2026 AI capex converts to cloud revenue. Raised from $390 after the Q1 beat.",
+      detail: "Q2 2026 (reported 22 Jul) revenue of $119.8bn (+24%), with Google Cloud accelerating to +82% at $24.8bn on a $514bn backlog and group operating margin up two points to 34%. But 2026 capex guidance rose to $195–205bn from $180–190bn, free cash flow turned negative (−$5.9bn) for the first time in Alphabet's public life, and headline EPS of $9.11 is $6.26 of unrealised equity marks — recurring EPS was $2.85. On recurring FY26E EPS of ~$11.90 the stock trades at ~30.5x, a premium to the mega-cap median. Fair value $384 (SOTP $430, forward P/E $357, DCF floor $330) is ~6% above $363 — a total return short of the ~10.1% cost of equity. Downgraded from BUY.",
       fileUrl: "assets/files/alphabet-research-note.pdf",
       fileLabel: "Read the research note (PDF)",
       fileUrl2: "assets/files/alphabet-financial-model.xlsx",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
+    {
+      title: "Microsoft Corporation (MSFT) — Equity Research Report",
+      sector: "Technology",
+      market: "US",
+      featured: true,
+      date: "Aug 2026",
+      thesis: "Revenue grew 67% over four years. Free cash flow grew 3%. The capex cycle is the whole valuation question.",
+      rating: "HOLD",
+      targetPrice: "$488 (~0%)",
+      impliedValue: "",
+      detail: "FY2026 (to 30 Jun) revenue of $331.8bn (+18%) and operating income of $155.2bn (+21%) at a record 46.8% margin, with Azure accelerating to +43% and passing $100bn. Yet free cash flow was $67.0bn against $65.1bn in FY2022, because capex rose almost fivefold to $115.9bn — 35% of revenue. Valued three ways: segment sum-of-the-parts (Intelligent Cloud 30x EBIT) $537, forward P/E at 26x FY27E $507, and a DCF that must fund the capex before discounting it $404 — blending 40/30/30 to $488 against $488.63. Note too that GAAP EPS of $17.95 includes $0.67 of OpenAI gains, and the Q4 beat contains ~$0.27 of discrete items. Backlog up 84% to $678bn and a capex guidance cut to ~$175bn are the bull case; six of eight sensitivity tests turn the return negative.",
+      fileUrl: "assets/files/microsoft-research-report.pdf",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "assets/files/microsoft-financial-model.xlsx",
       fileLabel2: "Download the model (Excel)",
       thumbnail: ""
     },
