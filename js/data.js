@@ -56,8 +56,8 @@ const siteData = {
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
-      { value: 13, suffix: "",  label: "Companies covered" },
-      { value: 14, suffix: "",  label: "Research reports & models" },
+      { value: 14, suffix: "",  label: "Companies covered" },
+      { value: 15, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
@@ -73,7 +73,8 @@ const siteData = {
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "13 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COVERAGE",   value: "14 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "BAJFINANCE", value: "REDUCE · FV ₹999",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "MSFT",       value: "HOLD · FV $488",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "RELIANCE",   value: "HOLD · FV ₹1,361",        direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "GOOGL",      value: "HOLD · FV $384",          direction: "flat", sectionId: "models",      page: "research.html" },
@@ -287,6 +288,23 @@ const siteData = {
       fileUrl: "assets/files/alphabet-research-note.pdf",
       fileLabel: "Read the research note (PDF)",
       fileUrl2: "assets/files/alphabet-financial-model.xlsx",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
+    {
+      title: "Bajaj Finance (BAJFINANCE) — Equity Research Report",
+      sector: "Financials",
+      market: "India",
+      featured: true,
+      date: "Aug 2026",
+      thesis: "India's best lending franchise, with no margin of safety left to absorb the risks it names.",
+      rating: "REDUCE",
+      targetPrice: "₹999 (−7.3%)",
+      impliedValue: "",
+      detail: "Q1 FY2027 was excellent — AUM +23.9% to ₹5.47 lakh crore, NII +22.9%, attributable profit +27.4% to ₹5,986 crore, with gross NPA improving to 0.96% and credit cost to 1.31% ex a one-off provision. But return on equity has fallen from 23% (FY2023) to 18.2% (FY2026) while the multiple stayed elevated. Valued three ways: justified forward P/E at 30x FY27E EPS of ₹39 → ₹1,170; peer-set 28x → ₹1,092; a 15-year excess-return model at a 12.5% cost of equity → ₹433. Blended 50/30/20 to ₹999. On 7 August the RBI released draft norms restricting NBFCs to term loans and discontinuing revolving credit; Bajaj — with ~15% of AUM in revolving products, the highest of any large NBFC — fell 5.8% to ₹1,078. Scenarios for a 5–15% earnings hit give ₹952 to ₹861, all REDUCE. Our ₹999 sits with Emkay (₹1,000) in a bear cluster against bulls at ₹1,250–1,300.",
+      fileUrl: "assets/files/bajaj-finance-research-report.pdf",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "assets/files/bajaj-finance-financial-model.xlsx",
       fileLabel2: "Download the model (Excel)",
       thumbnail: ""
     },
