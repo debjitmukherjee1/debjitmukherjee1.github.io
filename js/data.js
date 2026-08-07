@@ -56,8 +56,8 @@ const siteData = {
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
-      { value: 13, suffix: "",  label: "Companies covered" },
-      { value: 14, suffix: "",  label: "Research reports & models" },
+      { value: 14, suffix: "",  label: "Companies covered" },
+      { value: 15, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
@@ -73,7 +73,8 @@ const siteData = {
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "13 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COVERAGE",   value: "14 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "BAJFINANCE", value: "VALUATION NOTE",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "MSFT",       value: "HOLD · FV $488",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "RELIANCE",   value: "VALUATION NOTE",        direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "GOOGL",      value: "HOLD · FV $384",          direction: "flat", sectionId: "models",      page: "research.html" },
@@ -287,6 +288,23 @@ const siteData = {
       fileUrl: "assets/files/alphabet-research-note.pdf",
       fileLabel: "Read the research note (PDF)",
       fileUrl2: "assets/files/alphabet-financial-model.xlsx",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
+    {
+      title: "Bajaj Finance (BAJFINANCE) — Equity Research Report",
+      sector: "Financials",
+      market: "India",
+      featured: true,
+      date: "Aug 2026",
+      thesis: "India's best lending franchise, with no margin of safety left to absorb the risks it names.",
+      rating: "",
+      targetPrice: "",
+      impliedValue: "",
+      detail: "",
+      fileUrl: "",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "",
       fileLabel2: "Download the model (Excel)",
       thumbnail: ""
     },
