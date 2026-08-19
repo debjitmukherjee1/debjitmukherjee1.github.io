@@ -230,9 +230,19 @@
   // The file name of the page currently loaded ("index.html" for the root
   // "/" URL too), used to decide whether a ticker item's section is on this
   // page (scroll) or another one (navigate there first).
+  // Canonical id for a page: the root always resolves to "index.html", however
+  // it's linked ("", "/", "./", "index.html") — used for internal comparisons.
+  function canonicalPage(p) {
+    var name = (p || "").split("/").pop();
+    return (name === "" || name === "index.html") ? "index.html" : name;
+  }
+  // Clean URL for navigating TO a page: the root gets "./" so the address bar
+  // stays at the domain root instead of showing a trailing "/index.html".
+  function pageHref(p) {
+    return canonicalPage(p) === "index.html" ? "./" : canonicalPage(p);
+  }
   function currentPageFile() {
-    var name = location.pathname.split("/").pop();
-    return name || "index.html";
+    return canonicalPage(location.pathname.split("/").pop());
   }
 
   function renderTicker() {
@@ -256,8 +266,8 @@
         if (item.sectionId) {
           btn.setAttribute("aria-label", item.label + ": " + item.value + ". Jump to section.");
           btn.addEventListener("click", function () {
-            if (item.page && item.page !== here) {
-              location.href = item.page + "#" + item.sectionId;
+            if (item.page && canonicalPage(item.page) !== here) {
+              location.href = pageHref(item.page) + "#" + item.sectionId;
               return;
             }
             var target = byId(item.sectionId);
@@ -275,8 +285,7 @@
   function setupNav() {
     var here = currentPageFile();
     document.querySelectorAll(".site-nav a").forEach(function (a) {
-      var href = a.getAttribute("href");
-      if (href === here) a.setAttribute("aria-current", "page");
+      if (canonicalPage(a.getAttribute("href")) === here) a.setAttribute("aria-current", "page");
     });
   }
 
