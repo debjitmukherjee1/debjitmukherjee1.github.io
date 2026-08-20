@@ -233,13 +233,16 @@
   // Canonical id for a page: the root always resolves to "index.html", however
   // it's linked ("", "/", "./", "index.html") — used for internal comparisons.
   function canonicalPage(p) {
-    var name = (p || "").split("/").pop();
-    return (name === "" || name === "index.html") ? "index.html" : name;
+    // Strip any ".html" so "/research", "/research.html" and a bare "research"
+    // all compare equal; the root collapses to "index".
+    var name = (p || "").split("/").pop().replace(/\.html$/, "");
+    return (name === "" || name === "index") ? "index" : name;
   }
-  // Clean URL for navigating TO a page: the root gets "./" so the address bar
-  // stays at the domain root instead of showing a trailing "/index.html".
+  // Clean URL for navigating TO a page: the root gets "./" and inner pages get
+  // their extensionless name, so the address bar never shows a trailing
+  // "/index.html" or "/research.html" (GitHub Pages serves both forms).
   function pageHref(p) {
-    return canonicalPage(p) === "index.html" ? "./" : canonicalPage(p);
+    return canonicalPage(p) === "index" ? "./" : canonicalPage(p);
   }
   function currentPageFile() {
     return canonicalPage(location.pathname.split("/").pop());
