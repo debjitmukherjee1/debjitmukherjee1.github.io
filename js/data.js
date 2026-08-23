@@ -56,8 +56,8 @@ const siteData = {
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
-      { value: 14, suffix: "",  label: "Companies covered" },
-      { value: 15, suffix: "",  label: "Research reports & models" },
+      { value: 16, suffix: "",  label: "Companies covered" },
+      { value: 17, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
@@ -73,7 +73,9 @@ const siteData = {
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "14 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COVERAGE",   value: "16 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "MARUTI",     value: "REDUCE · FV ₹12,978",     direction: "down", sectionId: "models",      page: "research.html" },
+    { label: "JPM",        value: "REDUCE · FV $323",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "BAJFINANCE", value: "REDUCE · FV ₹999",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "MSFT",       value: "HOLD · FV $488",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "RELIANCE",   value: "HOLD · FV ₹1,361",        direction: "flat", sectionId: "models",      page: "research.html" },
@@ -288,6 +290,40 @@ const siteData = {
       fileUrl: "assets/files/alphabet-research-note.pdf",
       fileLabel: "Read the research note (PDF)",
       fileUrl2: "assets/files/alphabet-financial-model.xlsx",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
+    {
+      title: "Maruti Suzuki India (MARUTI) — Equity Research Report",
+      sector: "Automobiles",
+      market: "India",
+      featured: true,
+      date: "Aug 2026",
+      thesis: "Best operating quarter in years, worst financial one. The margin is cyclical — but it is already paid for.",
+      rating: "REDUCE",
+      targetPrice: "₹12,978 (−5.2%)",
+      impliedValue: "",
+      detail: "Q1 FY2027 was a paradox. Volumes +29.3%, small cars +34.1%, SUVs +44.6%, exports +28.6%, domestic share +2.3pp to 41.2% — the best competitive quarter in years, on 13 days of network inventory. Yet profit fell 9.1% and operating margin fell 376bp to 8.22%, the lowest since FY2022. The company's own words: material costs \"seriously aggravated during the war.\" A sell-side bridge puts 300 of the 380bp on commodity — cyclical, and that argues against this rating. Two findings shape the call. Other income of ₹1,972 crore funded 44% of pre-tax profit: the ₹76,838 crore investment book, not the cars, carried the quarter. And that book yields 6.13% pre-tax, below the 6.82% G-sec, so stripping it out makes the shares dearer, not cheaper — the core auto business trades on 32.9x against a headline 29.9x. Valued three ways: five-year DCF at an 11.92% cost of equity → ₹11,666; 24x normalised FY2028E EPS of ₹605 → ₹14,531; 12x FY2028E EBITDA → ₹12,904. Blended 40/35/25 to ₹12,978. At 11.92% the current price solves to a 13.6% terminal margin against 13% actually achieved in FY2024–25 and an 11.5% ten-year average — demanding, not absurd, which is why this is narrow. Sixty basis points of terminal margin flips it to HOLD. Bull case ₹16,579 and a BUY. Third-party estimates span ₹6,463 to ₹17,496, a 2.7x spread; ours sits nearest Nomura's ₹14,070, the one Neutral house and the only one of six to raise rather than cut after the quarter.",
+      fileUrl: "assets/files/maruti-suzuki-research-report.pdf",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "assets/files/maruti-suzuki-financial-model.xlsx",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
+    {
+      title: "JPMorgan Chase & Co. (JPM) — Equity Research Report",
+      sector: "Financials",
+      market: "US",
+      featured: true,
+      date: "Aug 2026",
+      thesis: "The best-run bank in the world, priced for a return it has never sustained.",
+      rating: "REDUCE",
+      targetPrice: "$323 (−11.0%)",
+      impliedValue: "",
+      detail: "Q2 FY2026 was extraordinary — net revenue $57.3bn (+28%), net income $21.2bn (+41%), ROTCE 29%, every business at a record. But $4.2bn of after-tax gains (the Visa Class B-2 exchange plus equity marks) contributed $1.56 of the $7.70 EPS; management's own figures are $16.9bn, $6.14 and 23% ROTCE. Recurring EPS grew 3% sequentially, and the growth that remains is concentrated in Equity Markets (+86%) and IB fees (+30%) while NII ex-Markets grew 4%. At $362.84 the stock trades at 3.20x tangible book of $113.35 — which, at a 10.09% cost of equity anchored to the 4.70% US 10-year, implies a sustainable ROTCE of 22.4%. JPMorgan's own through-cycle target is 17%; the FY21–FY25 average was 20.4%. Valued three ways: five-year excess return on tangible book → $325; justified P/TBV of 2.59x on a normalised 19% ROTCE → $309; 13.5x FY27E EPS of $25.01 → $338. Blended 50/30/20 to $323, a total expected return of −9.4%. The bull case — 20.5% ROTCE sustained at a 9.6% cost of equity — gives $432 and a BUY. This is a call on whether 22% is a peak or a plateau.",
+      fileUrl: "assets/files/jpmorgan-research-report.pdf",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "assets/files/jpmorgan-financial-model.xlsx",
       fileLabel2: "Download the model (Excel)",
       thumbnail: ""
     },
