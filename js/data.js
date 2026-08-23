@@ -56,8 +56,8 @@ const siteData = {
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
-      { value: 14, suffix: "",  label: "Companies covered" },
-      { value: 15, suffix: "",  label: "Research reports & models" },
+      { value: 16, suffix: "",  label: "Companies covered" },
+      { value: 17, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
@@ -73,7 +73,9 @@ const siteData = {
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "14 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COVERAGE",   value: "16 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "MARUTI",     value: "VALUATION NOTE",     direction: "down", sectionId: "models",      page: "research.html" },
+    { label: "JPM",        value: "REDUCE · FV $323",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "BAJFINANCE", value: "VALUATION NOTE",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "MSFT",       value: "HOLD · FV $488",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "RELIANCE",   value: "VALUATION NOTE",        direction: "flat", sectionId: "models",      page: "research.html" },
@@ -288,6 +290,40 @@ const siteData = {
       fileUrl: "assets/files/alphabet-research-note.pdf",
       fileLabel: "Read the research note (PDF)",
       fileUrl2: "assets/files/alphabet-financial-model.xlsx",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
+    {
+      title: "Maruti Suzuki India (MARUTI) — Equity Research Report",
+      sector: "Automobiles",
+      market: "India",
+      featured: true,
+      date: "Aug 2026",
+      thesis: "Best operating quarter in years, worst financial one. The margin is cyclical — but it is already paid for.",
+      rating: "",
+      targetPrice: "",
+      impliedValue: "",
+      detail: "",
+      fileUrl: "",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
+    {
+      title: "JPMorgan Chase & Co. (JPM) — Equity Research Report",
+      sector: "Financials",
+      market: "US",
+      featured: true,
+      date: "Aug 2026",
+      thesis: "The best-run bank in the world, priced for a return it has never sustained.",
+      rating: "REDUCE",
+      targetPrice: "$323 (−11.0%)",
+      impliedValue: "",
+      detail: "Q2 FY2026 was extraordinary — net revenue $57.3bn (+28%), net income $21.2bn (+41%), ROTCE 29%, every business at a record. But $4.2bn of after-tax gains (the Visa Class B-2 exchange plus equity marks) contributed $1.56 of the $7.70 EPS; management's own figures are $16.9bn, $6.14 and 23% ROTCE. Recurring EPS grew 3% sequentially, and the growth that remains is concentrated in Equity Markets (+86%) and IB fees (+30%) while NII ex-Markets grew 4%. At $362.84 the stock trades at 3.20x tangible book of $113.35 — which, at a 10.09% cost of equity anchored to the 4.70% US 10-year, implies a sustainable ROTCE of 22.4%. JPMorgan's own through-cycle target is 17%; the FY21–FY25 average was 20.4%. Valued three ways: five-year excess return on tangible book → $325; justified P/TBV of 2.59x on a normalised 19% ROTCE → $309; 13.5x FY27E EPS of $25.01 → $338. Blended 50/30/20 to $323, a total expected return of −9.4%. The bull case — 20.5% ROTCE sustained at a 9.6% cost of equity — gives $432 and a BUY. This is a call on whether 22% is a peak or a plateau.",
+      fileUrl: "assets/files/jpmorgan-research-report.pdf",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "assets/files/jpmorgan-financial-model.xlsx",
       fileLabel2: "Download the model (Excel)",
       thumbnail: ""
     },
