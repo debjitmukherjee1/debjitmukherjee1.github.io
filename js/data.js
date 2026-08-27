@@ -101,7 +101,7 @@ const siteData = {
       detail: "Second-year undergraduate on the Honours & Research track, combining core commerce coursework with an independent research agenda in equity valuation and sector analysis.",
       bullets: [
         "Focus areas: corporate finance, accounting, investment analysis and business research",
-        "Award winner at MAGNAFEST 3.0, the School of Business fest (April 2026)",
+        "Award winner at MAGNAFEST 3.0, organised by Adamas University (April 2026)",
         "Founder of the university's Finance & Research Club"
       ]
     },
@@ -150,15 +150,15 @@ const siteData = {
     },
     {
       role: "Award Winner — Business Fest",
-      organization: "MAGNAFEST 3.0, Amity School of Business",
+      organization: "MAGNAFEST 3.0, Adamas University",
       years: "April 2026",
-      summary: "Team award at the School of Business's annual fest, competing in business and finance events.",
+      summary: "Team award at Adamas University's annual business fest, competing in business and finance events.",
       bullets: [
-        "Awarded at MAGNAFEST 3.0, organised by the School of Business (April 2026)",
+        "Awarded at MAGNAFEST 3.0, organised by Adamas University (April 2026)",
         "Competed with a four-member team across business strategy and finance events"
       ],
       photos: [
-        { src: "assets/images/magnafest-1.jpg", caption: "Receiving the MAGNAFEST 3.0 award — Amity School of Business, April 2026" },
+        { src: "assets/images/magnafest-1.jpg", caption: "Receiving the MAGNAFEST 3.0 award — Adamas University, April 2026" },
         { src: "assets/images/magnafest-2.jpg", caption: "With the winning team, MAGNAFEST 3.0" },
         { src: "assets/images/magnafest-3.jpg", caption: "Trophy lineup at MAGNAFEST 3.0" }
       ],
