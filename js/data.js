@@ -56,8 +56,8 @@ const siteData = {
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
-      { value: 16, suffix: "",  label: "Companies covered" },
-      { value: 17, suffix: "",  label: "Research reports & models" },
+      { value: 18, suffix: "",  label: "Companies covered" },
+      { value: 19, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
@@ -73,7 +73,9 @@ const siteData = {
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "16 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COVERAGE",   value: "18 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "SUNPHARMA",  value: "REDUCE · FV ₹1,503",      direction: "down", sectionId: "models",      page: "research.html" },
+    { label: "NVDA",       value: "REDUCE · FV $200",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "MARUTI",     value: "REDUCE · FV ₹12,978",     direction: "down", sectionId: "models",      page: "research.html" },
     { label: "JPM",        value: "REDUCE · FV $323",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "BAJFINANCE", value: "REDUCE · FV ₹1,007",        direction: "down", sectionId: "models",      page: "research.html" },
@@ -276,6 +278,40 @@ const siteData = {
      fileUrl2 / fileLabel2: optional second link (Excel model download).
      -------------------------------------------------------------------- */
   models: [
+    {
+      title: "Sun Pharmaceutical Industries (SUNPHARMA) — Equity Research Report",
+      sector: "Healthcare",
+      market: "India",
+      featured: true,
+      date: "Sep 2026",
+      thesis: "A debt-free innovator turning into a levered consolidator — and the market is still paying for the version that's disappearing.",
+      rating: "REDUCE",
+      targetPrice: "₹1,503 (−20.8%)",
+      impliedValue: "",
+      detail: "On 27 April 2026 Sun agreed to buy Organon & Co. for US$11.75bn enterprise value (all cash at $14.00/share; shareholders approved 23 July), so a standalone valuation now prices a company that will not exist. Organon is a ~US$6.2bn revenue, ~US$1.9bn adjusted-EBITDA business at a 30.6% margin — but not growing (revenue −3% in 2025, guided flat for 2026) — and Sun is paying 6.2x EBITDA for it. Valued sum-of-the-parts on FY2028 EBITDA: Sun's 54% at ~34x (the multiple a debt-free Indian pharma leader commands) and Organon's 45% at ~13x (where Teva trades) blends to 24.3x, taken to 26x for the innovative franchise and the domestic listing. Blended fair value ₹1,503 against ₹1,899 — −20.0% after the dividend; bear ₹1,220, bull ₹1,745. At 30x the blend is ₹1,601, still a REDUCE. 23 of 24 sensitivity cells sit below the price; the call rests on one judgement — that a levered consolidator with 45% of EBITDA in a shrinking Western asset deserves 26x, not 34x — not on the arithmetic being unarguable.",
+      fileUrl: "assets/files/sun-pharma-research-report.pdf",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "assets/files/sun-pharma-financial-model.xlsx",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
+    {
+      title: "NVIDIA Corporation (NVDA) — Equity Research Report",
+      sector: "Technology",
+      market: "US",
+      featured: true,
+      date: "Aug 2026",
+      thesis: "The best business in the market — priced for a growth rate faster than the one it just guided to.",
+      rating: "REDUCE",
+      targetPrice: "$200 (−12.1%)",
+      impliedValue: "",
+      detail: "Q2 FY2026 (reported 26 Aug) was enormous — revenue $96.2bn (+106%) beat NVIDIA's own guide by 5.7%, Data Center $89.0bn (+117%), Q3 guided to $108bn — and the stock rose 8.74% the next session. Fair value rose from $190 to $200 on the print, but the price ran further, widening the gap rather than closing it. The whole rating is one forecast: management guided ~70% FY2028 revenue growth, our base case has 42%, and the current price already embeds ~56% — all strongly positive, but the price has bought more growth than the base case delivers. This is not a decline call: revenue still roughly doubles, $404bn to $907bn by FY2031. The honest qualification is that a five-year hold then turns on the exit multiple — 14x returns ~5%/yr, 18x ~11%, 20x ~14% — so only the top end clears the 11.4% cost of equity; a twelve-month call that price has outrun, not a bad business to own. Break-even FY2028 growth is 56%: the call survives our 42% and the Street's 44% and fails at management's 70% (where the model gives $251 and ACCUMULATE). 61 analysts rate it Strong Buy at a $320.77 average — we are the outlier.",
+      fileUrl: "assets/files/nvidia-research-report.pdf",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "assets/files/nvidia-financial-model.xlsx",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
     {
       title: "Alphabet Inc. (GOOGL) — Equity Research Note",
       sector: "Technology",
