@@ -56,8 +56,8 @@ const siteData = {
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
-      { value: 18, suffix: "",  label: "Companies covered" },
-      { value: 19, suffix: "",  label: "Research reports & models" },
+      { value: 19, suffix: "",  label: "Companies covered" },
+      { value: 20, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
@@ -73,7 +73,8 @@ const siteData = {
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "18 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COVERAGE",   value: "19 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "LT",         value: "VALUATION NOTE",      direction: "down", sectionId: "models",      page: "research.html" },
     { label: "SUNPHARMA",  value: "VALUATION NOTE",      direction: "down", sectionId: "models",      page: "research.html" },
     { label: "NVDA",       value: "REDUCE · FV $200",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "MARUTI",     value: "VALUATION NOTE",     direction: "down", sectionId: "models",      page: "research.html" },
@@ -278,6 +279,23 @@ const siteData = {
      fileUrl2 / fileLabel2: optional second link (Excel model download).
      -------------------------------------------------------------------- */
   models: [
+    {
+      title: "Larsen & Toubro (LT) — Equity Research Report",
+      sector: "Industrials",
+      market: "India",
+      featured: true,
+      date: "Sep 2026",
+      thesis: "Strip out the listed subsidiaries and the core contractor costs 36.6x, not 31.7x — for a business whose margin keeps falling.",
+      rating: "",
+      targetPrice: "",
+      impliedValue: "",
+      detail: "",
+      fileUrl: "",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
     {
       title: "Sun Pharmaceutical Industries (SUNPHARMA) — Equity Research Report",
       sector: "Healthcare",
@@ -675,11 +693,11 @@ const siteData = {
      tag: short mono label e.g. "IN BUILD" | "QUEUED" | "SCHEDULED".
      -------------------------------------------------------------------- */
   pipeline: [
-    { label: "India · Nifty 50 · Expected Aug 2026", title: "Next India name",
-      summary: "Full model and research note in build — publishing on the regular schedule.", tag: "IN BUILD" },
-    { label: "US · S&P 500 · Expected Aug 2026", title: "Next US name",
+    { label: "US · S&P 500 · Expected Nov 2026", title: "Eli Lilly (LLY)",
+      summary: "Historicals and product mix modelled; forecast and valuation follow the 29 October Q3 print.", tag: "IN BUILD" },
+    { label: "India · Nifty 50 · Queued", title: "Next India name",
       summary: "Sector chosen for variety against existing coverage.", tag: "QUEUED" },
-    { label: "Thematic · Macro · Oct 2026", title: "Quarterly macro report",
+    { label: "Thematic · Macro · Q4 2026", title: "Quarterly macro report",
       summary: "The next seasonal deep-dive, tied back to the coverage universe.", tag: "SCHEDULED" }
   ],
 
