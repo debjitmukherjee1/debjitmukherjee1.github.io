@@ -56,8 +56,8 @@ const siteData = {
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
-      { value: 18, suffix: "",  label: "Companies covered" },
-      { value: 19, suffix: "",  label: "Research reports & models" },
+      { value: 19, suffix: "",  label: "Companies covered" },
+      { value: 20, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
@@ -73,7 +73,8 @@ const siteData = {
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "18 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COVERAGE",   value: "19 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "LT",         value: "REDUCE · FV ₹2,956",      direction: "down", sectionId: "models",      page: "research.html" },
     { label: "SUNPHARMA",  value: "REDUCE · FV ₹1,503",      direction: "down", sectionId: "models",      page: "research.html" },
     { label: "NVDA",       value: "REDUCE · FV $200",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "MARUTI",     value: "REDUCE · FV ₹12,978",     direction: "down", sectionId: "models",      page: "research.html" },
@@ -278,6 +279,23 @@ const siteData = {
      fileUrl2 / fileLabel2: optional second link (Excel model download).
      -------------------------------------------------------------------- */
   models: [
+    {
+      title: "Larsen & Toubro (LT) — Equity Research Report",
+      sector: "Industrials",
+      market: "India",
+      featured: true,
+      date: "Sep 2026",
+      thesis: "Strip out the listed subsidiaries and the core contractor costs 36.6x, not 31.7x — for a business whose margin keeps falling.",
+      rating: "REDUCE",
+      targetPrice: "₹2,956 (−22.6%)",
+      impliedValue: "",
+      detail: "L&T's 31.7x trailing multiple blends three listed companies you can buy directly — LTM, L&T Technology Services, L&T Finance — with an unlisted engineering core you cannot. Those stakes are worth ₹1,61,658 crore at market (31% of the market cap); the residual ₹3,63,936 crore buys trailing core profit of ₹9,942 crore, or 36.6x. The core carries a 10.1% operating margin against the group's 12.5%, revenue has more than doubled since FY2021 while margin fell 490bp, and management guided FY2027 core margins flat at ~7.8%. In the June quarter other income supplied 96% of the rise in profit before tax. Sum-of-the-parts weighted 45/30/25 gives ₹2,956 against ₹3,820 at the 16-Sep valuation date — REDUCE, −21.6% after the dividend. On multiples alone the call is barely bearish (relative methods break even at 28.9x FY2028 core vs 29.2x paid); roughly half the downside comes from the DCF at a 14.2% cost of equity. Risks to the call: Hyderabad Metro deconsolidation (~₹13,000 crore of debt off) and a ₹7.79 trillion order book that could lift margins.",
+      fileUrl: "assets/files/larsen-toubro-research-report.pdf",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "assets/files/larsen-toubro-financial-model.xlsx",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
     {
       title: "Sun Pharmaceutical Industries (SUNPHARMA) — Equity Research Report",
       sector: "Healthcare",
@@ -675,11 +693,11 @@ const siteData = {
      tag: short mono label e.g. "IN BUILD" | "QUEUED" | "SCHEDULED".
      -------------------------------------------------------------------- */
   pipeline: [
-    { label: "India · Nifty 50 · Expected Aug 2026", title: "Next India name",
-      summary: "Full model and research note in build — publishing on the regular schedule.", tag: "IN BUILD" },
-    { label: "US · S&P 500 · Expected Aug 2026", title: "Next US name",
+    { label: "US · S&P 500 · Expected Nov 2026", title: "Eli Lilly (LLY)",
+      summary: "Historicals and product mix modelled; forecast and valuation follow the 29 October Q3 print.", tag: "IN BUILD" },
+    { label: "India · Nifty 50 · Queued", title: "Next India name",
       summary: "Sector chosen for variety against existing coverage.", tag: "QUEUED" },
-    { label: "Thematic · Macro · Oct 2026", title: "Quarterly macro report",
+    { label: "Thematic · Macro · Q4 2026", title: "Quarterly macro report",
       summary: "The next seasonal deep-dive, tied back to the coverage universe.", tag: "SCHEDULED" }
   ],
 
