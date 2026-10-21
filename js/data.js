@@ -280,6 +280,23 @@ const siteData = {
      -------------------------------------------------------------------- */
   models: [
     {
+      title: "Costco Wholesale (COST) — Equity Research Report",
+      sector: "Consumer Staples",
+      market: "US",
+      featured: true,
+      date: "Oct 2026",
+      thesis: "Set out to show Costco is too expensive for a 5% Treasury; the numbers made it an earnings call, not a rates call.",
+      rating: "HOLD",
+      targetPrice: "$977 (−1.2%)",
+      impliedValue: "",
+      detail: "Costco's earnings yield is 2.08% against a 5.09% 10-year, and in October 2023 it traded at 39.3x — but that window was a market-wide drawdown, and through late-September 2026 the 10-year sat above 5% while Costco held ~44x. Valued against Walmart with today's 13.5% trailing-P/E premium kept in full (the lowest since 2022): forward P/E gives $971 and EV/EBITDA $989, weighted two-thirds/one-third to a $977 fair value, −0.7% total return after the dividend at the $989.11 16-Oct close. The band says REDUCE by 0.7 points; HOLD on one stated reason — with the premium kept the peer methods restate the price, so the call rests on FY2027 EPS, and HOLD needs $22.61, 22 cents above the model's $22.39 (consensus $22.82 gives +0.6%). The DCF ($501) is a floor with no weight: matching the price needs a 6.49% WACC, 1.40 points over the Treasury. Bear: the October 2023 multiple gives $811.",
+      fileUrl: "assets/files/costco-research-report.pdf",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "assets/files/costco-financial-model.xlsx",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
+    {
       title: "Larsen & Toubro (LT) — Equity Research Report",
       sector: "Industrials",
       market: "India",
