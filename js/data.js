@@ -56,8 +56,8 @@ const siteData = {
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
-      { value: 19, suffix: "",  label: "Companies covered" },
-      { value: 20, suffix: "",  label: "Research reports & models" },
+      { value: 20, suffix: "",  label: "Companies covered" },
+      { value: 21, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
