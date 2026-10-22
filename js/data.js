@@ -57,7 +57,7 @@ const siteData = {
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
       { value: 20, suffix: "",  label: "Companies covered" },
-      { value: 21, suffix: "",  label: "Research reports & models" },
+      { value: 22, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
@@ -620,6 +620,23 @@ const siteData = {
       thumbnail: ""
     },
     {
+      title: "A 5% World — Quarterly Macro, Q4 2026",
+      sector: "Macro",
+      market: "Macro",
+      featured: true,
+      date: "Oct 2026",
+      thesis: "The US 10-year above 5% is a real-rate shock, not an inflation scare — and it lands hardest on high-multiple compounders, not the index.",
+      rating: "",
+      targetPrice: "",
+      impliedValue: "10-yr 5.12% · TIPS 2.77% · implied ERP 4.20%",
+      detail: "Since January the US 10-year is up 94bp, and 84bp of that is real yield: breakevens moved only 10bp. An oil shock (Brent $114 in September, $126–130 in early October) turned the Fed from cutting to hiking, to 3.75–4.00% on 16 September. The S&P 500 at 19.0x forward still clears the bond by 0.14pp, but only if earnings grow 32.8% this year and 16.0% next; on trailing earnings the yield gap is −1.27pp, below every year-end since 2000. Names on 30–45x earnings carry the duration risk: a 25bp rise is worth about −11% at 44x. India imports the shock through a rupee near 95 and ~₹3 lakh crore of foreign selling. Every covered name is mapped to whether the macro supports or pressures its rating; three are flagged (Amazon BUY, JPMorgan REDUCE, Sun Pharma REDUCE), none changed.",
+      fileUrl: "assets/files/quarterly-macro-q4-2026.pdf",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "assets/files/quarterly-macro-q4-2026-data.xlsx",
+      fileLabel2: "Download the data (Excel)",
+      thumbnail: ""
+    },
+    {
       title: "India Import Dependency — Sectoral Overview (FY 2024–25)",
       sector: "Macro",
       market: "Macro",
@@ -714,8 +731,8 @@ const siteData = {
       summary: "Historicals and product mix modelled; forecast and valuation follow the 29 October Q3 print.", tag: "IN BUILD" },
     { label: "India · Nifty 50 · Queued", title: "Next India name",
       summary: "Sector chosen for variety against existing coverage.", tag: "QUEUED" },
-    { label: "Thematic · Macro · Q4 2026", title: "Quarterly macro report",
-      summary: "The next seasonal deep-dive, tied back to the coverage universe.", tag: "SCHEDULED" }
+    { label: "Thematic · Macro · Q1 2027", title: "Quarterly macro report",
+      summary: "The next seasonal deep-dive (India), tied back to the coverage universe.", tag: "SCHEDULED" }
   ],
 
   /* --------------------------------------------------------------------
