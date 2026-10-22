@@ -1625,3 +1625,95 @@ html.theme-light .card:hover { box-shadow: 0 16px 40px rgba(60, 54, 42, 0.16); }
   .reveal-line .rw { color: var(--paper) !important; transition: none !important; }
   .ct-seg, .contact-email, .scroll-tape { transition: none !important; }
 }
+
+/* ============================================================================
+   OCT 2026 TIDY-UP — small aesthetic fixes on top of the existing design.
+   ========================================================================== */
+
+/* slightly darker secondary text so small labels read on beige and photo */
+html.theme-light { --paper-dim: #5b5549; }
+.stat-label { font-size: 0.7rem; }
+
+/* one section number, not two: drop the oversized ghost numeral */
+.section[data-ghost]::before { display: none; }
+
+/* grids that would leave one card alone on the last row go two-up */
+@media (min-width: 641px) {
+  .card-grid.card-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* featured research cards line up with the section heading */
+.card-grid-compact {
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+/* rating chip + fair value on every research card */
+.model-readout {
+  align-items: center;
+  gap: 0.45rem 0.8rem;
+  margin-top: auto;                 /* pinned to the card's foot, so rows line up */
+  padding: 0.85rem 0 0;
+  background: none;
+  border: 0;
+  border-top: 1px solid rgba(var(--edge-rgb), 0.12);
+}
+.card-summary:has(+ .model-readout) { margin-bottom: 1rem; }
+.spark-cap {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: var(--paper-dim);
+}
+.spark-cap + .model-readout { margin-top: 0.8rem; }
+.no-ledger .spark, .no-ledger .spark-cap { display: none; }
+.model-readout + .card-open-hint { margin-top: 0; padding-top: 0.6rem; }
+.model-readout .ro-chip {
+  border: 1px solid currentColor;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+}
+.model-readout .ro-val { white-space: normal; font-size: 0.82rem; }
+.model-readout .ro-val .ro-label { margin-right: 0.15rem; }
+
+/* "OPEN ↗" only appears on hover/focus where there is a mouse;
+   touch screens keep it visible as the tap cue */
+@media (hover: hover) and (pointer: fine) {
+  .card .card-open-hint { opacity: 0; transition: opacity 0.2s ease; }
+  .card:hover .card-open-hint,
+  .card:focus-visible .card-open-hint { opacity: 1; }
+}
+
+/* phone hero: four stats as a clean 2 × 2 */
+@media (max-width: 640px) {
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.2rem 1rem;
+    width: 100%;
+    max-width: 22rem;
+  }
+  .stat-label { letter-spacing: 0.1em; }
+}
+
+/* Research → Approach: four steps side by side instead of a long
+   scroll-driven walkthrough with a mostly empty sticky panel */
+.approach-wrap { display: block; }
+.approach-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.6rem; }
+.approach-visual { display: none; }
+.section-approach { padding-top: 2rem; }
+.approach-step {
+  min-height: 0;
+  justify-content: flex-start;
+  padding-top: 1.1rem;
+  border-top: 1px solid rgba(var(--edge-rgb), 0.18);
+}
+.scrollytelling .approach-step:not(.active) { opacity: 1; }
+.approach-h { font-size: clamp(1.25rem, 2vw, 1.5rem); }
+.approach-p { font-size: 0.98rem; }
+@media (max-width: 1000px) { .approach-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px)  { .approach-steps { grid-template-columns: 1fr; gap: 0; } }

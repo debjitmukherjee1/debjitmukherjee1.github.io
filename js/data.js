@@ -42,7 +42,7 @@ const siteData = {
   hero: {
     name: "Debjit Mukherjee",
     tagline: "Building institutional-grade equity research and valuation models, independently.",
-    bio: "B.Com (Honours & Research) student at Amity University Kolkata and CFA Program Level I candidate, targeting equity research and investment banking. I independently research, model, and publish full equity reports — DCF and excess-return valuations across technology, consumer, payments, banking and IT services — alongside sector and macro studies. Founder of my university's Finance & Research Club.",
+    bio: "B.Com (Honours & Research), Amity University Kolkata · CFA Program Level I candidate. I research, model and publish full equity reports on Indian and US large caps, each with its Excel model.",
     email: "m.debjit2007@gmail.com",
     linkedinUrl: "https://www.linkedin.com/in/debjit-mukherjee101/",
     resumeUrl: "assets/files/Debjit_Mukherjee_Resume.pdf",
@@ -73,18 +73,19 @@ const siteData = {
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "19 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COVERAGE",   value: "20 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COST",       value: "HOLD · FV $977",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "LT",         value: "REDUCE · FV ₹2,956",      direction: "down", sectionId: "models",      page: "research.html" },
     { label: "SUNPHARMA",  value: "REDUCE · FV ₹1,503",      direction: "down", sectionId: "models",      page: "research.html" },
     { label: "NVDA",       value: "REDUCE · FV $200",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "MARUTI",     value: "REDUCE · FV ₹12,978",     direction: "down", sectionId: "models",      page: "research.html" },
     { label: "JPM",        value: "REDUCE · FV $323",        direction: "down", sectionId: "models",      page: "research.html" },
-    { label: "BAJFINANCE", value: "REDUCE · FV ₹1,007",        direction: "down", sectionId: "models",      page: "research.html" },
+    { label: "BAJFINANCE", value: "REDUCE · FV ₹1,007",      direction: "down", sectionId: "models",      page: "research.html" },
     { label: "MSFT",       value: "HOLD · FV $488",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "RELIANCE",   value: "HOLD · FV ₹1,361",        direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "GOOGL",      value: "HOLD · FV $384",          direction: "flat", sectionId: "models",      page: "research.html" },
-    { label: "TCS",        value: "BUY · TP ₹2,502",         direction: "up",   sectionId: "models",      page: "research.html" },
-    { label: "V",          value: "HOLD · TP $355",          direction: "flat", sectionId: "models",      page: "research.html" },
+    { label: "TCS",        value: "BUY · FV ₹2,502",         direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "V",          value: "HOLD · FV $355",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "CFA L1",     value: "CANDIDATE · 2027",        direction: "up",   sectionId: "credentials", page: "index.html" },
     { label: "FIN & RESEARCH CLUB", value: "FOUNDER",        direction: "up",   sectionId: "leadership",  page: "index.html" },
     { label: "B.COM (H&R)", value: "AMITY KOLKATA",          direction: "flat", sectionId: "education",   page: "index.html" },
