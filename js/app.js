@@ -695,12 +695,54 @@
     return pts;
   }
 
+  /* ---- Ledger price data: the same daily closes the public track record
+     uses (/ledger/data/calls.json, refreshed by Ledger's daily workflow).
+     One entry per ticker — its most recent call. */
+  var LEDGER = null;          // null = not loaded yet, false = unavailable
+  function tickerOf(item) {
+    var m = /\(([A-Z0-9.&-]+)\)/.exec(item.title || "");
+    return m ? m[1] : null;
+  }
+  function loadLedger() {
+    if (!byId("models-grid") || !window.fetch) return;
+    fetch("/ledger/data/calls.json", { cache: "no-cache" })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (d) {
+        var map = {};
+        (d.calls || []).forEach(function (c) {
+          if (!c.series || c.series.length < 2) return;
+          var prev = map[c.ticker];
+          if (!prev || c.call_date > prev.call_date) map[c.ticker] = c;
+        });
+        LEDGER = map;
+        renderModels();
+      })
+      .catch(function () {
+        LEDGER = false;
+        var g = byId("models-grid");
+        if (g) g.classList.add("no-ledger");
+      });
+  }
+  function pct(v) { return (v > 0 ? "+" : v < 0 ? "\u2212" : "") + Math.abs(v).toFixed(1) + "%"; }
+  function captionFor(c) {
+    var call = LEDGER && LEDGER[c.getAttribute("data-ticker")];
+    var cap = c.nextElementSibling;
+    if (!cap || !cap.classList.contains("spark-cap")) return;
+    if (!call) { c.style.display = "none"; cap.style.display = "none"; return; }
+    var txt = "Since call " + pct(call.return_pct);
+    if (typeof call.benchmark_return_pct === "number") txt += "  \u00b7  " + call.benchmark + " " + pct(call.benchmark_return_pct);
+    cap.textContent = txt;
+    cap.title = "Daily closes from " + call.call_date + " to " + call.as_of + " (Ledger)";
+  }
+
   function drawSpark(c, p) {
     if (p === undefined) p = 1;
+    var call = LEDGER && LEDGER[c.getAttribute("data-ticker")];
+    if (!call) return;
     var env = setupCanvas(c, 52);
     if (!env) return;
     var ctx = env.ctx, w = env.w, h = env.h;
-    var data = chartSeries(c.getAttribute("data-seed") || "x", 44, parseFloat(c.getAttribute("data-trend")) || 0);
+    var data = call.series.map(function (pt) { return pt.c; });
     var min = Math.min.apply(null, data), max = Math.max.apply(null, data);
     var X = function (i) { return (i / (data.length - 1)) * w; };
     var Y = function (v) { return h - 4 - ((v - min) / (max - min || 1)) * (h - 8); };
@@ -741,9 +783,10 @@
     var env = setupCanvas(c, 220);
     if (!env) return;
     var ctx = env.ctx, w = env.w, h = env.h;
-    // same seed + length as the card sparkline so the modal shows the SAME
-    // line (just larger), not a different path
-    var data = chartSeries(c.getAttribute("data-seed") || "x", 44, parseFloat(c.getAttribute("data-trend")) || 0);
+    // same Ledger closes as the card sparkline, drawn larger
+    var call = LEDGER && LEDGER[c.getAttribute("data-ticker")];
+    if (!call) return;
+    var data = call.series.map(function (pt) { return pt.c; });
     var min = Math.min.apply(null, data), max = Math.max.apply(null, data);
     var padL = 6, padR = 6, padT = 12, padB = 16;
     var X = function (i) { return padL + (i / (data.length - 1)) * (w - padL - padR); };
@@ -790,7 +833,9 @@
   function drawAllSparks() {
     var grid = byId("models-grid");
     if (!grid) return;
+    if (!LEDGER) return;
     grid.querySelectorAll("canvas.spark").forEach(function (c, i) {
+      captionFor(c);
       if (c.getAttribute("data-drawn") === "1") return;
       c.setAttribute("data-drawn", "1");
       if (reducedMotion) { drawSpark(c, 1); return; }
@@ -828,32 +873,32 @@
     var card = el("button", "card");
     card.type = "button";
     card.appendChild(el("p", "sector-tag", item.sector + (item.date ? "  ·  " + item.date : "")));
-    card.appendChild(el("h3", "card-title", item.title));
+    // Card shows the short name ("Costco Wholesale (COST)"); the modal keeps the full title
+    card.appendChild(el("h3", "card-title", String(item.title).split(" — ")[0]));
     card.appendChild(el("p", "card-summary", item.thesis));
 
     if (!compact) {
-      // Illustrative sparkline (seeded from title, biased by rating direction)
-      var spark = el("canvas", "spark");
-      spark.setAttribute("data-seed", item.title);
-      spark.setAttribute("data-trend", String(trendForRating(item.rating)));
-      spark.setAttribute("aria-hidden", "true");
-      card.appendChild(spark);
+      // Real price since the call date, from Ledger's daily refresh
+      var tk = tickerOf(item);
+      if (tk) {
+        var spark = el("canvas", "spark");
+        spark.setAttribute("data-ticker", tk);
+        spark.setAttribute("aria-hidden", "true");
+        card.appendChild(spark);
+        card.appendChild(el("p", "spark-cap"));
+      }
     }
 
-    // Terminal-style readout strip: only lines that have values
-    if (!compact && (item.rating || item.targetPrice || item.impliedValue)) {
+    // Readout strip: rating chip + fair value
+    if (item.rating || item.targetPrice || item.impliedValue) {
       var ro = el("div", "model-readout");
-      if (item.rating) {
-        ro.appendChild(el("span", "ro-label", "RATING"));
-        ro.appendChild(el("span", ratingClass(item.rating), item.rating));
-      }
-      if (item.targetPrice) {
-        ro.appendChild(el("span", "ro-label", "TP"));
-        ro.appendChild(el("span", "ro-val", item.targetPrice));
-      }
-      if (item.impliedValue) {
-        ro.appendChild(el("span", "ro-label", "IMPLIED"));
-        ro.appendChild(el("span", "ro-val", item.impliedValue));
+      if (item.rating) ro.appendChild(el("span", "ro-chip " + ratingClass(item.rating), item.rating));
+      var fv = item.targetPrice || item.impliedValue;
+      if (fv) {
+        var v = el("span", "ro-val");
+        if (item.rating) v.appendChild(el("span", "ro-label", "FV "));
+        v.appendChild(document.createTextNode(fv));
+        ro.appendChild(v);
       }
       card.appendChild(ro);
     }
@@ -873,7 +918,7 @@
           }
           if (item.targetPrice) {
             var tc2 = el("div", "ts-cell");
-            tc2.appendChild(el("span", "ts-label", "Target"));
+            tc2.appendChild(el("span", "ts-label", "Fair value"));
             tc2.appendChild(el("span", "ts-value", item.targetPrice));
             ts.appendChild(tc2);
           }
@@ -885,16 +930,20 @@
           }
           body.appendChild(ts);
         }
-        // Illustrative terminal chart — clearly labelled, not real price data
-        var chartWrap = el("div", "model-chart");
-        var tcanvas = el("canvas");
-        tcanvas.setAttribute("data-terminal-chart", "");
-        tcanvas.setAttribute("data-seed", item.title);
-        tcanvas.setAttribute("data-trend", String(trendForRating(item.rating)));
-        tcanvas.setAttribute("aria-hidden", "true");
-        chartWrap.appendChild(tcanvas);
-        chartWrap.appendChild(el("p", "model-chart-label", "Illustrative price path — actual figures in the linked report"));
-        body.appendChild(chartWrap);
+        // Price since the call, from Ledger (shown only when data exists)
+        var mcall = LEDGER && LEDGER[tickerOf(item)];
+        if (mcall) {
+          var chartWrap = el("div", "model-chart");
+          var tcanvas = el("canvas");
+          tcanvas.setAttribute("data-terminal-chart", "");
+          tcanvas.setAttribute("data-ticker", tickerOf(item));
+          tcanvas.setAttribute("aria-hidden", "true");
+          chartWrap.appendChild(tcanvas);
+          var lbl = "Daily close, " + mcall.call_date + " to " + mcall.as_of + " \u00b7 " +
+            pct(mcall.return_pct) + " vs " + mcall.benchmark + " " + pct(mcall.benchmark_return_pct) + " \u00b7 via Ledger";
+          chartWrap.appendChild(el("p", "model-chart-label", lbl));
+          body.appendChild(chartWrap);
+        }
         // the written thesis / detail sits under the numbers, like a note body
         body.appendChild(el("p", "modal-detail", item.detail));
         // Primary file link (usually the research report PDF)…
@@ -1114,7 +1163,7 @@
       btn.appendChild(el("span", "credential-status", item.status));
       btn.appendChild(el("span", "credential-issuer", item.issuer));
 
-      if (typeof item.progress === "number") {
+      if (typeof item.progress === "number" && item.progress < 100) {
         var bar = el("div", "credential-bar");
         var fill = el("div", "credential-bar-fill");
         fill.style.width = Math.max(0, Math.min(100, item.progress)) + "%";
@@ -1625,6 +1674,15 @@
     });
   }
 
+  /* A 3-column grid with 4 (or 7) cards leaves one card alone on its last
+     row; those grids switch to 2 columns so every row is full. */
+  function balanceGrids() {
+    ["education-grid", "leadership-grid", "experience-grid"].forEach(function (id) {
+      var g = byId(id);
+      if (g && g.children.length % 3 === 1 && g.children.length > 1) g.classList.add("card-grid-2");
+    });
+  }
+
   /* ---------- boot -------------------------------------------------------- */
 
   runBoot();
@@ -1632,7 +1690,6 @@
   startSceneEngine();
   renderHero();
   renderStats();
-  renderMarketClock();
   renderTicker();
   setupNav();
   startTickerPulse();
@@ -1640,6 +1697,7 @@
   renderEducation();
   renderLeadership();
   renderExperience();
+  balanceGrids();
   renderCompactModels();
   renderTools();
   renderDeskStrip();
@@ -1654,7 +1712,8 @@
   renderFooter();
   setupReveals();        // after all cards exist
   setupCardSpotlight();  // after all cards exist
-  setupChartResize();    // keep sparklines crisp when the window resizes
+  setupChartResize();
+  loadLedger();    // keep sparklines crisp when the window resizes
   setupMagnetic();       // magnetic hero / contact links
   setupHeroParallax();   // hero photo depth parallax
   setupTickerDrive();    // grab-and-fling ticker
