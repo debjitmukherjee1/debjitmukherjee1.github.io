@@ -87,7 +87,7 @@ const siteData = {
     { label: "TCS",        value: "BUY · FV ₹2,502",         direction: "up",   sectionId: "models",      page: "research.html" },
     { label: "V",          value: "HOLD · FV $355",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "CFA L1",     value: "CANDIDATE · 2027",        direction: "up",   sectionId: "credentials", page: "index.html" },
-    { label: "FIN & RESEARCH CLUB", value: "FOUNDER",        direction: "up",   sectionId: "leadership",  page: "index.html" },
+    { label: "FINANCE SOCIETY", value: "FOUNDER",        direction: "up",   sectionId: "leadership",  page: "index.html" },
     { label: "B.COM (H&R)", value: "AMITY KOLKATA",          direction: "flat", sectionId: "education",   page: "index.html" },
     { label: "INTERNSHIPS", value: "3 COMPLETED",            direction: "up",   sectionId: "experience",  page: "index.html" },
     { label: "STATUS",     value: "OPEN TO OPPORTUNITIES",   direction: "up",   sectionId: "contact",     page: "index.html" }
@@ -106,7 +106,7 @@ const siteData = {
       bullets: [
         "Focus areas: corporate finance, accounting, investment analysis and business research",
         "Award winner at MAGNAFEST 3.0, organised by Adamas University (April 2026)",
-        "Founder of the university's Finance & Research Club"
+        "Founder of the university's Finance Society"
       ]
     },
     {
@@ -141,11 +141,11 @@ const siteData = {
   leadership: [
     {
       role: "Founder",
-      organization: "Finance & Research Club, Amity University Kolkata",
+      organization: "Finance Society, Amity University Kolkata",
       years: "2026 — present",
-      summary: "Founded and lead the university's finance & research club — charter, research agenda and member onboarding built from the ground up. Official launch coming soon.",
+      summary: "Founded and lead the university's Finance Society — charter, research agenda and member onboarding built from the ground up. Official launch coming soon.",
       bullets: [
-        "Drafted the club's charter and research agenda, and secured institutional backing",
+        "Drafted the society's charter and research agenda, and secured institutional backing",
         "Designed the member onboarding pipeline and first-semester programme: model-building workshops, research publications, and speaker sessions",
         "Building a core team ahead of the official campus launch"
       ],
@@ -224,8 +224,10 @@ const siteData = {
       bullets: [
         "Author full equity research notes and DCF/comps valuation models on U.S.-listed companies, rebuilt to Vireo's house template and methodology",
         "Reconcile each valuation against an independent model — intrinsic value and blended target within ±2%, rating identical — before editorial submission",
-        "Apply Vireo's house approach: a DCF-driven intrinsic value with a 70/30 blended target, comps as a cross-check, and any divergence explained in the thesis"
+        "Apply Vireo's house approach: a 60/20/20 blend of intrinsic value (DCF, DDM or sum-of-the-parts, by business type), EV/EBITDA and P/E, with any gap between methods explained in the thesis"
       ],
+      link: "https://www.vireocapitalresearch.com/research",
+      linkLabel: "Read published research at Vireo Capital Research ↗",
       photos: []
     },
     {
@@ -653,6 +655,78 @@ const siteData = {
       fileUrl2: "assets/files/india-import-dependency-analysis.xlsx",
       fileLabel2: "Download the analysis (Excel)",
       thumbnail: ""
+    }
+  ],
+
+  /* --------------------------------------------------------------------
+     DEALS — the "Deal Decoded" M&A series, rendered on deals.html.
+     - published: ISO date the LinkedIn post went out; null keeps the deal
+       off the site (draft). Set it on the day of posting.
+     - status: "Closed" | "Pending" | "Terminated".
+     - live: only for pending deals; the daily tracker (data/deal-tracker.json,
+       refreshed by .github/workflows/deal-tracker.yml) adds price and spread.
+     - keyNumbers: every figure comes from the deal's own model (DEALS/ folder
+       on the desk), with the as-of date in asOf.
+     -------------------------------------------------------------------- */
+  deals: [
+    {
+      id: "sun-pharma-organon",
+      series: 2,
+      published: null,
+      title: "Sun Pharma / Organon",
+      acquirer: "Sun Pharma",
+      target: "Organon (NYSE: OGN)",
+      market: "India → US",
+      sector: "Pharma",
+      status: "Pending",
+      announced: "2026-04-27",
+      closeLabel: "Expected early 2027",
+      size: "US$11.75bn EV · all cash · $14.00 a share",
+      hook: "Organon's own banker valued it at $6.80–13.90 a share. Sun is paying $14.00.",
+      verdict: "A cheap multiple and a full price. Organon's shareholders won the auction; on management's plan Sun keeps about a fifth of its guided synergies and needs ~82% of the $350m to break even.",
+      keyNumbers: [
+        { label: "Premium to unaffected", value: "+103%" },
+        { label: "EV / LTM EBITDA", value: "6.3x" },
+        { label: "Synergy value kept by Sun", value: "20%" },
+        { label: "NPV to Sun", value: "+$361m" },
+        { label: "Break-even delivery", value: "82%" },
+        { label: "EPS accretion FY28, reported", value: "+12%" }
+      ],
+      asOf: "2026-10-23",
+      live: { ticker: "OGN" },
+      fileUrl: "assets/files/deal-sun-pharma-organon.pdf",
+      fileLabel: "Read the note + model (PDF) ↗",
+      fileUrl2: "assets/files/deal-sun-pharma-organon-model.xlsx",
+      fileLabel2: "Download model (.xlsx)"
+    },
+    {
+      id: "hdfc-ltd-hdfc-bank",
+      series: 1,
+      published: "2026-10-24",
+      title: "HDFC Ltd into HDFC Bank",
+      acquirer: "HDFC Bank",
+      target: "HDFC Ltd",
+      market: "India",
+      sector: "Banking",
+      status: "Closed",
+      announced: "2022-04-04",
+      closeLabel: "Closed 1 Jul 2023",
+      size: "~US$40bn · all stock · 42 for 25",
+      hook: "A 3.25% premium. Since the announcement HDFC Bank has returned +1.6%; Nifty Bank +49%.",
+      verdict: "A fair price for a deal the regulator made expensive in its first years. Since then, neither set of shareholders has been paid for it.",
+      keyNumbers: [
+        { label: "Premium paid", value: "+3.25%" },
+        { label: "Value to HDFC Ltd holders", value: "₹14,472 cr" },
+        { label: "CRR/SLR bill, PV", value: "₹6,415 cr" },
+        { label: "HDFC Bank TSR", value: "+1.6%" },
+        { label: "Nifty Bank", value: "+49.4%" },
+        { label: "ROE, pro forma → now", value: "14.9% → 13.5%" }
+      ],
+      asOf: "2026-10-19",
+      fileUrl: "assets/files/deal-hdfc-ltd-hdfc-bank.pdf",
+      fileLabel: "Read the note + model (PDF) ↗",
+      fileUrl2: "assets/files/deal-hdfc-ltd-hdfc-bank-model.xlsx",
+      fileLabel2: "Download model (.xlsx)"
     }
   ],
 

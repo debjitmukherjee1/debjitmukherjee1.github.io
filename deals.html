@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-light">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-019N8X8CC8"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-019N8X8CC8');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deals — Debjit Mukherjee</title>
+  <meta name="description" content="Deal Decoded — M&amp;A deals taken apart from the deal side by Debjit Mukherjee: what was paid, what it is worth, who captured the value. With a live tracker of pending deals.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Fonts: Fraunces (masthead & titles, optical-sized), Source Serif 4 (body), IBM Plex Mono (ticker & data) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css?v=16">
+</head>
+<body>
+
+  <!-- Living backdrop: one fixed canvas behind the whole page, painted by
+       app.js (drifting market lines → candlesticks → city-lights on scroll). -->
+  <canvas id="scene" class="scene-bg" aria-hidden="true"></canvas>
+
+  <!-- Skip link for keyboard users -->
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Scroll-progress "tape" (see index.html). Native CSS scroll() timeline
+       where supported, else app.js (setupScrollTape). -->
+  <div class="scroll-tape" id="scroll-tape" aria-hidden="true"></div>
+
+  <!-- ======================================================================
+       BOOT OVERLAY — brief terminal-style loading sequence on first visit
+       (removed instantly for reduced-motion users and repeat visits).
+       ====================================================================== -->
+  <div class="boot" id="boot" aria-hidden="true">
+    <div class="boot-inner">
+      <span class="boot-label">DEBJIT MUKHERJEE · PORTFOLIO</span>
+      <span class="boot-pct" id="boot-pct">0%</span>
+      <div class="boot-bar"><div class="boot-fill" id="boot-fill"></div></div>
+      <span class="boot-sub">LOADING MARKET DATA</span>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       LIGHT PAGE HEADER — no hero/bio/stats (that's Overview's job); just
+       a kicker + title + sub, consistent with the masthead's letterhead
+       treatment at a smaller scale.
+       ====================================================================== -->
+  <header class="page-header">
+    <p class="page-kicker">DEBJIT MUKHERJEE · DEALS</p>
+    <h1 class="page-title">Deal Decoded</h1>
+    <p class="page-sub">M&amp;A deals taken apart the way a deal team would: what was paid, what it is worth, how it was financed, and who captured the value. Outside-in, from public filings.</p>
+  </header>
+
+  <!-- ======================================================================
+       SITE NAV — Overview / Research / Tools. Present on all three pages;
+       app.js marks the current page aria-current="page".
+       ====================================================================== -->
+  <nav class="site-nav" aria-label="Site pages">
+    <a href="./">Overview</a>
+    <a href="research">Research</a>
+    <a href="deals">Deals</a>
+    <a href="tools">Tools</a>
+  </nav>
+
+  <!-- ======================================================================
+       THE TICKER — signature element. A scrolling tape of live "positions".
+       Items come from data.js (ticker). Each item is a button that scrolls
+       to its section (or navigates to another page first). Pauses on
+       hover/focus; static if reduced motion.
+       ====================================================================== -->
+  <div class="ticker-wrap" role="navigation" aria-label="Section ticker — click an item to jump to its section">
+    <div class="ticker" id="ticker">
+      <!-- ticker items injected by app.js (duplicated for a seamless loop) -->
+    </div>
+  </div>
+
+  <main id="main">
+    <section class="section" id="deals" data-ghost="01" aria-labelledby="deals-title">
+      <div class="section-head">
+        <span class="section-index" aria-hidden="true">01</span>
+        <h2 class="section-title" id="deals-title">The Breakdowns</h2>
+      </div>
+      <p class="section-note">Each breakdown ships with its full model: premium and precedents, synergies valued and set against the premium, accretion, financing and a verdict. <span id="deals-count"></span></p>
+      <div class="card-grid" id="deals-grid"></div>
+    </section>
+
+    <section class="section" id="tracker" data-ghost="02" aria-labelledby="tracker-title" hidden>
+      <div class="section-head">
+        <span class="section-index" aria-hidden="true">02</span>
+        <h2 class="section-title" id="tracker-title">Live Deal Tracker</h2>
+      </div>
+      <p class="section-note">Pending deals covered in the series, refreshed every weekday from the target's closing price.</p>
+      <div class="tracker-scroll">
+        <table class="tracker-table">
+          <caption class="sr-only">Pending deals: offer, latest price, merger-arbitrage spread and implied probability of closing</caption>
+          <thead><tr><th scope="col">Deal</th><th scope="col">Offer</th><th scope="col">Price</th><th scope="col">Gross spread</th><th scope="col">Annualised</th><th scope="col">Implied odds</th><th scope="col">Expected close</th><th scope="col">Status</th><th scope="col">As of</th></tr></thead>
+          <tbody id="tracker-body"></tbody>
+        </table>
+      </div>
+      <p class="tracker-note"><span id="tracker-updated"></span> Gross spread = (offer + dividends expected before close &minus; price) &divide; price. Annualised to the expected close. Implied odds (risk-neutral) = (price &times; (1 + T-bill yield &times; days &divide; 365) &minus; break price) &divide; (offer + dividends &minus; break price), using the 13-week T-bill; the break price is the unaffected price moved with the S&amp;P 500 since, a desk assumption. Informational only &mdash; not a recommendation to trade, and the author is not a SEBI-registered adviser.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-personal" id="footer-personal"></p>
+    <p class="footer-legal">Independent work — not investment advice. <span id="footer-year"></span></p>
+    <p class="footer-note">Photography is illustrative only (financial-district / New York imagery) and is not connected to, owned by, or representative of the work shown in this portfolio.</p>
+  </footer>
+
+  <!-- ======================================================================
+       DETAIL MODAL — a single reusable "pitch-book page" overlay.
+       app.js fills #modal-body when any card is opened. Esc / backdrop /
+       close button dismiss it; focus is trapped inside while open.
+       ====================================================================== -->
+  <div class="modal-backdrop" id="modal-backdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" id="modal">
+      <div class="modal-topbar">
+        <span class="modal-stamp" aria-hidden="true">DM · PORTFOLIO</span>
+        <button class="modal-close" id="modal-close" aria-label="Close detail view">×</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- injected -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Data first, then behaviour -->
+  <script src="js/data.js?v=6"></script>
+  <script src="js/app.js?v=18"></script>
+</body>
+</html>

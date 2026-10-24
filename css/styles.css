@@ -1717,3 +1717,25 @@ html.theme-light { --paper-dim: #5b5549; }
 .approach-p { font-size: 0.98rem; }
 @media (max-width: 1000px) { .approach-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 640px)  { .approach-steps { grid-template-columns: 1fr; gap: 0; } }
+
+/* ============================================================================
+   DEALS — Deal Decoded cards, live strip, tracker table, Vireo badge.
+   Uses existing tokens only.
+   ========================================================================== */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.deal-keys { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem 1rem; margin: 0.4rem 0 1rem; }
+.deal-key dt { font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--paper-dim); }
+.deal-key dd { margin: 0.1rem 0 0; font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; color: var(--paper); font-variant-numeric: tabular-nums; }
+.deal-live:empty { display: none; }
+.deal-live { margin: 0 0 0.8rem; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.06em; color: var(--accent); }
+.model-readout .deal-status { color: var(--paper); }
+.model-readout .deal-pending { color: var(--accent); }
+.model-readout .deal-closed { color: var(--flat); }
+.tracker-scroll { overflow-x: auto; margin-top: 1.4rem; border: 1px solid rgba(var(--edge-rgb), 0.12); background: var(--bg-raised); }
+.tracker-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.8rem; min-width: 760px; }
+.tracker-table th, .tracker-table td { padding: 0.75rem 0.9rem; text-align: right; border-bottom: 1px solid rgba(var(--edge-rgb), 0.08); white-space: nowrap; }
+.tracker-table thead th { font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--paper-dim); background: var(--bg-inset); }
+.tracker-table th[scope="row"], .tracker-table thead th:first-child { text-align: left; font-family: var(--font-body); font-size: 0.95rem; font-weight: 600; color: var(--paper); }
+.tracker-table thead th:first-child { font-family: var(--font-mono); font-size: 0.64rem; font-weight: 400; color: var(--paper-dim); }
+.tracker-note { margin: 0.9rem 0 0; font-size: 0.82rem; color: var(--paper-dim); max-width: 60em; }
+.vireo-badge { display: inline-block; margin: -0.2rem 0 0.6rem; padding: 0.15rem 0.5rem; font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(var(--edge-rgb), 0.25); align-self: flex-start; }

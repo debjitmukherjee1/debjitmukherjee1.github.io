@@ -1,0 +1,18 @@
+{
+  "_note": "Pending deals tracked daily by scripts/update_deal_tracker.py. Terms from primary filings; see each deal's model on the desk.",
+  "benchmark": "^GSPC",
+  "deals": {
+    "sun-pharma-organon": {
+      "ticker": "OGN",
+      "offer": 14.0,
+      "dividend_per_quarter": 0.02,
+      "expected_close": "2027-01-26",
+      "unaffected_price": 6.91,
+      "unaffected_date": "2026-04-09",
+      "benchmark_at_unaffected": 6824.66,
+      "source": "Organon DEFM14A (17-Jun-2026); expected close is the desk's assumption: the first outside date, 26-Jan-2027 (extendable to 26-Apr-2027)"
+    }
+  },
+  "rate_symbol": "^IRX",
+  "risk_free_fallback": 0.04032
+}
