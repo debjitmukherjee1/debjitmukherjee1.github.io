@@ -505,6 +505,11 @@
           openModal(function (body) {
             modalHeader(body, "EXPERIENCE · " + item.dates, item.company, item.role);
             modalBullets(body, item.bullets);
+            if (item.link) {
+              var out = el("a", "modal-file-link", item.linkLabel || "View work ↗");
+              out.href = item.link; out.target = "_blank"; out.rel = "noopener";
+              body.appendChild(out);
+            }
             modalPhotos(body, item.photos);
           });
         }
@@ -875,6 +880,7 @@
     card.appendChild(el("p", "sector-tag", item.sector + (item.date ? "  ·  " + item.date : "")));
     // Card shows the short name ("Costco Wholesale (COST)"); the modal keeps the full title
     card.appendChild(el("h3", "card-title", String(item.title).split(" — ")[0]));
+    if (item.vireo === true) card.appendChild(el("span", "vireo-badge", "Also published with Vireo Capital Research"));
     card.appendChild(el("p", "card-summary", item.thesis));
 
     if (!compact) {
@@ -1683,6 +1689,137 @@
     });
   }
 
+  /* ---------- Deals: the "Deal Decoded" series (deals.html) -------------
+     Cards from siteData.deals (published ones only). Pending deals also get
+     a live strip and a tracker row from data/deal-tracker.json, which a
+     daily GitHub Action refreshes. If that file can't load, the cards still
+     render and the live parts simply don't appear. */
+  var DEAL_TRACK = null;
+
+  function fmtDate(iso) {
+    if (!iso) return "";
+    var d = new Date(iso + "T00:00:00Z");
+    if (isNaN(d)) return iso;
+    var m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getUTCMonth()];
+    return d.getUTCDate() + " " + m + " " + d.getUTCFullYear();
+  }
+  function pctTxt(v, dp) { return (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v * 100).toFixed(dp === undefined ? 1 : dp) + "%"; }
+
+  function publishedDeals() {
+    return (siteData.deals || []).filter(function (d) { return !!d.published; })
+      .sort(function (a, b) { return (b.series || 0) - (a.series || 0); });
+  }
+
+  function dealChip(status) {
+    var glyph = status === "Pending" ? "◷ " : status === "Closed" ? "✓ " : "✕ ";
+    return el("span", "ro-chip deal-status deal-" + String(status).toLowerCase(), glyph + status.toUpperCase());
+  }
+
+  function renderDealCard(d) {
+    var card = el("button", "card deal-card");
+    card.type = "button";
+    card.appendChild(el("p", "sector-tag", "DEAL DECODED #" + d.series + "  ·  " + d.market.toUpperCase() + "  ·  " + d.sector.toUpperCase()));
+    card.appendChild(el("h3", "card-title", d.title));
+    card.appendChild(el("p", "card-sub", d.size));
+    card.appendChild(el("p", "card-summary", d.hook));
+    var kn = el("dl", "deal-keys");
+    (d.keyNumbers || []).slice(0, 4).forEach(function (k) {
+      var row = el("div", "deal-key"); row.appendChild(el("dt", null, k.label)); row.appendChild(el("dd", null, k.value)); kn.appendChild(row);
+    });
+    card.appendChild(kn);
+    if (d.live) card.appendChild(el("p", "deal-live", ""));   // filled by the tracker
+    var ro = el("div", "model-readout");
+    ro.appendChild(dealChip(d.status));
+    ro.appendChild(el("span", "ro-val", d.closeLabel));
+    card.appendChild(ro);
+    card.appendChild(el("span", "card-open-hint", "OPEN ↗"));
+    card.setAttribute("data-deal", d.id);
+    card.addEventListener("click", function () { openDeal(d); });
+    return card;
+  }
+
+  function openDeal(d) {
+    openModal(function (body) {
+      modalHeader(body, "DEAL DECODED #" + d.series + " · " + d.market + " · " + d.sector + " · as of " + fmtDate(d.asOf), d.title, d.size);
+      var ts = el("div", "tearsheet");
+      (d.keyNumbers || []).forEach(function (k) {
+        var c = el("div", "ts-cell"); c.appendChild(el("span", "ts-label", k.label)); c.appendChild(el("span", "ts-value", k.value)); ts.appendChild(c);
+      });
+      body.appendChild(ts);
+      body.appendChild(el("p", "modal-detail", "Verdict: " + d.verdict));
+      var meta = "Announced " + fmtDate(d.announced) + " · " + d.closeLabel + " · " + d.acquirer + " → " + d.target;
+      body.appendChild(el("p", "modal-sub", meta));
+      var t = DEAL_TRACK && d.live && DEAL_TRACK.deals && DEAL_TRACK.deals[d.id];
+      if (t) body.appendChild(el("p", "modal-sub", liveLine(t) + " Spread figures are informational, not a recommendation."));
+      if (d.fileUrl) { var a = el("a", "modal-file-link", d.fileLabel || "Read the note"); a.href = d.fileUrl; a.target = "_blank"; a.rel = "noopener"; body.appendChild(a); }
+      if (d.fileUrl2) { var a2 = el("a", "modal-file-link modal-file-link-secondary", d.fileLabel2 || "Download model"); a2.href = d.fileUrl2; a2.setAttribute("download", ""); body.appendChild(a2); }
+      body.appendChild(el("p", "modal-sub", "Independent analysis from public filings; the author had no involvement in this transaction. Not investment advice."));
+    });
+  }
+
+  function liveLine(t) {
+    return t.ticker + " " + "$" + t.price.toFixed(2) + " vs $" + t.offer.toFixed(2) + " offer · spread " + pctTxt(t.gross_spread, 2) +
+      " (" + pctTxt(t.annualised, 1).replace("+", "") + " annualised) · implied odds of closing " + Math.round(t.implied_prob * 100) + "% · prices at the " + fmtDate(t.as_of) + " close" + ".";
+  }
+
+  function renderDeals() {
+    var grid = byId("deals-grid");
+    if (!grid) return;
+    var list = publishedDeals();
+    grid.innerHTML = "";
+    if (!list.length) { grid.appendChild(el("p", "section-note", "The first Deal Decoded breakdowns are being finalised.")); return; }
+    list.forEach(function (d) { grid.appendChild(renderDealCard(d)); });
+    var cnt = byId("deals-count");
+    if (cnt) cnt.textContent = list.length + (list.length === 1 ? " deal" : " deals") + " · " + list.filter(function (d) { return d.status === "Pending"; }).length + " live";
+  }
+
+  function renderDealTracker() {
+    var body = byId("tracker-body");
+    var wrap = byId("tracker");
+    if (!body || !wrap) return;
+    var rows = publishedDeals().filter(function (d) { return d.live && DEAL_TRACK && DEAL_TRACK.deals && DEAL_TRACK.deals[d.id]; });
+    if (!rows.length) { wrap.hidden = true; return; }
+    wrap.hidden = false; body.innerHTML = "";
+    rows.forEach(function (d) {
+      var t = DEAL_TRACK.deals[d.id], tr = el("tr");
+      [d.title, "$" + t.offer.toFixed(2), "$" + t.price.toFixed(2), pctTxt(t.gross_spread, 2), pctTxt(t.annualised, 1).replace("+", ""),
+       Math.round(t.implied_prob * 100) + "%", fmtDate(t.expected_close), d.status, fmtDate(t.as_of)].forEach(function (v, i) {
+        var td = el(i === 0 ? "th" : "td", null, v); if (i === 0) td.setAttribute("scope", "row"); tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+    var upd = byId("tracker-updated"); if (upd && DEAL_TRACK.updated_at) upd.textContent = "Updated " + DEAL_TRACK.updated_at + ".";
+    document.querySelectorAll(".deal-card").forEach(function (c) {
+      var t = DEAL_TRACK.deals[c.getAttribute("data-deal")], p = c.querySelector(".deal-live");
+      if (t && p) p.textContent = "LIVE · " + t.ticker + " $" + t.price.toFixed(2) + " · spread " + pctTxt(t.gross_spread, 2) + " · " + Math.round(t.implied_prob * 100) + "% implied odds";
+    });
+  }
+
+  function loadDealTracker() {
+    if (!byId("deals-grid") || !window.fetch) return;
+    fetch("data/deal-tracker.json", { cache: "no-cache" })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (j) { DEAL_TRACK = j; renderDealTracker(); })
+      .catch(function () { var w = byId("tracker"); if (w) w.hidden = true; });
+  }
+
+  /* ---------- analytics: what visitors actually open ---------------------
+     GA4 is already on every page. These events record PDF, Excel and CV
+     downloads and clicks out to LinkedIn / the tools, so the site shows
+     which notes people read, not just page views. No-op if gtag is absent. */
+  function setupAnalyticsEvents() {
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest("a[href]");
+      if (!a || typeof window.gtag !== "function") return;
+      var href = a.getAttribute("href") || "", file = href.split("/").pop();
+      if (/\.(pdf|xlsx)(\?|$)/i.test(href)) {
+        window.gtag("event", /resume|cv/i.test(file) ? "cv_download" : "file_download", { file_name: file, file_extension: file.split(".").pop(), link_text: (a.textContent || "").trim().slice(0, 80), page: currentPageFile() });
+      } else if (/^https?:/i.test(href) && href.indexOf(location.host) === -1) {
+        window.gtag("event", "outbound_click", { link_url: href, link_text: (a.textContent || "").trim().slice(0, 80), page: currentPageFile() });
+      }
+    }, true);
+  }
+
   /* ---------- boot -------------------------------------------------------- */
 
   runBoot();
@@ -1700,6 +1837,9 @@
   balanceGrids();
   renderCompactModels();
   renderTools();
+  renderDeals();
+  loadDealTracker();
+  setupAnalyticsEvents();
   renderDeskStrip();
   renderFilters();
   setupLibraryFilters();

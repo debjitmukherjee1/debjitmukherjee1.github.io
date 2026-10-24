@@ -1,0 +1,35 @@
+name: Deal tracker refresh
+
+# Weekdays after the US close. Commits only data/deal-tracker.json; GitHub Pages
+# (deploy from branch) republishes the site on that commit.
+on:
+  schedule:
+    - cron: "15 22 * * 1-5"
+  workflow_dispatch: {}
+
+concurrency:
+  group: deal-tracker
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Refresh spreads
+        run: python scripts/update_deal_tracker.py
+      - name: Commit if changed
+        run: |
+          git config user.name "deal-tracker-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/deal-tracker.json
+          if git diff --cached --quiet; then echo "No change"; exit 0; fi
+          git commit -m "Deal tracker: refresh $(date -u +%F)"
+          git pull --rebase origin main
+          git push
