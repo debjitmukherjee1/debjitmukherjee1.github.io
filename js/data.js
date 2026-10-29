@@ -672,7 +672,7 @@ const siteData = {
     {
       id: "sun-pharma-organon",
       series: 2,
-      published: null,
+      published: "2026-10-29",
       title: "Sun Pharma / Organon",
       acquirer: "Sun Pharma",
       target: "Organon (NYSE: OGN)",
@@ -692,7 +692,7 @@ const siteData = {
         { label: "Break-even delivery", value: "82%" },
         { label: "EPS accretion FY28, reported", value: "+12%" }
       ],
-      asOf: "2026-10-23",
+      asOf: "2026-10-28",
       live: { ticker: "OGN" },
       fileUrl: "assets/files/deal-sun-pharma-organon.pdf",
       fileLabel: "Read the note + model (PDF) ↗",
