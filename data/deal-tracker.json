@@ -1,19 +1,19 @@
 {
-  "updated_at": "30 Oct 2026 01:57 UTC",
+  "updated_at": "31 Oct 2026 01:35 UTC",
   "deals": {
     "sun-pharma-organon": {
       "ticker": "OGN",
-      "price": 13.81,
-      "as_of": "2026-10-29",
+      "price": 13.84,
+      "as_of": "2026-10-30",
       "offer": 14.0,
       "dividends_expected": 0.02,
       "expected_close": "2027-01-26",
-      "gross_spread": 0.015206,
-      "days_to_close": 89,
-      "annualised": 0.063849,
-      "break_price": 7.8169,
-      "implied_prob": 0.987849
+      "gross_spread": 0.013006,
+      "days_to_close": 88,
+      "annualised": 0.055059,
+      "break_price": 7.6749,
+      "implied_prob": 0.992525
     }
   },
-  "risk_free": 0.03998
+  "risk_free": 0.03973
 }
