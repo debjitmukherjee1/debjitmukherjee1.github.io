@@ -57,7 +57,7 @@ const siteData = {
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
       { value: 20, suffix: "",  label: "Companies covered" },
-      { value: 22, suffix: "",  label: "Research reports & models" },
+      { value: 24, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
