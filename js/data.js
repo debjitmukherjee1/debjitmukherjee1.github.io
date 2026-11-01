@@ -56,8 +56,8 @@ const siteData = {
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
-      { value: 20, suffix: "",  label: "Companies covered" },
-      { value: 24, suffix: "",  label: "Research reports & models" },
+      { value: 21, suffix: "",  label: "Companies covered" },
+      { value: 25, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
@@ -73,7 +73,8 @@ const siteData = {
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "20 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COVERAGE",   value: "21 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "LLY",        value: "REDUCE · FV $854",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "COST",       value: "HOLD · FV $977",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "LT",         value: "REDUCE · FV ₹2,956",      direction: "down", sectionId: "models",      page: "research.html" },
     { label: "SUNPHARMA",  value: "REDUCE · FV ₹1,503",      direction: "down", sectionId: "models",      page: "research.html" },
@@ -282,6 +283,23 @@ const siteData = {
      fileUrl2 / fileLabel2: optional second link (Excel model download).
      -------------------------------------------------------------------- */
   models: [
+    {
+      title: "Eli Lilly and Company (LLY) — Equity Research Report",
+      sector: "Healthcare",
+      market: "US",
+      featured: true,
+      date: "Nov 2026",
+      thesis: "Earnings within 1% of the pre-print Street; the price needs Lilly still on ~30x them at the end of 2028.",
+      rating: "REDUCE",
+      targetPrice: "$854 (−39.7%)",
+      impliedValue: "",
+      detail: "Q3 2026 revenue rose 39% to $24.4bn and Lilly raised its 2026 guide by $5.5bn, with tirzepatide (Mounjaro and Zepbound) now two-thirds of sales. Our FY2027E EPS of $47.02 sits within 1% of the pre-print consensus, so the disagreement is the multiple: at the $1,417.54 30-Oct close Lilly trades on 30.1x it, against a peer median of 16.4x and a top quartile of 18.6x, and a growth line through the peers gives 21.8x for the ~10% growth we forecast at end-2028 — the price needs 29.7x then. FCFF DCF $777 (WACC 8.68%, 3% terminal growth, business development charged at 5% of revenue), P/E exit $895 and EV/EBITDA exit $987, weighted 50/30/20 to a $854 fair value, −39.2% total return. The DCF reaches the price only at a 6.22% WACC or with ~18 extra points of revenue growth a year to 2030. Bull $1,108, bear $583 — all REDUCE. Thirteen brokers raised targets after the print (median $1,600); the 29-analyst average ($1,398) sits below the price.",
+      fileUrl: "assets/files/eli-lilly-research-report.pdf",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "assets/files/eli-lilly-financial-model.xlsx",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
     {
       title: "Costco Wholesale (COST) — Equity Research Report",
       sector: "Consumer Staples",
