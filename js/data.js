@@ -56,8 +56,8 @@ const siteData = {
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
-      { value: 21, suffix: "",  label: "Companies covered" },
-      { value: 25, suffix: "",  label: "Research reports & models" },
+      { value: 22, suffix: "",  label: "Companies covered" },
+      { value: 26, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
@@ -73,7 +73,8 @@ const siteData = {
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "21 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COVERAGE",   value: "22 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "ITC",        value: "VALUATION NOTE",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "LLY",        value: "REDUCE · FV $854",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "COST",       value: "HOLD · FV $977",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "LT",         value: "VALUATION NOTE",      direction: "down", sectionId: "models",      page: "research.html" },
@@ -283,6 +284,23 @@ const siteData = {
      fileUrl2 / fileLabel2: optional second link (Excel model download).
      -------------------------------------------------------------------- */
   models: [
+    {
+      title: "ITC Ltd (ITC) — Equity Research Report",
+      sector: "Consumer Staples",
+      market: "India",
+      featured: true,
+      date: "Nov 2026",
+      thesis: "Cigarette profit fell 26% and the stock rose 5%: the market is right on the recovery, and the price has already paid for it.",
+      rating: "",
+      targetPrice: "",
+      impliedValue: "",
+      detail: "",
+      fileUrl: "",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
     {
       title: "Eli Lilly and Company (LLY) — Equity Research Report",
       sector: "Healthcare",
@@ -820,8 +838,8 @@ const siteData = {
      tag: short mono label e.g. "IN BUILD" | "QUEUED" | "SCHEDULED".
      -------------------------------------------------------------------- */
   pipeline: [
-    { label: "US · S&P 500 · Expected Nov 2026", title: "Eli Lilly (LLY)",
-      summary: "Historicals and product mix modelled; forecast and valuation follow the 29 October Q3 print.", tag: "IN BUILD" },
+    { label: "US · S&P 500 · Expected Nov 2026", title: "ExxonMobil (XOM)",
+      summary: "Energy, for sector variety against existing coverage; built on the Q3 2026 results.", tag: "IN BUILD" },
     { label: "India · Nifty 50 · Queued", title: "Next India name",
       summary: "Sector chosen for variety against existing coverage.", tag: "QUEUED" },
     { label: "Thematic · Macro · Q1 2027", title: "Quarterly macro report",
