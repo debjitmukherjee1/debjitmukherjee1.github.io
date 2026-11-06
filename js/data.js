@@ -56,8 +56,8 @@ const siteData = {
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
-      { value: 21, suffix: "",  label: "Companies covered" },
-      { value: 25, suffix: "",  label: "Research reports & models" },
+      { value: 22, suffix: "",  label: "Companies covered" },
+      { value: 26, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
@@ -73,7 +73,8 @@ const siteData = {
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "21 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COVERAGE",   value: "22 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "ITC",        value: "HOLD · FV ₹282",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "LLY",        value: "REDUCE · FV $854",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "COST",       value: "HOLD · FV $977",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "LT",         value: "REDUCE · FV ₹2,956",      direction: "down", sectionId: "models",      page: "research.html" },
@@ -283,6 +284,23 @@ const siteData = {
      fileUrl2 / fileLabel2: optional second link (Excel model download).
      -------------------------------------------------------------------- */
   models: [
+    {
+      title: "ITC Ltd (ITC) — Equity Research Report",
+      sector: "Consumer Staples",
+      market: "India",
+      featured: true,
+      date: "Nov 2026",
+      thesis: "Cigarette profit fell 26% and the stock rose 5%: the market is right on the recovery, and the price has already paid for it.",
+      rating: "HOLD",
+      targetPrice: "₹282 (+1.1%)",
+      impliedValue: "",
+      detail: "Q2 FY27 cigarette EBIT fell 26% to ₹4,044 cr in the second quarter after February's tax reset, but rose 7% on Q1 as pricing caught up; FMCG-Others EBIT rose 31%. We model cigarette EBIT back to FY2026 only in FY2031 and EPS of ₹13.71 / ₹15.17 for FY2027E / FY2028E, 5–7% below the last pre-print consensus. Sum of the parts ₹309 (cigarettes at 18.6x after-tax EBIT, between BAT/Altria and Philip Morris), dividend model ₹237, P/E ₹276 and DCF floor ₹267, weighted 50/25/15/10 to a ₹282 fair value: with the 5.2% dividend, a +6.3% total return against a 9.21% ACCUMULATE hurdle at the ₹278.85 5-Nov close. The price needs 7.1% perpetual dividend growth against our 6%. Bull ₹322 (BUY), bear ₹225 (REDUCE). Two inputs flip the call: a 20x tobacco multiple, or Damodaran's 10.3% cost of equity in place of our 12.2% (₹318, BUY). All 14 broker targets after the print sit above the price (median ₹310).",
+      fileUrl: "assets/files/itc-research-report.pdf",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "assets/files/itc-financial-model.xlsx",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
     {
       title: "Eli Lilly and Company (LLY) — Equity Research Report",
       sector: "Healthcare",
@@ -820,8 +838,8 @@ const siteData = {
      tag: short mono label e.g. "IN BUILD" | "QUEUED" | "SCHEDULED".
      -------------------------------------------------------------------- */
   pipeline: [
-    { label: "US · S&P 500 · Expected Nov 2026", title: "Eli Lilly (LLY)",
-      summary: "Historicals and product mix modelled; forecast and valuation follow the 29 October Q3 print.", tag: "IN BUILD" },
+    { label: "US · S&P 500 · Expected Nov 2026", title: "ExxonMobil (XOM)",
+      summary: "Energy, for sector variety against existing coverage; built on the Q3 2026 results.", tag: "IN BUILD" },
     { label: "India · Nifty 50 · Queued", title: "Next India name",
       summary: "Sector chosen for variety against existing coverage.", tag: "QUEUED" },
     { label: "Thematic · Macro · Q1 2027", title: "Quarterly macro report",
