@@ -56,8 +56,8 @@ const siteData = {
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
-      { value: 22, suffix: "",  label: "Companies covered" },
-      { value: 26, suffix: "",  label: "Research reports & models" },
+      { value: 23, suffix: "",  label: "Companies covered" },
+      { value: 27, suffix: "",  label: "Research reports & models" },
       { value: 3,  suffix: "",  label: "Internships" },
       { value: 9,  suffix: "",  label: "Bank job simulations" }
     ]
@@ -73,7 +73,8 @@ const siteData = {
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
   ticker: [
-    { label: "COVERAGE",   value: "22 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "COVERAGE",   value: "23 COMPANIES",            direction: "up",   sectionId: "models",      page: "research.html" },
+    { label: "XOM",        value: "REDUCE · FV $154",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "ITC",        value: "VALUATION NOTE",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "LLY",        value: "REDUCE · FV $854",        direction: "down", sectionId: "models",      page: "research.html" },
     { label: "COST",       value: "HOLD · FV $977",          direction: "flat", sectionId: "models",      page: "research.html" },
@@ -284,6 +285,23 @@ const siteData = {
      fileUrl2 / fileLabel2: optional second link (Excel model download).
      -------------------------------------------------------------------- */
   models: [
+    {
+      title: "ExxonMobil (XOM) — Equity Research Report",
+      sector: "Energy",
+      market: "US",
+      featured: true,
+      date: "Nov 2026",
+      thesis: "Its best quarter of the year, and the stock still prices about $78 real Brent from 2028: above our $70, XOM's own $65 plan and the futures curve.",
+      rating: "REDUCE",
+      targetPrice: "$154 (−6.5%)",
+      impliedValue: "",
+      detail: "3Q26 adjusted EPS $4.23 against $4.04 expected; Energy Products earned $9.1bn on a $50 refining margin. We value on a mid-cycle deck ($84 Brent in 2027, then $70 real; refining margins $16, then $12 real), starting from XOM's plan at XOM's prices plus its own sensitivities, scaled by what 2026 actually delivered. DCF $178, EV/EBITDA on 2028E against Chevron and ConocoPhillips (6.6x, post-3Q) $128 and P/E on 2028E $133, weighted 50/25/25 to $154: with the 2.6% dividend, a −3.9% total return at the $164.47 10-Nov close. The call rests on a beta of 1.0; on the desk's bottom-up beta (0.60) fair value is $183, a BUY, and the note prints both. Bear $134 (Hormuz reopens), bull $183. All eight broker targets after the print were raises (median $188).",
+      fileUrl: "assets/files/exxonmobil-research-report.pdf",
+      fileLabel: "Read the report (PDF)",
+      fileUrl2: "assets/files/exxonmobil-financial-model.xlsx",
+      fileLabel2: "Download the model (Excel)",
+      thumbnail: ""
+    },
     {
       title: "ITC Ltd (ITC) — Equity Research Report",
       sector: "Consumer Staples",
@@ -838,8 +856,8 @@ const siteData = {
      tag: short mono label e.g. "IN BUILD" | "QUEUED" | "SCHEDULED".
      -------------------------------------------------------------------- */
   pipeline: [
-    { label: "US · S&P 500 · Expected Nov 2026", title: "ExxonMobil (XOM)",
-      summary: "Energy, for sector variety against existing coverage; built on the Q3 2026 results.", tag: "IN BUILD" },
+    { label: "US · S&P 500 · Queued", title: "Next US name",
+      summary: "Sector chosen for variety against existing coverage.", tag: "QUEUED" },
     { label: "India · Nifty 50 · Queued", title: "Next India name",
       summary: "Sector chosen for variety against existing coverage.", tag: "QUEUED" },
     { label: "Thematic · Macro · Q1 2027", title: "Quarterly macro report",
