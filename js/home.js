@@ -16,7 +16,7 @@
    reduced motion, every chapter is shown as an ordinary stacked section.
    three.js, GSAP and Lenis are free and loaded from a CDN.
    ========================================================================== */
-import { stage, buildStage, goView, blendView, focusRidge, setWorld } from "./stage.js?v=80";
+import { stage, buildStage, goView, blendView, focusRidge, setWorld } from "./stage.js?v=90";
 
 const DM = window.DM;
 const D = DM.D, hero = D.hero || {}, esc = DM.esc, pct = DM.pct, cls = DM.cls;

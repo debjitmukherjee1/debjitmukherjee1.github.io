@@ -204,3 +204,40 @@ body[data-page="home"] .tape { background: rgba(255, 255, 255, .04); -webkit-bac
 /* the chapter panel is a little denser so figures stay readable over the ticker behind it */
 .cc-side { background: linear-gradient(180deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, .03) 45%, rgba(255, 255, 255, .06)), color-mix(in srgb, var(--w2) 66%, transparent); }
 .cc-tk { font-size: clamp(96px, min(26vw, calc(41vw / var(--n, 4) / .66)), 440px); }
+
+/* ---------- phone layout ------------------------------------------------ */
+@media (max-width: 700px) {
+  /* hero: status, then buttons; no scroll hint to collide with */
+  .h-word { top: calc(var(--nav-h) + 2px); }
+  .h-line { margin-bottom: 27vh; font-size: clamp(30px, 9.4vw, 44px); }
+  .h-scroll { display: none; }
+  .h-status { left: var(--pad); right: var(--pad); bottom: 84px; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .h-foot { bottom: 20px; flex-direction: row; }
+  .h-cta { width: 100%; justify-content: flex-start; flex-wrap: nowrap; }
+  .h-cta .btn { height: 44px; padding: 0 16px; flex: 0 1 auto; }
+  .h-cta .btn-solid { flex: 1 1 auto; justify-content: center; }
+  /* call chapters: label, then ticker, then the panel pinned to the bottom */
+  .cc-top { top: calc(var(--nav-h) + 6px); gap: 4px 12px; font-size: 10px; }
+  .cc-tk { top: calc(var(--nav-h) + 46px); bottom: auto; font-size: clamp(72px, min(30vw, calc(86vw / var(--n, 4) / .66)), 150px); }
+  .cc-side { left: 12px; right: 12px; bottom: 14px; padding: 18px 18px 20px; border-radius: 24px; gap: 10px; }
+  .cc-thesis { font-size: 18.5px; line-height: 1.24; }
+  .cc-nums div { padding: 9px 0 8px; } .cc-nums dd { font-size: 22px; }
+  .cc-side .btn { height: 42px; }
+  .stamp { height: 30px; font-size: 11px; }
+  /* record */
+  .h-rec { padding: 12vh var(--pad) 10vh; }
+  .rec-cap { margin-bottom: 30px; }
+  /* tools: a vertical stack, no sideways swipe */
+  .tools-swipe .h-tools { height: auto; min-height: 0; overflow: visible; padding: 10vh 0 6vh; display: block; }
+  .tools-swipe .h-tools-track { flex-direction: column; align-items: stretch; gap: 44px; padding: 0 var(--pad); }
+  .tools-swipe .tp, .tools-swipe .tp-lead, .tools-swipe .tp-bench { width: 100%; }
+  .tools-swipe .tp-shot { transform: none; border-radius: 12px; }
+  .tools-swipe .tp-meta { margin-top: 16px; } .tools-swipe .tp-meta h3 { font-size: 40px; }
+  .tp-hint { display: none; }
+  .tp-bench { padding: 22px; border-radius: 24px; } .tp-bench li a { grid-template-columns: 24px minmax(0, 1fr) 14px; } .tp-bench li i { display: none; }
+  /* deals and profile hand-off */
+  .h-sec { padding: 11vh 0; }
+  .deal-x { border-radius: 22px; gap: 16px; } .dx-keys { gap: 16px 22px; } .dx-keys span { max-width: 12ch; }
+  .h-title { font-size: clamp(40px, 12vw, 60px); }
+  .sk-track span { font-size: 44px; }
+}

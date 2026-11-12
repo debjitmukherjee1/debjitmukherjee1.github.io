@@ -48,9 +48,28 @@ export function buildStage(calls) {
   const X = t => (t - t0) / (t1 - t0) * W - W / 2;
   const U = { uA: { value: world.a }, uB: { value: world.b }, uNear: { value: 8 }, uFar: { value: 70 }, uTime: { value: 0 } };
 
-  const fillVS = "uniform float uRise; varying float vH; varying float vD; void main(){ vH = uv.y; vec3 p0 = position; if (uv.y > 0.5) p0.y *= uRise; vec4 mv = modelViewMatrix * vec4(p0,1.0); vD = -mv.z; gl_Position = projectionMatrix * mv; }";
-  const fillFS = "uniform vec3 uA; uniform vec3 uB; uniform float uNear; uniform float uFar; uniform float uGlow; uniform vec3 uHot; varying float vH; varying float vD;" +
-    "void main(){ vec3 top = mix(uB, uA, 0.30 + uGlow * 0.5); vec3 c = mix(uB, top, pow(vH, 3.2)); c = mix(c, uHot, uGlow * pow(vH, 9.0) * 0.35); float f = smoothstep(uNear, uFar, vD); gl_FragColor = vec4(mix(c, uB, f * 0.9), 1.0); }";
+  const fillVS = "uniform float uRise; varying float vH; varying float vD; varying float vX; varying float vY; void main(){ vH = uv.y; vec3 p0 = position; if (uv.y > 0.5) p0.y *= uRise; vX = p0.x; vY = p0.y; vec4 mv = modelViewMatrix * vec4(p0,1.0); vD = -mv.z; gl_Position = projectionMatrix * mv; }";
+  const fillFS = [
+    "uniform vec3 uA; uniform vec3 uB; uniform float uNear; uniform float uFar; uniform float uGlow; uniform vec3 uHot; uniform float uTime;",
+    "varying float vH; varying float vD; varying float vX; varying float vY;",
+    "float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }",
+    "float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f); return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), f.x), mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), f.x), f.y); }",
+    "void main(){",
+    "  float near = 1.0 - smoothstep(uNear, uFar * 0.6, vD);",                                    // texture is for nearby ridges; far ones stay calm
+    "  float hatch = smoothstep(0.62, 0.98, 0.5 + 0.5 * sin(vX * 44.0));",                         // fine vertical engraving lines
+    "  float bands = smoothstep(0.80, 1.0, 0.5 + 0.5 * sin(vY * 7.5 + vX * 0.35 - uTime * 0.55));", // contour bands drifting down the wall
+    "  float grain = noise(vec2(vX * 22.0, vY * 22.0 + uTime * 0.12)) - 0.5;",
+    "  float flow = noise(vec2(vX * 0.9 - uTime * 0.18, vY * 1.6));",                              // slow light moving along the ridge
+    "  float body = pow(vH, 3.2);",
+    "  float tex = (hatch * 0.5 * pow(vH, 1.5) + bands * 0.22 * vH + grain * 0.3 * vH + (flow - 0.5) * 0.35 * pow(vH, 2.0)) * near;",
+    "  float amt = clamp(body + tex * (0.4 + uGlow * 0.6), 0.0, 1.0);",
+    "  vec3 top = mix(uB, uA, 0.32 + uGlow * 0.5);",
+    "  vec3 c = mix(uB, top, amt);",
+    "  c += uA * pow(vH, 16.0) * (0.22 + uGlow * 0.55);",                                          // glow just under the crest
+    "  c = mix(c, uHot, uGlow * pow(vH, 9.0) * 0.3);",
+    "  float f = smoothstep(uNear, uFar, vD);",
+    "  gl_FragColor = vec4(mix(c, uB, f * 0.9), 1.0);",
+    "}"].join("\n");
   const lineVS = "attribute float side; uniform float uThick; uniform float uRise; varying float vU; varying float vD; void main(){ vU = uv.x; vec3 p = position; p.y = p.y * uRise + side * uThick; vec4 mv = modelViewMatrix * vec4(p,1.0); vD = -mv.z; gl_Position = projectionMatrix * mv; }";
   const lineFS = "uniform vec3 uA; uniform vec3 uLine; uniform float uNear; uniform float uFar; uniform float uDraw; uniform float uAlpha; uniform float uPulse; uniform float uTime; varying float vU; varying float vD;" +
     "void main(){ if (vU > uDraw) discard; float f = smoothstep(uNear, uFar, vD); float d = abs(vU - fract(uTime * 0.16)); float pz = uPulse * smoothstep(0.09, 0.0, d); vec3 c = mix(uLine, uA, f * 0.55) + uA * pz * 1.4 + vec3(pz * 0.6); gl_FragColor = vec4(c, min(1.0, uAlpha * (1.0 - f * 0.75) + pz)); }";

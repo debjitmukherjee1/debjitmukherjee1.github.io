@@ -122,7 +122,7 @@
       '<div class="pal" id="pal" role="dialog" aria-modal="true" aria-label="Search the site" data-lenis-prevent><input id="pal-in" type="text" placeholder="Search a ticker, a deal, a tool, a page…" autocomplete="off" spellcheck="false" aria-controls="pal-list"><div class="pal-list" id="pal-list" role="listbox"></div><div class="pal-foot mono"><span>↑↓ move</span><span>↵ open</span><span>esc close</span></div></div>';
     while (tail.firstChild) document.body.appendChild(tail.firstChild);
     // liquid glass: a displacement map bends whatever sits behind the dock and panels (Chromium only; others keep the frosted look)
-    if (window.chrome && !REDUCED && window.CSS && CSS.supports("backdrop-filter", "blur(1px)")) {
+    if (window.chrome && !REDUCED && window.innerWidth > 820 && window.CSS && CSS.supports("backdrop-filter", "blur(1px)")) {
       var lg = document.createElement("div");
       lg.innerHTML = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="lg" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.011" numOctaves="2" seed="11" result="n"/><feGaussianBlur in="n" stdDeviation="3" result="nb"/><feDisplacementMap in="SourceGraphic" in2="nb" scale="46" xChannelSelector="R" yChannelSelector="G"/></filter></svg>';
       document.body.appendChild(lg.firstChild); root.classList.add("lg-ok");
@@ -544,7 +544,8 @@
   /* ---------- research library ------------------------------------------ */
   function renderLibrary() {
     var host = $("#library"); if (!host) return;
-    var st = { q: "", market: "All", rating: "All", sector: "All", sort: "date", dir: 1, view: "table" };
+    var st = { q: "", market: "All", rating: "All", sector: "All", sort: "date", dir: 1, view: window.innerWidth < 700 ? "cards" : "table" };
+    $$('[data-f="view"]').forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-v") === st.view); });
     var sectors = ["All"]; MODELS.forEach(function (m) { if (sectors.indexOf(m.sector) < 0) sectors.push(m.sector); });
     $("#sector-row").innerHTML = sectors.map(function (s) { return '<button type="button" data-f="sector" data-v="' + esc(s) + '" aria-pressed="' + (s === "All") + '">' + esc(s) + "</button>"; }).join("");
     function grp(r) { return r === "ACCUMULATE" ? "BUY" : r; }
