@@ -46,10 +46,8 @@ const siteData = {
     name: "Debjit Mukherjee",
     tagline: "Building institutional-grade equity research and valuation models, independently.",
     /* The Overview's opening lines: headline is shown one line per entry
-       (the last line is set in italics); manifesto is a list of short
-       statements that light up one at a time as the visitor scrolls. */
+       (the last line is set in white, the others in grey). */
     headline: ["Institutional-grade", "equity research,", "built independently."],
-    manifesto: ["Twenty-three companies.", "Modelled from the filings.", "Valued several ways.", "Rated against the bond yield.", "Published with the model.", "The losers stay on the record."],
     bio: "B.Com (Honours & Research), Amity University Kolkata · CFA Program Level I candidate. I research, model and publish full equity reports on Indian and US large caps, each with its Excel model.",
     email: "m.debjit2007@gmail.com",
     linkedinUrl: "https://www.linkedin.com/in/debjit-mukherjee101/",

@@ -15,14 +15,14 @@ const $ = (s, r) => (r || document).querySelector(s);
 const MOTION = DM.HAS_GSAP, gsap = window.gsap, root = document.documentElement;
 
 /* ---------- worlds: the colour of the page at each point ------------------ */
-export const WORLDS = {            // [glow, base]
-  open:       ["#3b6bff", "#06070c"],
+export const WORLDS = {     // [glow, base] — grey everywhere except inside a call chapter, which takes its rating's colour
+  open:       ["#6a6e78", "#050505"],
   BUY:        ["#19e68c", "#050907"],
   ACCUMULATE: ["#1fd8c4", "#05090a"],
   HOLD:       ["#8f7dff", "#07060d"],
   REDUCE:     ["#ff5a36", "#0b0605"],
-  record:     ["#3b6bff", "#06070c"],
-  calm:       ["#2a3760", "#06070c"]
+  record:     ["#7c808a", "#050505"],
+  calm:       ["#3c3e44", "#050505"]
 };
 const world = { a: new THREE.Color(WORLDS.open[0]), b: new THREE.Color(WORLDS.open[1]) };
 export function setWorld(name, dur) {

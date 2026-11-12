@@ -5,18 +5,18 @@
    Ledger becomes a ridge in a 3D landscape (x = time since the call, height = return since
    the call, depth = order of publication). Scrolling moves a camera through
    it and changes the colour of the world:
-     intro     wide view, then a dive toward the horizon while the headline
-               and the manifesto zoom through
+     intro     wide view, then a dive toward the horizon as the headline
+               grows and passes
      calls     one full-screen chapter per call; the camera flies to that
                call's ridge and the world takes the colour of its rating
      record    top-down view with the live track-record numbers
      the rest  the landscape dims and drifts behind tools, deals and the CV
-   Text comes from js/data.js (hero.headline, hero.manifesto, models, tools…).
+   Text comes from js/data.js (hero.headline, models, tools…).
    If WebGL or the motion libraries are unavailable, or the visitor prefers
    reduced motion, every chapter is shown as an ordinary stacked section.
    three.js, GSAP and Lenis are free and loaded from a CDN.
    ========================================================================== */
-import { stage, buildStage, goView, blendView, focusRidge, setWorld } from "./stage.js?v=50";
+import { stage, buildStage, goView, blendView, focusRidge, setWorld } from "./stage.js?v=60";
 
 const DM = window.DM;
 const D = DM.D, hero = D.hero || {}, esc = DM.esc, pct = DM.pct, cls = DM.cls;
@@ -40,8 +40,6 @@ function renderIntro() {
   const h = hero.headline || [hero.tagline || ""];
   $("#h-word").innerHTML = esc(hero.name || "").split(" ").map(w => "<span>" + esc(w) + "</span>").join(" ");
   $("#h-line").innerHTML = h.map((l, i) => '<span class="hl' + (i === h.length - 1 ? " em" : "") + '"><span>' + esc(l) + "</span></span>").join("");
-  const man = Array.isArray(hero.manifesto) ? hero.manifesto : [hero.manifesto || hero.bio || ""];
-  $("#h-manifesto").innerHTML = man.map(l => "<span>" + esc(l) + "</span>").join("");
   $("#h-cta").innerHTML = '<a class="btn btn-solid" href="research" data-cursor="Read">The research <span class="arr">↗</span></a><a class="btn" href="' + esc(hero.resumeUrl) + '" target="_blank" rel="noopener">CV ↓</a><a class="btn" href="' + esc(hero.linkedinUrl) + '" target="_blank" rel="noopener">LinkedIn</a>';
   const st = (D.ticker || []).find(t => t.label === "STATUS");
   $("#h-status").innerHTML = (st ? '<span class="pill live r-accumulate">' + esc(st.value) + "</span>" : "") + '<span id="h-live"></span>';
@@ -155,21 +153,15 @@ function showChapter(i) {
 function choreograph() {
   if (!MOTION) { root.classList.add("static-home"); setWorld("open", 0); return; }
   gsap.registerPlugin(ScrollTrigger);
-  const V = stage.views, manLines = $$("#h-manifesto span");
-  // intro: headline grows, manifesto arrives, then zooms through
-  const intro = gsap.timeline({ scrollTrigger: { trigger: ".h-intro", start: "top top", end: "+=340%", pin: true, scrub: .6,
-    onUpdate: s => {
-      if (stage.ok) blendView(V.hero, V.dive, gsap.parseEase("power2.inOut")(Math.min(1, s.progress * 1.15)));
-      const k = Math.floor((s.progress - .46) / .46 * manLines.length);          // one statement lights at a time
-      manLines.forEach((l, j) => l.classList.toggle("on", j === Math.max(0, Math.min(manLines.length - 1, k))));
-    },
+  const V = stage.views;
+  // intro: the headline grows and passes as the camera dives
+  const intro = gsap.timeline({ scrollTrigger: { trigger: ".h-intro", start: "top top", end: "+=130%", pin: true, scrub: .6,
+    onUpdate: s => { if (stage.ok) blendView(V.hero, V.dive, gsap.parseEase("power2.inOut")(s.progress)); },
     onLeave: () => {}, onEnterBack: () => { setWorld("open"); focusRidge(-1); } } });
   intro.to("#h-word", { yPercent: -130, opacity: 0, ease: "power2.in", duration: .22 }, 0)
     .to(".h-foot, .h-status", { opacity: 0, y: 30, duration: .12 }, 0)
-    .to("#h-line", { scale: 2.1, yPercent: -34, xPercent: 0, ease: "power2.inOut", duration: .3 }, 0)
-    .to("#h-line", { scale: 9, opacity: 0, ease: "power2.in", duration: .2 }, .3)
-    .fromTo("#h-manifesto", { opacity: 0, yPercent: 14 }, { opacity: 1, yPercent: 0, ease: "power2.out", duration: .1 }, .42)
-    .to("#h-manifesto", { opacity: 0, yPercent: -14, ease: "power2.in", duration: .08 }, .92);
+    .to("#h-line", { scale: 2.1, yPercent: -34, xPercent: 0, ease: "power2.inOut", duration: .55 }, 0)
+    .to("#h-line", { scale: 9, opacity: 0, ease: "power2.in", duration: .4 }, .58);
   // calls: one chapter per step
   const n = list.length + 1;
   gsap.set(".call-ch", { autoAlpha: 0 });
