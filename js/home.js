@@ -1,7 +1,7 @@
 /* ============================================================================
    home.js — the Overview page (index.html): a scroll-driven film.
    ----------------------------------------------------------------------------
-   One fixed WebGL scene sits behind the whole page. Every published call from
+   One fixed WebGL scene (js/stage.js) sits behind the whole page. Every published call from
    Ledger becomes a ridge in a 3D landscape (x = time since the call, height = return since
    the call, depth = order of publication). Scrolling moves a camera through
    it and changes the colour of the world:
@@ -16,7 +16,7 @@
    reduced motion, every chapter is shown as an ordinary stacked section.
    three.js, GSAP and Lenis are free and loaded from a CDN.
    ========================================================================== */
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js";
+import { stage, buildStage, goView, blendView, focusRidge, setWorld } from "./stage.js?v=50";
 
 const DM = window.DM;
 const D = DM.D, hero = D.hero || {}, esc = DM.esc, pct = DM.pct, cls = DM.cls;
@@ -26,126 +26,6 @@ const MOTION = DM.HAS_GSAP;
 const gsap = window.gsap, ScrollTrigger = window.ScrollTrigger;
 const root = document.documentElement;
 const ARROW = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 10 10 2M4 2h6v6" stroke="currentColor" stroke-width="1.4"/></svg>';
-
-/* ---------- worlds: the colour of the page at each point ------------------ */
-const WORLDS = {            // [glow, base]
-  open:       ["#3b6bff", "#06070c"],
-  BUY:        ["#19e68c", "#050907"],
-  ACCUMULATE: ["#1fd8c4", "#05090a"],
-  HOLD:       ["#8f7dff", "#07060d"],
-  REDUCE:     ["#ff5a36", "#0b0605"],
-  record:     ["#3b6bff", "#06070c"],
-  calm:       ["#2a3760", "#06070c"]
-};
-const world = { a: new THREE.Color(WORLDS.open[0]), b: new THREE.Color(WORLDS.open[1]) };
-function setWorld(name, dur) {
-  const w = WORLDS[name] || WORLDS.calm, a = new THREE.Color(w[0]), b = new THREE.Color(w[1]);
-  if (MOTION) { gsap.to(world.a, { r: a.r, g: a.g, b: a.b, duration: dur == null ? 1.2 : dur, ease: "power2.out", overwrite: true }); gsap.to(world.b, { r: b.r, g: b.g, b: b.b, duration: dur == null ? 1.2 : dur, ease: "power2.out", overwrite: true }); }
-  else { world.a.copy(a); world.b.copy(b); }
-  root.style.setProperty("--w1", w[0]); root.style.setProperty("--w2", w[1]);
-}
-
-/* ---------- the 3D stage --------------------------------------------------- */
-const stage = { ok: false, goal: { p: new THREE.Vector3(0, 3.4, 18), l: new THREE.Vector3(0, .6, -14) }, ridges: [], active: -1, dim: 0, views: {} };
-const W = 28, S = 1.7, FLOOR = -7, YS = .1;
-function buildStage(calls) {
-  const canvas = $("#stage"); if (!canvas) return;
-  let renderer;
-  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" }); renderer.setClearColor(0x000000, 0); } catch (e) { return; }
-  const small = innerWidth < 760;
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, small ? 1.5 : 2));
-  const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(small ? 58 : 44, 1, .1, 400);
-  const N = calls.length, DEPTH = N * S;
-  let t0 = Infinity, t1 = -Infinity;
-  calls.forEach(c => c.series.forEach(p => { const t = Date.parse(p.d); if (t < t0) t0 = t; if (t > t1) t1 = t; }));
-  const X = t => (t - t0) / (t1 - t0) * W - W / 2;
-  const U = { uA: { value: world.a }, uB: { value: world.b }, uNear: { value: 8 }, uFar: { value: 70 } };
-
-  const fillVS = "varying float vH; varying float vD; void main(){ vH = uv.y; vec4 mv = modelViewMatrix * vec4(position,1.0); vD = -mv.z; gl_Position = projectionMatrix * mv; }";
-  const fillFS = "uniform vec3 uA; uniform vec3 uB; uniform float uNear; uniform float uFar; uniform float uGlow; uniform vec3 uHot; varying float vH; varying float vD;" +
-    "void main(){ vec3 top = mix(uB, uA, 0.30 + uGlow * 0.5); vec3 c = mix(uB, top, pow(vH, 3.2)); c = mix(c, uHot, uGlow * pow(vH, 9.0) * 0.35); float f = smoothstep(uNear, uFar, vD); gl_FragColor = vec4(mix(c, uB, f * 0.9), 1.0); }";
-  const lineVS = "attribute float side; uniform float uThick; varying float vU; varying float vD; void main(){ vU = uv.x; vec3 p = position; p.y += side * uThick; vec4 mv = modelViewMatrix * vec4(p,1.0); vD = -mv.z; gl_Position = projectionMatrix * mv; }";
-  const lineFS = "uniform vec3 uA; uniform vec3 uLine; uniform float uNear; uniform float uFar; uniform float uDraw; uniform float uAlpha; varying float vU; varying float vD;" +
-    "void main(){ if (vU > uDraw) discard; float f = smoothstep(uNear, uFar, vD); gl_FragColor = vec4(mix(uLine, uA, f * 0.55), uAlpha * (1.0 - f * 0.75)); }";
-
-  calls.forEach((c, i) => {
-    const z = -i * S, base = c.series[0].c;
-    // each ridge runs the full width: left edge = the day of the call, right edge = today (or the day it was closed)
-    const m = c.series.length - 1, pts = c.series.map((p, j) => [j / m * W - W / 2, (p.c / base - 1) * 100 * YS]);
-    const last = pts[pts.length - 1];
-    const n = pts.length, fp = new Float32Array(n * 6), fuv = new Float32Array(n * 4), lp = new Float32Array(n * 6), luv = new Float32Array(n * 4), ls = new Float32Array(n * 2), idx = [];
-    const endU = (last[0] + W / 2) / W;
-    pts.forEach((p, j) => {
-      fp.set([p[0], p[1], z, p[0], FLOOR, z], j * 6); fuv.set([0, 1, 0, 0], j * 4);
-      lp.set([p[0], p[1], z + .012, p[0], p[1], z + .012], j * 6); const u = (p[0] + W / 2) / W; luv.set([u, 1, u, 0], j * 4); ls.set([1, -1], j * 2);
-      if (j < n - 1) idx.push(j * 2, j * 2 + 1, j * 2 + 2, j * 2 + 1, j * 2 + 3, j * 2 + 2);
-    });
-    const fg = new THREE.BufferGeometry(); fg.setAttribute("position", new THREE.BufferAttribute(fp, 3)); fg.setAttribute("uv", new THREE.BufferAttribute(fuv, 2)); fg.setIndex(idx);
-    const lg = new THREE.BufferGeometry(); lg.setAttribute("position", new THREE.BufferAttribute(lp, 3)); lg.setAttribute("uv", new THREE.BufferAttribute(luv, 2)); lg.setAttribute("side", new THREE.BufferAttribute(ls, 1)); lg.setIndex(idx);
-    const fm = new THREE.ShaderMaterial({ vertexShader: fillVS, fragmentShader: fillFS, side: THREE.DoubleSide, uniforms: Object.assign({ uGlow: { value: 0 }, uHot: { value: new THREE.Color("#ffffff") } }, U) });
-    const lm = new THREE.ShaderMaterial({ vertexShader: lineVS, fragmentShader: lineFS, side: THREE.DoubleSide, transparent: true, uniforms: Object.assign({ uThick: { value: .028 }, uLine: { value: new THREE.Color("#f6eed9") }, uDraw: { value: MOTION ? 0 : 1 }, uAlpha: { value: .75 } }, U) });
-    const fill = new THREE.Mesh(fg, fm), line = new THREE.Mesh(lg, lm); fill.renderOrder = i; line.renderOrder = i;
-    scene.add(fill, line);
-    const dot = new THREE.Mesh(new THREE.SphereGeometry(.11, 16, 12), new THREE.MeshBasicMaterial({ color: "#f6eed9" })); dot.position.set(last[0], last[1], z + .02); dot.scale.setScalar(.6); scene.add(dot);
-    stage.ridges.push({ call: c, fm, lm, dot, end: new THREE.Vector3(last[0], last[1], z), z, endU });
-  });
-
-  // a flat sun on the horizon and a little dust in the air
-  const halo = new THREE.Mesh(new THREE.RingGeometry(12.94, 13, 160), new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: .35 }));
-  halo.position.set(4, 3, -DEPTH - 26); scene.add(halo);
-  const halo2 = new THREE.Mesh(new THREE.RingGeometry(18.95, 19, 160), new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: .14 }));
-  halo2.position.copy(halo.position); scene.add(halo2);
-  const pn = small ? 260 : 700, pp = new Float32Array(pn * 3);
-  for (let i = 0; i < pn; i++) pp.set([(Math.random() - .5) * 70, Math.random() * 22 - 4, 14 - Math.random() * (DEPTH + 50)], i * 3);
-  const dust = new THREE.Points(new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(pp, 3)), new THREE.PointsMaterial({ color: "#fff6dc", size: .07, transparent: true, opacity: .7, sizeAttenuation: true }));
-  scene.add(dust);
-
-  // camera views
-  const mid = -DEPTH / 2;
-  stage.views.hero = { p: new THREE.Vector3(0, 3.6, 19), l: new THREE.Vector3(1.5, 1.1, mid) };
-  stage.views.dive = { p: new THREE.Vector3(-2.5, 1.5, 1.5), l: new THREE.Vector3(5, 2.2, -DEPTH - 30) };
-  stage.views.record = { p: new THREE.Vector3(0, 34, mid + 12), l: new THREE.Vector3(0, 0, mid - 1) };
-  stage.views.calm = { p: new THREE.Vector3(-6, 6.5, 22), l: new THREE.Vector3(2, 1, mid) };
-  stage.views.call = i => { const r = stage.ridges[i], e = r.end; return { p: new THREE.Vector3(e.x - (small ? 2.5 : 8.5), e.y + 3.4, r.z + (small ? 12 : 9)), l: new THREE.Vector3(e.x - (small ? 3 : 7), e.y * .5 + .3, r.z) }; };
-  stage.goal.p.copy(stage.views.hero.p); stage.goal.l.copy(stage.views.hero.l);
-
-  const cur = { p: stage.goal.p.clone().add(new THREE.Vector3(0, 9, 10)), l: stage.goal.l.clone() }, mouse = { x: 0, y: 0, sx: 0, sy: 0 };
-  addEventListener("pointermove", e => { mouse.x = e.clientX / innerWidth - .5; mouse.y = e.clientY / innerHeight - .5; }, { passive: true });
-  function size() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); }
-  size(); addEventListener("resize", size);
-
-  let last = performance.now(), running = true;
-  document.addEventListener("visibilitychange", () => { running = !document.hidden; if (running) { last = performance.now(); requestAnimationFrame(frame); } });
-  function frame(now) {
-    if (!running) return;
-    const dt = Math.min(.05, (now - last) / 1000); last = now;
-    const k = 1 - Math.exp(-dt * 2.4);
-    cur.p.lerp(stage.goal.p, k); cur.l.lerp(stage.goal.l, k);
-    mouse.sx += (mouse.x - mouse.sx) * k; mouse.sy += (mouse.y - mouse.sy) * k;
-    cam.position.set(cur.p.x + mouse.sx * 1.6, cur.p.y - mouse.sy * 1.0, cur.p.z);
-    cam.lookAt(cur.l.x + mouse.sx * .6, cur.l.y, cur.l.z);
-    dust.position.x = Math.sin(now * .00006) * 2; dust.rotation.y = now * .000008;
-    renderer.render(scene, cam);
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-  stage.ok = true;
-  root.classList.add("has-stage");
-  if (MOTION) stage.ridges.forEach((r, i) => gsap.to(r.lm.uniforms.uDraw, { value: 1, duration: 2.6, delay: .3 + i * .05, ease: "power2.inOut" }));
-}
-function goView(v) { if (!stage.ok || !v) return; stage.goal.p.copy(v.p); stage.goal.l.copy(v.l); }
-function blendView(a, b, t) { if (!stage.ok) return; stage.goal.p.lerpVectors(a.p, b.p, t); stage.goal.l.lerpVectors(a.l, b.l, t); }
-function focusRidge(i) {
-  if (!stage.ok || stage.active === i) return; stage.active = i;
-  stage.ridges.forEach((r, j) => {
-    const on = j === i, any = i > -1;
-    const set = (o, v, d) => MOTION ? gsap.to(o, { value: v, duration: d || .9, ease: "power2.out", overwrite: true }) : (o.value = v);
-    set(r.fm.uniforms.uGlow, on ? 1 : 0); set(r.lm.uniforms.uThick, on ? .075 : .028); set(r.lm.uniforms.uAlpha, on ? 1 : any ? .22 : .75);
-    r.lm.uniforms.uLine.value.set(on ? "#ffffff" : "#e9ebf5");
-    if (MOTION) gsap.to(r.dot.scale, { x: on ? 1.9 : .6, y: on ? 1.9 : .6, z: on ? 1.9 : .6, duration: .7, overwrite: true }); else r.dot.scale.setScalar(on ? 1.9 : .6);
-    if (on && MOTION) gsap.fromTo(r.lm.uniforms.uDraw, { value: Math.max(0, r.endU - .55) }, { value: 1, duration: 1.5, ease: "power2.out", overwrite: true });
-  });
-}
 
 /* ---------- content -------------------------------------------------------- */
 function chapters() {
@@ -264,6 +144,12 @@ function showChapter(i) {
   gsap.set(ch, { autoAlpha: 1 });
   gsap.fromTo($$(".cc-tk i", ch), { yPercent: 115 * dir }, { yPercent: 0, duration: 1, ease: "power4.out", stagger: .05, overwrite: true });
   gsap.fromTo($$(".cc-top, .cc-side > *", ch).filter(n => !n.classList.contains("cc-side")), { y: 36 * dir, opacity: 0 }, { y: 0, opacity: 1, duration: .8, ease: "power3.out", stagger: .06, delay: .12, overwrite: true });
+  $$(".cc-nums dd", ch).forEach(dd => {
+    const full = dd.getAttribute("data-v") || dd.textContent; dd.setAttribute("data-v", full);
+    const m = /^([^\d]*)([\d,]+(?:\.\d+)?)(.*)$/.exec(full); if (!m) return;
+    const to = parseFloat(m[2].replace(/,/g, "")), dp = (m[2].split(".")[1] || "").length, o = { v: 0 };
+    gsap.to(o, { v: to, duration: 1.1, delay: .25, ease: "power3.out", overwrite: true, onUpdate: () => { dd.textContent = m[1] + o.v.toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp }) + m[3]; }, onComplete: () => { dd.textContent = full; } });
+  });
   gsap.fromTo($(".cc-side", ch), { y: 60 * dir, opacity: 0, scale: .96 }, { y: 0, opacity: 1, scale: 1, duration: .9, ease: "power3.out", overwrite: true });
 }
 function choreograph() {
@@ -294,12 +180,12 @@ function choreograph() {
   $("#h-rail").addEventListener("click", e => { const b = e.target.closest("[data-go]"); if (!b) return; const st = ScrollTrigger.getAll().find(t => t.trigger && t.trigger.classList.contains("h-calls")); if (!st) return; const y = st.start + (st.end - st.start) * ((+b.getAttribute("data-go") + .5) / n); DM.lenis() ? DM.lenis().scrollTo(y, { duration: 1.2 }) : scrollTo({ top: y, behavior: "smooth" }); });
   // record: from above
   ScrollTrigger.create({ trigger: ".h-rec", start: "top 70%", end: "bottom 30%", onEnter: toRecord, onEnterBack: toRecord });
-  function toRecord() { setWorld("record"); goView(V.record); focusRidge(-1); gsap.to("#stage", { opacity: 1, duration: .8 }); }
+  function toRecord() { setWorld("record"); goView(V.record); focusRidge(-1); stage.canHover = true; gsap.to("#stage", { opacity: 1, duration: .8 }); }
   gsap.from(".rec-big > *", { yPercent: 110, duration: 1.2, ease: "power4.out", stagger: .08, scrollTrigger: { trigger: ".h-rec", start: "top 55%", once: true } });
   $$(".rec-big .count").forEach(c => { const o = { v: 0 }; gsap.to(o, { v: +c.getAttribute("data-to"), duration: 1.6, ease: "power3.out", onUpdate: () => { c.textContent = Math.round(o.v); }, scrollTrigger: { trigger: ".h-rec", start: "top 55%", once: true } }); });
   // everything after: the landscape dims and drifts
   ScrollTrigger.create({ trigger: ".h-deals-sec", start: "top 75%", onEnter: toCalm, onEnterBack: toCalm, onLeaveBack: toRecord });
-  function toCalm() { setWorld("calm"); goView(V.calm); focusRidge(-1); gsap.to("#stage", { opacity: .55, duration: 1 }); }
+  function toCalm() { setWorld("calm"); goView(V.calm); focusRidge(-1); stage.canHover = false; if (stage.hoverOff) stage.hoverOff(); gsap.to("#stage", { opacity: .55, duration: 1 }); }
   // tools: sideways
   const track = $("#h-tools-track");
   if (track && innerWidth > 760) {
@@ -329,6 +215,23 @@ function cursor() {
   });
 }
 
+function tactile() {
+  if (!MOTION || !matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+  // tool screenshots lean toward the pointer
+  $$(".tp-shot").forEach(shot => {
+    const rx = gsap.quickTo(shot, "rotationX", { duration: .6, ease: "power3" }), ry = gsap.quickTo(shot, "rotationY", { duration: .6, ease: "power3" });
+    gsap.set(shot, { transformPerspective: 1100 });
+    shot.parentNode.addEventListener("pointermove", e => { const r = shot.getBoundingClientRect(); ry(((e.clientX - r.left) / r.width - .5) * 14); rx(-((e.clientY - r.top) / r.height - .5) * 10); });
+    shot.parentNode.addEventListener("pointerleave", () => { rx(0); ry(0); });
+  });
+  // buttons are slightly magnetic
+  $$(".h-cta .btn, .cc-side .btn, .h-head .btn").forEach(b => {
+    const x = gsap.quickTo(b, "x", { duration: .5, ease: "power3" }), y = gsap.quickTo(b, "y", { duration: .5, ease: "power3" });
+    b.addEventListener("pointermove", e => { const r = b.getBoundingClientRect(); x((e.clientX - r.left - r.width / 2) * .3); y((e.clientY - r.top - r.height / 2) * .4); });
+    b.addEventListener("pointerleave", () => { x(0); y(0); });
+  });
+}
+
 /* ---------- boot ----------------------------------------------------------- */
 setWorld("open", 0);
 renderIntro(); renderTools(); renderDeals(); renderAbout();
@@ -341,5 +244,5 @@ DM.ledgerReady.then(() => {
   if (calls.length && !DM.REDUCED) buildStage(calls);
   list = chapters();
   renderCalls(list); renderRecord();
-  choreograph();
+  choreograph(); tactile();
 });

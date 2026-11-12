@@ -30,7 +30,9 @@ portfolio/
 ├── js/
 │   ├── data.js         ← ★ ALL CONTENT — the only file you edit
 │   ├── site.js         ← rendering + behaviour for every page
-│   ├── home.js         ← the Overview: 3D landscape of every call + scroll chapters
+│   ├── stage.js        ← the 3D landscape of every call (shared by all pages)
+│   ├── home.js         ← the Overview: scroll chapters that drive the landscape
+│   ├── ambient.js      ← inner pages: the landscape drifting behind the content
 │   └── lab.js          ← the Workbench calculators (maths lives here)
 ├── data/               ← deal-tracker.json, refreshed by a GitHub Action
 └── assets/
@@ -45,7 +47,7 @@ read Ledger (`/ledger/data/calls.json`); the deal tracker reads
 **The Overview's opening lines** are `hero.headline` (one entry per line) and
 `hero.manifesto` (short statements that light up one at a time) in `data.js`.
 The colour the page takes for each rating is the `WORLDS` table at the top of
-`js/home.js`. Tool screenshots live in `assets/images/tools/<name>.jpg`
+`js/stage.js`; each inner page picks its colour with `data-world` on `<body>`. Tool screenshots live in `assets/images/tools/<name>.jpg`
 (lower-case tool name); retake one whenever a tool's look changes.
 
 **Change the colours or fonts:** edit the `:root` tokens at the top of

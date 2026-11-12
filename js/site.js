@@ -121,6 +121,12 @@
       '<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" data-lenis-prevent><div class="sheet-bar"><span class="mono" id="sheet-kicker"></span><button class="icon-btn" id="sheet-close" type="button" aria-label="Close">Close ✕</button></div><div class="sheet-body" id="sheet-body"></div></aside>' +
       '<div class="pal" id="pal" role="dialog" aria-modal="true" aria-label="Search the site" data-lenis-prevent><input id="pal-in" type="text" placeholder="Search a ticker, a deal, a tool, a page…" autocomplete="off" spellcheck="false" aria-controls="pal-list"><div class="pal-list" id="pal-list" role="listbox"></div><div class="pal-foot mono"><span>↑↓ move</span><span>↵ open</span><span>esc close</span></div></div>';
     while (tail.firstChild) document.body.appendChild(tail.firstChild);
+    // liquid glass: a displacement map bends whatever sits behind the dock and panels (Chromium only; others keep the frosted look)
+    if (window.chrome && !REDUCED && window.CSS && CSS.supports("backdrop-filter", "blur(1px)")) {
+      var lg = document.createElement("div");
+      lg.innerHTML = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="lg" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.011" numOctaves="2" seed="11" result="n"/><feGaussianBlur in="n" stdDeviation="3" result="nb"/><feDisplacementMap in="SourceGraphic" in2="nb" scale="46" xChannelSelector="R" yChannelSelector="G"/></filter></svg>';
+      document.body.appendChild(lg.firstChild); root.classList.add("lg-ok");
+    }
 
     // contact + footer close every page
     var first = (hero.name || "").split(" ")[0], last = (hero.name || "").split(" ").slice(1).join(" ");
@@ -663,7 +669,7 @@
   }
   function setupSpotlight() {
     document.addEventListener("pointermove", function (e) {
-      var c = e.target.closest && e.target.closest(".card"); if (!c) return;
+      var c = e.target.closest && e.target.closest(".card, .cc-side, .deal-x, .nav-links, .ld, .tp-bench, .panel, .sheet"); if (!c) return;
       var r = c.getBoundingClientRect(); c.style.setProperty("--mx", (e.clientX - r.left) + "px"); c.style.setProperty("--my", (e.clientY - r.top) + "px");
     }, { passive: true });
   }

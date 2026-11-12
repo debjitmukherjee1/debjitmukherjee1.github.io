@@ -574,3 +574,22 @@ body::after {
 .wordmark em { font: inherit; color: var(--accent-text); }
 .brand > span:last-child, .clock { transition: opacity .4s var(--ease); }
 .nav.scrolled .brand > span:last-child, .nav.scrolled .clock { opacity: 0; pointer-events: none; }
+
+/* ---------- the landscape behind every page (js/stage.js) --------------- */
+#stage { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; opacity: 0; transition: opacity 1.4s; background: transparent; pointer-events: none; }
+.has-stage #stage { opacity: 1; }
+.ambient #stage { opacity: .5; }
+.veil { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(to top, color-mix(in srgb, var(--w2) 86%, transparent), transparent 42%); }
+.ambient .veil { background: linear-gradient(to top, color-mix(in srgb, var(--w2) 92%, transparent) 10%, color-mix(in srgb, var(--w2) 45%, transparent)); }
+main { position: relative; z-index: 1; }
+.ridge-tip { position: fixed; left: 0; top: 0; z-index: 40; pointer-events: none; margin: -58px 0 0 14px; padding: 9px 13px 10px; border-radius: 14px; font: 400 10.5px/1.5 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); opacity: 0; transition: opacity .25s; white-space: nowrap;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, .05)), color-mix(in srgb, var(--w2) 50%, transparent); -webkit-backdrop-filter: blur(18px) saturate(1.8); backdrop-filter: blur(18px) saturate(1.8); border: 1px solid rgba(255, 255, 255, .2); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 18px 40px -18px rgba(0, 0, 0, .8); }
+.ridge-tip.on { opacity: 1; } .ridge-tip b { font: 560 15px/1 var(--display); letter-spacing: -.02em; color: var(--ink); margin-right: 6px; text-transform: none; } .ridge-tip span { display: block; }
+.ridge-hot, .ridge-hot main { cursor: pointer; }
+/* refraction: the dock and the floating panels bend what is behind them */
+.lg-ok .nav-links, .lg-ok .cc-side, .lg-ok .h-rail, .lg-ok .ridge-tip { -webkit-backdrop-filter: url(#lg) blur(9px) saturate(2) brightness(1.12); backdrop-filter: url(#lg) blur(9px) saturate(2) brightness(1.12); }
+/* a soft highlight follows the pointer across glass */
+.deal-x, .ld, .tp-bench, .panel { position: relative; }
+.cc-side, .deal-x, .nav-links, .ld, .tp-bench, .panel { isolation: isolate; }
+.cc-side::after, .deal-x::after, .nav-links::after, .ld::after, .tp-bench::after, .panel::after { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none; opacity: 0; transition: opacity .4s; background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, .2), transparent 70%); }
+.cc-side:hover::after, .deal-x:hover::after, .nav-links:hover::after, .ld:hover::after, .tp-bench:hover::after, .panel:hover::after { opacity: 1; }
