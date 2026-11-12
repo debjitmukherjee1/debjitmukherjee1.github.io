@@ -82,15 +82,44 @@ export function buildStage(calls) {
   });
 
   // a flat sun on the horizon and a little dust in the air
-  const halo = new THREE.Mesh(new THREE.RingGeometry(12.94, 13, 160), new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: .35 }));
-  halo.position.set(4, 3, -DEPTH - 26); scene.add(halo);
-  const halo2 = new THREE.Mesh(new THREE.RingGeometry(18.95, 19, 160), new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: .14 }));
-  halo2.position.copy(halo.position); scene.add(halo2);
-  const pn = small ? 260 : 700, pp = new Float32Array(pn * 3);
-  for (let i = 0; i < pn; i++) pp.set([(Math.random() - .5) * 70, Math.random() * 22 - 4, 14 - Math.random() * (DEPTH + 50)], i * 3);
-  const dust = new THREE.Points(new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(pp, 3)), new THREE.PointsMaterial({ color: "#fff6dc", size: .07, transparent: true, opacity: .7, sizeAttenuation: true }));
-  scene.add(dust);
-
+  // a black hole on the horizon: a dark core, a thin photon ring, and an accretion disk seen almost edge-on,
+  // with the far side of the disk bent up and over the top by the hole's gravity. Drawn in one shader on a flat plane.
+  const holeFS = [
+    "uniform vec3 uA; uniform float uTime; varying vec2 vP;",
+    "float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }",
+    "float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f); return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), f.x), mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), f.x), f.y); }",
+    "void main(){",
+    "  vec2 p = vP; float r = length(p); const float R = 0.2;",
+    "  float core = smoothstep(R, R - 0.006, r);",
+    "  float ring = exp(-pow((r - R * 1.04) / 0.008, 2.0)) * 1.25;",                                   // photon ring
+    "  float ang = atan(p.y, p.x);",
+    "  float streak = 0.55 + 0.45 * noise(vec2(ang * 5.0 - uTime * 0.25, r * 26.0));",
+    "  float arc = exp(-pow((r - R * 1.42) / 0.085, 2.0)) * 0.42 * streak * (0.45 + 0.55 * abs(p.y) / max(r, 0.001));",   // lensed far side of the disk
+    "  vec2 q = vec2(p.x, p.y * 9.5 + p.x * 0.6); float d = length(q);",                              // the disk itself, nearly edge-on
+    "  float qa = atan(q.y, q.x);",
+    "  float lanes = noise(vec2(qa * 9.0 - uTime * 0.5 + d * 6.0, d * 46.0)) * (0.6 + 0.4 * noise(vec2(d * 90.0, qa * 3.0)));",
+    "  float disk = smoothstep(R * 1.1, R * 1.4, d) * pow(smoothstep(R * 4.6, R * 1.5, d), 1.6) * (0.16 + 0.95 * lanes);",
+    "  disk *= 1.0 + 0.42 * (-q.x / max(d, 0.001));",                                                 // the side turning toward us is brighter
+    "  float front = disk * smoothstep(-0.004, 0.02, -(p.y * 9.5 + p.x * 0.6) / 9.5);",       // the near half passes in front of the core
+    "  float back = disk * (1.0 - core);",
+    "  float halo = 0.2 * exp(-max(r - R, 0.0) * 7.0) * (1.0 - core);",
+    "  float lum = ring * (1.0 - core * 0.2) + arc * (1.0 - core) + max(front, back) + halo;",
+    "  vec3 hot = mix(vec3(1.0), uA, 0.45); vec3 col = mix(uA, hot, clamp(lum, 0.0, 1.0)) * lum;",
+    "  float alpha = clamp(max(core, lum), 0.0, 1.0);",
+    "  col = mix(col, vec3(0.0), core * (1.0 - clamp(front * 1.4, 0.0, 1.0)) * (1.0 - clamp(ring, 0.0, 1.0)));",
+    "  gl_FragColor = vec4(col, alpha);",
+    "}"].join("\n");
+  const HR = 13 / 0.2;
+  const hole = new THREE.Mesh(new THREE.PlaneGeometry(HR * 2, HR * 2), new THREE.ShaderMaterial({ transparent: true, depthWrite: false, uniforms: { uA: U.uA, uTime: U.uTime },
+    vertexShader: "varying vec2 vP; void main(){ vP = uv * 2.0 - 1.0; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }", fragmentShader: holeFS }));
+  hole.position.set(4, 3.4, -DEPTH - 26); hole.renderOrder = -5; scene.add(hole);
+  function stars(n, size, opacity) {
+    const pp = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) pp.set([(Math.random() - .5) * 150, Math.random() * 56 - 8, 16 - Math.random() * (DEPTH + 90)], i * 3);
+    const pts = new THREE.Points(new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(pp, 3)), new THREE.PointsMaterial({ color: "#ffffff", size, transparent: true, opacity, sizeAttenuation: true, depthWrite: false }));
+    scene.add(pts); return pts;
+  }
+  const dust = stars(small ? 500 : 1700, .07, .75), bright = stars(small ? 60 : 170, .2, .9);
   // camera views
   const mid = -DEPTH / 2;
   stage.views.hero = { p: new THREE.Vector3(0, 3.6, 19), l: new THREE.Vector3(1.5, 1.1, mid) };
@@ -121,7 +150,8 @@ export function buildStage(calls) {
     const ln = DM.lenis && DM.lenis(), vel = ln ? Math.abs(ln.velocity || 0) : 0;          // scroll faster, the lens opens up
     fov += ((baseFov + Math.min(16, vel * .28)) - fov) * k; if (Math.abs(cam.fov - fov) > .02) { cam.fov = fov; cam.updateProjectionMatrix(); }
     stage.cam = cam;
-    dust.position.x = Math.sin(now * .00006) * 2; dust.rotation.y = now * .000008; dust.position.z = (now * .0006) % 6;
+    dust.position.x = Math.sin(now * .00006) * 2; dust.rotation.y = now * .000008;
+    bright.material.opacity = .6 + .35 * Math.sin(now * .0017); bright.rotation.y = now * .000005;
     renderer.render(scene, cam);
     requestAnimationFrame(frame);
   }

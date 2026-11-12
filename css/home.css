@@ -185,3 +185,22 @@ body[data-page="home"] .tape { background: rgba(255, 255, 255, .04); -webkit-bac
 .h-prof .h-exp { border-bottom: 1px solid var(--line); }
 .h-prof .xp:last-child { border-bottom: 0; }
 @media (max-width: 960px) { .xp svg { display: none; } .h-head .btn { justify-self: start; } }
+
+/* ---- room for the serif's ascenders inside the masked reveals (tops were being cut) ---- */
+.h-word { line-height: 1; padding-top: .12em; top: calc(var(--nav-h) - .06em); }
+.h-line { line-height: 1.02; } .h-line .hl { padding: .16em .1em .02em; margin-top: -.14em; }
+.cc-tk { line-height: 1; bottom: 6vh; } .cc-tk span { padding-top: .16em; margin-top: -.16em; padding-right: .02em; }
+.rec-big { line-height: 1; padding-top: .14em; }
+.h-title, .tp-lead h2, .deal-x h3, .tp-meta h3, .tp-bench h3 { line-height: 1.02; padding-top: .06em; }
+.xp h3 { line-height: 1.12; }
+/* ---- polish ---- */
+.rec-row dd { font-size: clamp(24px, 2.5vw, 42px); } .rec-row dd small { display: block; margin-top: 6px; font-size: 11px; }
+.cc-nums dt { white-space: nowrap; }
+.cc-side { gap: 14px; } .cc-thesis { line-height: 1.22; }
+.h-status { color: var(--mute); }
+.tp-meta p { line-height: 1.55; }
+.deal-x h3 em { color: var(--mute); margin: 0 .12em; }
+.h-rail button { letter-spacing: .12em; }
+/* the chapter panel is a little denser so figures stay readable over the ticker behind it */
+.cc-side { background: linear-gradient(180deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, .03) 45%, rgba(255, 255, 255, .06)), color-mix(in srgb, var(--w2) 66%, transparent); }
+.cc-tk { font-size: clamp(96px, min(26vw, calc(41vw / var(--n, 4) / .66)), 440px); }

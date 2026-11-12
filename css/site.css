@@ -646,3 +646,18 @@ main { position: relative; z-index: 1; }
   .cv-name, .cv-item h3, .cv-sum, .cv-lede, .cv-facts dd { color: #000; } .cv-title, .cv-item li, .cv-role, .cv-when, .cv-links span, .cv-facts dt { color: #333; }
   .cv-item, .cv-links a, .cv-facts div { border-color: #ccc; break-inside: avoid; } [data-r] { opacity: 1 !important; transform: none !important; }
 }
+
+/* ---- room for ascenders in masked headline reveals on the inner pages ---- */
+.display .w { padding-top: .16em; margin-top: -.16em; }
+.page-head .display { line-height: 1.02; }
+.sec-title, .contact .display, .lab-intro h2, .cv-name { line-height: 1.04; }
+.wordmark { line-height: 1.1; }
+.loader { line-height: 1; }
+/* ---- polish ---- */
+.cv-side { max-height: calc(100svh - var(--nav-h) - 110px); overflow-y: auto; scrollbar-width: none; overscroll-behavior: contain; } .cv-side::-webkit-scrollbar { display: none; }
+@media (max-width: 900px) { .cv-side { max-height: none; overflow: visible; } }
+.tbl .tk { letter-spacing: -.01em; }
+.sheet-body h2 { line-height: 1.04; }
+.quote { font-size: clamp(21px, 2.1vw, 28px); line-height: 1.3; }
+.btn { letter-spacing: 0; }
+::selection { background: var(--ink); color: var(--bg); }
