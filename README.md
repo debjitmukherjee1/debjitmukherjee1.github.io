@@ -25,10 +25,12 @@ portfolio/
 │                       ← page shells (don't edit for content)
 ├── favicon.svg         ← browser-tab icon
 ├── css/
-│   └── site.css        ← all styling; colours are the tokens at the top
+│   ├── site.css        ← shared styling; colours are the tokens at the top
+│   └── home.css        ← the Overview page only
 ├── js/
 │   ├── data.js         ← ★ ALL CONTENT — the only file you edit
 │   ├── site.js         ← rendering + behaviour for every page
+│   ├── home.js         ← the Overview: 3D landscape of every call + scroll chapters
 │   └── lab.js          ← the Workbench calculators (maths lives here)
 ├── data/               ← deal-tracker.json, refreshed by a GitHub Action
 └── assets/
@@ -39,6 +41,12 @@ portfolio/
 **Live data.** The hero chart, the track-record figures and the price charts
 read Ledger (`/ledger/data/calls.json`); the deal tracker reads
 `data/deal-tracker.json`. If either is unavailable those parts hide themselves.
+
+**The Overview's opening lines** are `hero.headline` (one entry per line) and
+`hero.manifesto` (short statements that light up one at a time) in `data.js`.
+The colour the page takes for each rating is the `WORLDS` table at the top of
+`js/home.js`. Tool screenshots live in `assets/images/tools/<name>.jpg`
+(lower-case tool name); retake one whenever a tool's look changes.
 
 **Change the colours or fonts:** edit the `:root` tokens at the top of
 `css/site.css` (dark theme) and the `:root[data-theme="light"]` block below it.
