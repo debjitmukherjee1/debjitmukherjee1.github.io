@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="theme-light">
+<html lang="en" class="no-js">
 <head>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-019N8X8CC8"></script>
@@ -11,222 +11,180 @@
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Title and description are set from js/data.js (meta section) at load time.
-       The fallbacks below only appear if JavaScript fails to run. -->
-  <title>Debjit Mukherjee — Finance Portfolio</title>
-  <meta name="description" content="Financial models, equity research and credentials of Debjit Mukherjee.">
+  <!-- Page text comes from js/data.js, rendered by js/site.js. Design: css/site.css. -->
+  <title>Debjit Mukherjee — Equity Research & Financial Modelling Portfolio</title>
+  <meta name="description" content="Independent equity research and valuation models by Debjit Mukherjee: rated notes on Indian and US large caps, each with its Excel model, a public track record, M&A breakdowns and interactive finance tools.">
+  <link rel="canonical" href="https://debjitmukherjee1.github.io/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Debjit Mukherjee — Equity Research & Financial Modelling Portfolio">
+  <meta property="og:description" content="Independent equity research and valuation models by Debjit Mukherjee: rated notes on Indian and US large caps, each with its Excel model, a public track record, M&A breakdowns and interactive finance tools.">
+  <meta property="og:url" content="https://debjitmukherjee1.github.io/">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#0b0a09">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-
-  <!-- Fonts: Fraunces (masthead & titles, optical-sized), Source Serif 4 (body), IBM Plex Mono (ticker & data) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="css/styles.css?v=16">
-  <link rel="stylesheet" href="css/makeover.css">
-  <!-- GSAP owns motion when it loads; if it fails, the original motion takes over. -->
-  <script>document.documentElement.classList.add("gsap"); setTimeout(function () { if (!window.gsap) document.documentElement.classList.remove("gsap"); }, 2500);</script>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/site.css?v=30">
+  <script>
+    (function (d) {
+      d.classList.remove("no-js");
+      try {
+        var t = localStorage.getItem("theme"); if (t === "light") d.setAttribute("data-theme", "light");
+        if (sessionStorage.getItem("seen") || matchMedia("(prefers-reduced-motion: reduce)").matches) d.classList.add("loaded");
+      } catch (e) { d.classList.add("loaded"); }
+      setTimeout(function () { if (!window.gsap) d.classList.add("loaded"); }, 2500);
+    })(document.documentElement);
+  </script>
 </head>
-<body>
+<body data-page="home">
 
-  <!-- Living backdrop: one fixed canvas behind the whole page, painted by
-       app.js (drifting market lines → candlesticks → city-lights on scroll). -->
-  <canvas id="scene" class="scene-bg" aria-hidden="true"></canvas>
-
-  <!-- Skip link for keyboard users -->
-  <a class="skip-link" href="#main">Skip to content</a>
-
-  <!-- Scroll-progress "tape": a hairline market-line across the very top that
-       tracks read depth. Native CSS scroll() timeline where supported, else
-       app.js (setupScrollTape). -->
-  <div class="scroll-tape" id="scroll-tape" aria-hidden="true"></div>
-
-  <!-- ======================================================================
-       BOOT OVERLAY — brief terminal-style loading sequence on first visit
-       (removed instantly for reduced-motion users and repeat visits).
-       ====================================================================== -->
-  <div class="boot" id="boot" aria-hidden="true">
-    <div class="boot-inner">
-      <span class="boot-label">DEBJIT MUKHERJEE · PORTFOLIO</span>
-      <span class="boot-pct" id="boot-pct">0%</span>
-      <div class="boot-bar"><div class="boot-fill" id="boot-fill"></div></div>
-      <span class="boot-sub">LOADING MARKET DATA</span>
-    </div>
-  </div>
-
-  <!-- ======================================================================
-       MASTHEAD — engraved-letterhead treatment. Content filled from data.js.
-       ====================================================================== -->
-  <header class="masthead" id="top">
-    <h1 class="masthead-name" id="hero-name">…</h1>
-    <p class="masthead-tagline" id="hero-tagline">…</p>
-    <p class="masthead-bio" id="hero-bio">…</p>
-    <div class="hero-stats" id="hero-stats">
-      <!-- count-up stats injected from data.js (hero.stats) -->
-    </div>
-    <nav class="masthead-links" aria-label="Primary contact links" id="hero-links">
-      <!-- LinkedIn / Resume / Contact links injected from data.js -->
-    </nav>
-  </header>
-
-  <!-- ======================================================================
-       SITE NAV — Overview / Research / Tools. Present on all three pages;
-       app.js marks the current page aria-current="page".
-       ====================================================================== -->
-  <nav class="site-nav" aria-label="Site pages">
-    <a href="./">Overview</a>
-    <a href="research">Research</a>
-    <a href="deals">Deals</a>
-    <a href="tools">Tools</a>
-  </nav>
-
-  <!-- ======================================================================
-       THE TICKER — signature element. A scrolling tape of live "positions".
-       Items come from data.js (ticker). Each item is a button that scrolls
-       to its section. Pauses on hover/focus; static if reduced motion.
-       ====================================================================== -->
-  <div class="ticker-wrap" role="navigation" aria-label="Section ticker — click an item to jump to its section">
-    <div class="ticker" id="ticker">
-      <!-- ticker items injected by app.js (duplicated for a seamless loop) -->
-    </div>
-  </div>
+  <!-- First page of a visit only: a brief counter, then it wipes away. -->
+  <div class="loader" aria-hidden="true"><small>Debjit Mukherjee<br>Independent equity research</small><span id="loader-n">000</span></div>
 
   <main id="main">
 
-    <!-- ==================================================================
-         01 · EDUCATION
-         ================================================================== -->
-    <section class="section" id="education" data-ghost="01" aria-labelledby="education-title">
-      <div class="section-head">
-        <span class="section-index" aria-hidden="true">01</span>
-        <h2 class="section-title" id="education-title">Education</h2>
-      </div>
-      <div class="card-grid" id="education-grid"></div>
-    </section>
-
-    <!-- ==================================================================
-         02 · LEADERSHIP & ACTIVITIES (featured item pinned first)
-         ================================================================== -->
-    <section class="section" id="leadership" data-ghost="02" aria-labelledby="leadership-title">
-      <div class="section-head">
-        <span class="section-index" aria-hidden="true">02</span>
-        <h2 class="section-title" id="leadership-title">Leadership &amp; Activities</h2>
-      </div>
-      <div id="leadership-featured"></div>
-      <div class="card-grid" id="leadership-grid"></div>
-    </section>
-
-    <!-- ==================================================================
-         03 · EXPERIENCE / INTERNSHIPS
-         ================================================================== -->
-    <section class="section" id="experience" data-ghost="03" aria-labelledby="experience-title">
-      <div class="section-head">
-        <span class="section-index" aria-hidden="true">03</span>
-        <h2 class="section-title" id="experience-title">Experience</h2>
-      </div>
-      <div class="card-grid" id="experience-grid"></div>
-    </section>
-
-    <!-- Title-card refrain: the four verbs of the research method light from
-         dim to ink on scroll-in (app.js setupRevealLine). The full walkthrough
-         lives on the Research page. -->
-    <div class="reveal-band">
-      <p class="reveal-line">
-        <span class="rw">Screen.</span><span class="rw">Model.</span><span class="rw">Value.</span><span class="rw">Publish.</span>
-      </p>
-    </div>
-
-    <!-- ==================================================================
-         04 · FINANCIAL MODELS & EQUITY RESEARCH — compact preview.
-         renderCompactModels() picks siteData.models with featured:true
-         (falling back to the first 4) and skips the sparkline/readout for
-         a lighter look. Full library lives on research.html.
-         ================================================================== -->
-    <section class="section" id="models-preview" data-ghost="04" aria-labelledby="models-preview-title">
-      <div class="section-head">
-        <span class="section-index" aria-hidden="true">04</span>
-        <h2 class="section-title" id="models-preview-title">Financial Models &amp; Equity Research</h2>
-      </div>
-      <p class="section-note">A sample of the coverage — independent equity notes, each shipped with its full Excel model.</p>
-      <!-- Coverage-stance bar: live BUY/ACC/HOLD/REDUCE distribution across the
-           whole library, computed by app.js (renderCoverageTally). -->
-      <div class="coverage-tally" id="coverage-tally"></div>
-      <div class="card-grid card-grid-compact" id="models-preview-grid"></div>
-      <a class="mast-link mast-link-primary models-preview-cta" href="research">View Full Research Library →</a>
-    </section>
-
-    <!-- ==================================================================
-         05 · CREDENTIALS & CERTIFICATIONS
-         ================================================================== -->
-    <section class="section" id="credentials" data-ghost="05" aria-labelledby="credentials-title">
-      <div class="section-head">
-        <span class="section-index" aria-hidden="true">05</span>
-        <h2 class="section-title" id="credentials-title">Credentials &amp; Certifications</h2>
-      </div>
-      <ul class="credential-list" id="credentials-list"></ul>
-    </section>
-
-    <!-- ==================================================================
-         06 · SKILLS
-         ================================================================== -->
-    <section class="section" id="skills" data-ghost="06" aria-labelledby="skills-title">
-      <div class="section-head">
-        <span class="section-index" aria-hidden="true">06</span>
-        <h2 class="section-title" id="skills-title">Skills</h2>
-      </div>
-      <div class="skills-wrap">
-        <div class="skills-col">
-          <h3 class="skills-subhead">Technical</h3>
-          <ul class="skill-tags" id="skills-technical"></ul>
+    <section class="hero" id="hero" aria-label="Introduction">
+      <div class="wrap hero-top">
+        <div>
+          <div class="hero-kicker" id="hero-kicker"></div>
+          <p class="display" id="hero-display" data-em-last></p>
         </div>
-        <div class="skills-col">
-          <h3 class="skills-subhead">Professional</h3>
-          <ul class="skill-tags" id="skills-soft"></ul>
+        <div class="hero-side">
+          <p class="hero-bio" id="hero-bio"></p>
+          <div class="hero-cta" id="hero-cta"></div>
+        </div>
+      </div>
+      <div class="hero-bottom">
+        <div class="hero-chart" id="hero-chart">
+          <div class="chart-cap mono"><span class="pill live r-accumulate">Live</span><span>Every published call · % return since its call date</span><span>Hover a line · click to open the note</span></div>
+          <div class="plot"></div>
+          <div class="chart-tip" id="chart-tip"></div>
+        </div>
+        <div class="wrap"><div class="hero-stats" id="hero-stats"></div></div>
+      </div>
+    </section>
+
+    <div class="tape" id="tape" role="navigation" aria-label="Latest ratings"></div>
+
+    <section class="sec" id="research" aria-labelledby="research-title">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <p class="sec-label mono">01 · Latest research</p>
+            <h2 class="sec-title" id="research-title">The most recent <em>calls.</em></h2><p class="sec-note">Each note ships with its Excel model. Open one for the thesis, the valuation and the price since the call.</p>
+          </div><a class="btn" id="latest-all" href="research">All notes <span class="arr">↗</span></a>
+        </div>
+        <div class="rows" id="latest"></div>
+      </div>
+    </section>
+    <section class="sec" id="method" aria-labelledby="method-title">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <p class="sec-label mono">02 · Method</p>
+            <h2 class="sec-title" id="method-title">How a rating <em>gets set.</em></h2>
+          </div>
+        </div>
+        <div class="man-grid">
+          <p class="manifesto">Every model carries several valuation methods and a stated blend. <em>Never a lone DCF.</em></p>
+          <ol class="steps" data-r>
+            <li><div><b>Screen</b><span>Coverage starts from a specific question (a re-rating, a margin debate, a capex cycle), checked against filings before a model is opened.</span></div></li>
+            <li><div><b>Model</b><span>Income statement, balance sheet and cash flow built from the annual report, then the valuation that fits the business: DCF, excess return for banks, sum of the parts for conglomerates.</span></div></li>
+            <li><div><b>Value</b><span>Several methods, a stated blend, sensitivities and bull and bear cases. The gap between methods is explained, not averaged away.</span></div></li>
+            <li><div><b>Publish</b><span>A rated note with the Excel model attached, logged on a public track record that keeps the losers.</span></div></li>
+          </ol>
+        </div>
+        <div class="band" data-r>
+          <div><span class="pill r-buy">Buy</span><div><b>Above the cost of equity</b><p>Expected total return clears what the stock has to earn for its risk.</p></div></div>
+          <div><span class="pill r-accumulate">Accumulate</span><div><b>Above the bond + 2 points</b><p>Beats the local 10-year government yield by two points, but not the full cost of equity.</p></div></div>
+          <div><span class="pill r-hold">Hold</span><div><b>Positive, below the hurdle</b><p>A return above zero that still doesn't pay enough over the bond.</p></div></div>
+          <div><span class="pill r-reduce">Reduce</span><div><b>Below zero</b><p>Fair value plus the dividend sits under today's price.</p></div></div>
         </div>
       </div>
     </section>
-
-    <!-- ==================================================================
-         07 · CONTACT
-         ================================================================== -->
-    <section class="section section-contact" id="contact" data-ghost="07" aria-labelledby="contact-title">
-      <div class="section-head">
-        <span class="section-index" aria-hidden="true">07</span>
-        <h2 class="section-title" id="contact-title">Contact</h2>
+    <section class="sec" id="track" aria-labelledby="track-title">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <p class="sec-label mono">03 · Track record</p>
+            <h2 class="sec-title" id="track-title">Marked to market, <em>in public.</em></h2><p class="sec-note">Every call is logged on Ledger at the price on the day and compared with its local index. The figures below are live.</p>
+          </div><a class="btn" href="https://debjitmukherjee1.github.io/ledger/" target="_blank" rel="noopener">Open Ledger <span class="arr">↗</span></a>
+        </div>
+        <div class="kpis" id="record"></div>
+        <p class="note"><span id="record-updated"></span> · Source: <a href="https://debjitmukherjee1.github.io/ledger/" target="_blank" rel="noopener" style="text-decoration:underline">Ledger</a>, daily closes. Past returns say nothing about future ones.</p>
       </div>
-      <div class="contact-block" id="contact-block"></div>
     </section>
-
+    <section class="sec" id="deals" aria-labelledby="deals-title">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <p class="sec-label mono">04 · Deal Decoded</p>
+            <h2 class="sec-title" id="deals-title">M&amp;A, taken apart <em>line by line.</em></h2><p class="sec-note">Premium, synergies valued against it, accretion, financing and a verdict. Pending deals carry a live spread.</p>
+          </div><a class="btn" href="deals">All deals <span class="arr">↗</span></a>
+        </div>
+        <div class="grid" id="deals-grid"></div>
+      </div>
+    </section>
+    <section class="sec" id="tools" aria-labelledby="tools-title">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <p class="sec-label mono">05 · Tools</p>
+            <h2 class="sec-title" id="tools-title">Software built <em>alongside the research.</em></h2><p class="sec-note">Five live apps and a workbench of six calculators. Free, in the browser, no sign-up.</p>
+          </div><a class="btn" href="lab">Open the Workbench <span class="arr">↗</span></a>
+        </div>
+        <div class="grid g-3" id="tools-grid"></div>
+        <div class="grid g-3" id="bench-grid" style="margin-top:16px"></div>
+      </div>
+    </section>
+    <section class="sec" id="experience-sec" aria-labelledby="experience-sec-title">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <p class="sec-label mono">06 · Experience</p>
+            <h2 class="sec-title" id="experience-sec-title">Where the work <em>has been tested.</em></h2>
+          </div>
+        </div>
+        <div class="tl" id="experience"></div>
+      </div>
+    </section>
+    <section class="sec" id="leadership" aria-labelledby="leadership-title">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <p class="sec-label mono">07 · Leadership</p>
+            <h2 class="sec-title" id="leadership-title">Built, led <em>and run.</em></h2>
+          </div>
+        </div>
+        <div id="lead-feature"></div>
+        <div class="grid g-2" id="lead-grid"></div>
+      </div>
+    </section>
+    <section class="sec" id="education-sec" aria-labelledby="education-sec-title">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <p class="sec-label mono">08 · Education &amp; credentials</p>
+            <h2 class="sec-title" id="education-sec-title">The formal <em>training.</em></h2>
+          </div>
+        </div>
+        <div class="tl" id="education"></div>
+        <h3 class="sec-label mono" id="credentials-h" style="margin-top:64px">Credentials</h3>
+        <div id="credentials" style="border-top:1px solid var(--line-2)"></div>
+        <h3 class="sec-label mono" style="margin-top:64px">Skills</h3>
+        <div class="chips" id="skills" data-r></div>
+      </div>
+    </section>
   </main>
 
-  <footer class="site-footer">
-    <p class="footer-personal" id="footer-personal"></p>
-    <p class="footer-legal">Independent work — not investment advice. <span id="footer-year"></span></p>
-    <p class="footer-note">Photography is illustrative only (financial-district / New York imagery) and is not connected to, owned by, or representative of the work shown in this portfolio.</p>
-  </footer>
+  <noscript><p style="padding:120px 24px;font-family:sans-serif">This site needs JavaScript to show the research library. The reports are also on <a href="https://www.linkedin.com/in/debjit-mukherjee101/">LinkedIn</a>.</p></noscript>
 
-  <!-- ======================================================================
-       DETAIL MODAL — a single reusable "pitch-book page" overlay.
-       app.js fills #modal-body when any card is opened. Esc / backdrop /
-       close button dismiss it; focus is trapped inside while open.
-       ====================================================================== -->
-  <div class="modal-backdrop" id="modal-backdrop" hidden>
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" id="modal">
-      <div class="modal-topbar">
-        <span class="modal-stamp" aria-hidden="true">DM · PORTFOLIO</span>
-        <button class="modal-close" id="modal-close" aria-label="Close detail view">×</button>
-      </div>
-      <div class="modal-body" id="modal-body">
-        <!-- injected -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Motion library first (app.js checks for it), then data, behaviour, and the GSAP layer -->
+  <!-- Motion libraries (free, from a CDN), then content, then behaviour. -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
-  <script src="js/data.js?v=11"></script>
-  <script src="js/app.js?v=19"></script>
-  <script src="js/motion.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
+  <script src="js/data.js?v=12"></script>
+  <script src="js/site.js?v=30"></script>
 </body>
 </html>

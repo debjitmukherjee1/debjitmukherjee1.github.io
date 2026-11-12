@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-019N8X8CC8"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-019N8X8CC8');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Page text comes from js/data.js, rendered by js/site.js. Design: css/site.css. -->
+  <title>Workbench — Debjit Mukherjee</title>
+  <meta name="description" content="Six free analyst calculators: reverse DCF, paper LBO, accretion and dilution, merger-arbitrage spread, a football-field chart builder and a rating engine.">
+  <link rel="canonical" href="https://debjitmukherjee1.github.io/lab">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Workbench — Debjit Mukherjee">
+  <meta property="og:description" content="Six free analyst calculators: reverse DCF, paper LBO, accretion and dilution, merger-arbitrage spread, a football-field chart builder and a rating engine.">
+  <meta property="og:url" content="https://debjitmukherjee1.github.io/lab">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#0b0a09">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/site.css?v=30">
+  <script>
+    (function (d) {
+      d.classList.remove("no-js");
+      try {
+        var t = localStorage.getItem("theme"); if (t === "light") d.setAttribute("data-theme", "light");
+        if (sessionStorage.getItem("seen") || matchMedia("(prefers-reduced-motion: reduce)").matches) d.classList.add("loaded");
+      } catch (e) { d.classList.add("loaded"); }
+      setTimeout(function () { if (!window.gsap) d.classList.add("loaded"); }, 2500);
+    })(document.documentElement);
+  </script>
+</head>
+<body data-page="lab">
+
+  <!-- First page of a visit only: a brief counter, then it wipes away. -->
+  <div class="loader" aria-hidden="true"><small>Debjit Mukherjee<br>Independent equity research</small><span id="loader-n">000</span></div>
+
+  <main id="main">
+
+    <header class="page-head">
+      <div class="wrap page-head-row">
+        <div><p class="sec-label mono">Debjit Mukherjee · Workbench</p><h1 class="display">Workbench</h1></div>
+        <p class="lede">Six calculators for the questions that come up in every note and every deal. Change an input and the answer, and its sensitivity table, update as you type.</p>
+      </div>
+    </header>
+    <section class="sec" style="padding-top:0" aria-label="Calculators"><div class="wrap" id="lab"></div></section>
+  </main>
+
+  <noscript><p style="padding:120px 24px;font-family:sans-serif">This site needs JavaScript to show the research library. The reports are also on <a href="https://www.linkedin.com/in/debjit-mukherjee101/">LinkedIn</a>.</p></noscript>
+
+  <!-- Motion libraries (free, from a CDN), then content, then behaviour. -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
+  <script src="js/data.js?v=12"></script>
+  <script src="js/site.js?v=30"></script>
+  <script src="js/lab.js?v=30"></script>
+</body>
+</html>

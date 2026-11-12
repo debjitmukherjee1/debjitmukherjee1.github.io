@@ -7,24 +7,44 @@ non-developer (or an AI assistant in a fresh conversation) can update it safely.
 ## The one rule
 
 **All content lives in `js/data.js`. For routine updates, edit only that file.**
-Never touch `index.html`, `css/styles.css`, or `js/app.js` unless you're
-deliberately changing the design or behaviour.
+Never touch the HTML pages, `css/site.css`, `js/site.js` or `js/lab.js` unless
+you're deliberately changing the design or behaviour.
+
+The site is five pages: `index.html` (Overview), `research.html`, `deals.html`,
+`tools.html` and `lab.html` (the Workbench: six in-browser calculators). Each
+page holds only its section shells; `js/site.js` fills them from `js/data.js`
+and adds the shared nav, search palette (Ctrl/Cmd-K), detail drawer, contact
+block and footer. Motion uses GSAP, ScrollTrigger and Lenis from a free CDN;
+if they fail to load the site still works, just without animation.
 
 ## Folder structure
 
 ```
 portfolio/
-├── index.html          ← page structure (don't edit for content)
+├── index.html, research.html, deals.html, tools.html, lab.html
+│                       ← page shells (don't edit for content)
 ├── favicon.svg         ← browser-tab icon
 ├── css/
-│   └── styles.css      ← all styling (don't edit for content)
+│   └── site.css        ← all styling; colours are the tokens at the top
 ├── js/
 │   ├── data.js         ← ★ ALL CONTENT — the only file you edit
-│   └── app.js          ← behaviour/rendering (don't edit for content)
+│   ├── site.js         ← rendering + behaviour for every page
+│   └── lab.js          ← the Workbench calculators (maths lives here)
+├── data/               ← deal-tracker.json, refreshed by a GitHub Action
 └── assets/
     ├── images/         ← photos (compressed JPG/PNG go here)
-    └── files/          ← resume PDF, model PDFs/Excel files
+    └── files/          ← resume PDF, report PDFs, Excel models
 ```
+
+**Live data.** The hero chart, the track-record figures and the price charts
+read Ledger (`/ledger/data/calls.json`); the deal tracker reads
+`data/deal-tracker.json`. If either is unavailable those parts hide themselves.
+
+**Change the colours or fonts:** edit the `:root` tokens at the top of
+`css/site.css` (dark theme) and the `:root[data-theme="light"]` block below it.
+
+**Add a Workbench card:** the card text is the `workbench:` list in `data.js`;
+the calculator itself is an entry in `TOOLS` in `js/lab.js`.
 
 ## Common edits (all in `js/data.js`)
 

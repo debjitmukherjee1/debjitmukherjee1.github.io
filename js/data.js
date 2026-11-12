@@ -2,10 +2,11 @@
    data.js — THE ONLY FILE YOU (OR A FUTURE AI) NEED TO EDIT FOR CONTENT.
    ----------------------------------------------------------------------------
    Every piece of text, every link, every image path on the site lives here.
-   The site is three pages — index.html (Overview), research.html (the full
-   report library) and tools.html (the tools grid) — all reading from this
-   one file, styled by css/styles.css and rendered by js/app.js. None of
-   those three ever need to change for routine content updates.
+   The site is five pages — index.html (Overview), research.html (the full
+   report library), deals.html (Deal Decoded), tools.html (the tools grid)
+   and lab.html (the Workbench calculators) — all reading from this one
+   file, styled by css/site.css and rendered by js/site.js. None of those
+   ever need to change for routine content updates.
 
    RULES OF THUMB
    - To ADD an entry (a model, an internship, a credential…): copy an existing
@@ -22,6 +23,8 @@
    - `tools:` lists the interactive web apps shown on tools.html — status:
      "live" (needs a url) or "building" (leave url ""); `features` is a short
      bullet list shown in the "how it works" detail view.
+   - `workbench:` lists the in-site calculators on lab.html (card text only;
+     the maths lives in js/lab.js).
    - `pipeline:` lists upcoming coverage shown as ghost cards under the
      research library on research.html.
    ========================================================================== */
@@ -849,6 +852,26 @@ const siteData = {
         "No narrative overlay — just the ten lines"
       ]
     }
+  ],
+
+  /* --------------------------------------------------------------------
+     WORKBENCH — the in-site calculators on lab.html (built in js/lab.js).
+     Only the card text lives here: name, type and summary. id must match
+     the calculator's id in lab.js (rdcf, lbo, merger, arb, ff, hurdle).
+     -------------------------------------------------------------------- */
+  workbench: [
+    { id: "rdcf",   name: "Priced In",      type: "REVERSE DCF",
+      summary: "Runs a DCF backwards: given today's price, it solves for the revenue growth the market is already paying for." },
+    { id: "lbo",    name: "Paper LBO",      type: "LEVERAGED BUYOUT",
+      summary: "Entry multiple, leverage, a cash sweep and an exit: IRR, money multiple, a debt schedule and where the return came from." },
+    { id: "merger", name: "Merger Math",    type: "ACCRETION / DILUTION",
+      summary: "Pro-forma EPS for a cash-and-stock deal, and the synergies it needs to break even." },
+    { id: "arb",    name: "Spread",         type: "MERGER ARBITRAGE",
+      summary: "Turns a deal spread into an annualised return and the market's implied odds of closing. Pre-filled from the live tracker." },
+    { id: "ff",     name: "Football Field", type: "VALUATION SUMMARY",
+      summary: "Build the pitch-book chart: every method as a range, the price through it, the weighted blend. Downloads as an image." },
+    { id: "hurdle", name: "The Hurdle",     type: "RATING ENGINE",
+      summary: "The rule behind every rating here: expected total return against the bond yield, and the prices at which the rating flips." }
   ],
 
   /* --------------------------------------------------------------------
