@@ -180,3 +180,8 @@ body[data-page="home"] .tape { background: rgba(255, 255, 255, .04); -webkit-bac
 .h-line { color: #a3a6ad; text-shadow: 0 0 28px #050505, 0 0 60px #050505; }
 .dx-keys b, .rec-row dd { text-transform: none; }
 .dx-keys { gap: 22px 36px; }
+
+/* the hand-off to the Profile page */
+.h-prof .h-exp { border-bottom: 1px solid var(--line); }
+.h-prof .xp:last-child { border-bottom: 0; }
+@media (max-width: 960px) { .xp svg { display: none; } .h-head .btn { justify-self: start; } }

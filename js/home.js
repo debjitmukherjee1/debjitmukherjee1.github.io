@@ -102,24 +102,7 @@ function renderDeals() {
 }
 function renderAbout() {
   const exp = $("#h-exp");
-  if (exp) {
-    exp.innerHTML = (D.experience || []).map((x, i) => '<button class="xp" type="button" data-x="' + i + '" data-cursor="More"><span class="mono">' + esc(x.dates) + "</span><h3>" + esc(x.company) + "</h3><span class=\"xp-role\">" + esc(x.role) + "</span>" + ARROW + "</button>").join("");
-    exp.addEventListener("click", e => { const b = e.target.closest("[data-x]"); if (!b) return; const x = D.experience[+b.getAttribute("data-x")]; DM.openGeneric("Experience", x.dates + " · " + (x.location || ""), x.company, x.role, x.summary, x.bullets, x.photos, x.link ? [x.link, x.linkLabel || "Open ↗"] : null); });
-  }
-  const col = $("#h-collage");
-  if (col) {
-    const pics = []; (D.leadership || []).forEach(l => (l.photos || []).forEach(p => pics.push({ p, l })));
-    const spots = [[4, 6, -5, 30], [52, 0, 4, 36], [26, 40, -2, 34], [62, 46, 6, 30], [0, 58, 3, 28]];
-    col.innerHTML = pics.slice(0, 5).map((o, i) => { const s = spots[i]; return '<figure style="left:' + s[0] + "%;top:" + s[1] + "%;width:" + s[3] + "%;--rot:" + s[2] + 'deg" data-speed="' + (0.6 + (i % 3) * .35) + '"><img src="' + esc(o.p.src) + '" alt="' + esc(o.p.caption) + '" loading="lazy" onerror="this.closest(\'figure\').remove()"><figcaption>' + esc(o.l.role) + "</figcaption></figure>"; }).join("");
-  }
-  const lead = $("#h-lead");
-  if (lead) {
-    lead.innerHTML = (D.leadership || []).map((l, i) => '<button type="button" class="ld' + (l.featured ? " ld-f" : "") + '" data-l="' + i + '" data-cursor="More"><span class="mono">' + esc(l.years) + "</span><b>" + esc(l.role) + "</b><span>" + esc(l.organization) + "</span></button>").join("");
-    lead.addEventListener("click", e => { const b = e.target.closest("[data-l]"); if (!b) return; const l = D.leadership[+b.getAttribute("data-l")]; DM.openGeneric("Leadership", l.years, l.role, l.organization, l.summary, l.bullets, l.photos); });
-  }
-  const edu = $("#h-edu");
-  if (edu) edu.innerHTML = (D.education || []).map(x => '<div class="ed"><span class="mono">' + esc(x.years) + "</span><b>" + esc(x.institution) + "</b><span>" + esc(x.degree) + "</span></div>").join("") +
-    (D.credentials || []).map(x => '<div class="ed"><span class="mono">' + esc(x.status) + "</span><b>" + esc(x.name) + "</b><span>" + esc(x.issuer) + "</span></div>").join("");
+  if (exp) exp.innerHTML = (D.experience || []).map(x => '<a class="xp" href="about#experience" data-cursor="Profile"><span class="mono">' + esc(x.dates) + "</span><h3>" + esc(x.company) + '</h3><span class="xp-role">' + esc(x.role) + "</span>" + ARROW + "</a>").join("");
   const sk = $("#h-skills");
   if (sk && D.skills) { const all = (D.skills.technical || []).concat(D.skills.soft || []), row = all.map(s => "<span>" + esc(s) + "</span>").join(""); sk.innerHTML = '<div class="sk-track">' + row + '</div><div class="sk-track" aria-hidden="true">' + row + "</div>"; }
 }
@@ -184,9 +167,7 @@ function choreograph() {
     const dist = () => track.scrollWidth - innerWidth + 48;
     gsap.to(track, { x: () => -dist(), ease: "none", scrollTrigger: { trigger: ".h-tools", start: "top top", end: () => "+=" + dist(), pin: true, scrub: .5, invalidateOnRefresh: true } });
   } else if (track) root.classList.add("tools-swipe");
-  // collage drifts at different speeds
-  $$("#h-collage figure").forEach(f => gsap.fromTo(f, { y: 90 * +f.getAttribute("data-speed") }, { y: -110 * +f.getAttribute("data-speed"), ease: "none", scrollTrigger: { trigger: "#h-collage", start: "top bottom", end: "bottom top", scrub: true } }));
-  gsap.from(".deal-x, .xp, .ld, .ed", { opacity: 0, y: 40, duration: .9, ease: "power3.out", stagger: { each: .06, from: "start" }, scrollTrigger: { trigger: ".h-deals-sec", start: "top 70%", once: true } });
+  gsap.from(".deal-x, .xp", { opacity: 0, y: 40, duration: .9, ease: "power3.out", stagger: { each: .06, from: "start" }, scrollTrigger: { trigger: ".h-deals-sec", start: "top 70%", once: true } });
   $$(".h-title").forEach(t => gsap.from(t, { yPercent: 60, opacity: 0, duration: 1.1, ease: "power4.out", scrollTrigger: { trigger: t, start: "top 88%", once: true } }));
   ScrollTrigger.refresh();
 }

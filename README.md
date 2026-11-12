@@ -10,8 +10,10 @@ non-developer (or an AI assistant in a fresh conversation) can update it safely.
 Never touch the HTML pages, `css/site.css`, `js/site.js` or `js/lab.js` unless
 you're deliberately changing the design or behaviour.
 
-The site is five pages: `index.html` (Overview), `research.html`, `deals.html`,
-`tools.html` and `lab.html` (the Workbench: six in-browser calculators). Each
+The site is six pages: `index.html` (Overview), `research.html`, `deals.html`,
+`tools.html`, `lab.html` (the Workbench: six in-browser calculators) and
+`about.html` (Profile: a digital CV drawn from `hero`, `experience`,
+`leadership`, `education`, `credentials` and `skills` by `js/about.js`). Each
 page holds only its section shells; `js/site.js` fills them from `js/data.js`
 and adds the shared nav, search palette (Ctrl/Cmd-K), detail drawer, contact
 block and footer. Motion uses GSAP, ScrollTrigger and Lenis from a free CDN;
@@ -21,7 +23,7 @@ if they fail to load the site still works, just without animation.
 
 ```
 portfolio/
-├── index.html, research.html, deals.html, tools.html, lab.html
+├── index.html, research.html, deals.html, tools.html, lab.html, about.html
 │                       ← page shells (don't edit for content)
 ├── favicon.svg         ← browser-tab icon
 ├── css/

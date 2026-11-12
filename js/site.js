@@ -93,7 +93,7 @@
   }
 
   /* ---------- shared chrome -------------------------------------------- */
-  var NAV = [["./", "Overview", "home"], ["research", "Research", "research"], ["deals", "Deals", "deals"], ["tools", "Tools", "tools"], ["lab", "Workbench", "lab"]];
+  var NAV = [["./", "Overview", "home"], ["research", "Research", "research"], ["deals", "Deals", "deals"], ["tools", "Tools", "tools"], ["lab", "Workbench", "lab"], ["about", "Profile", "about"]];
   var hero = D.hero || {};
   function buildChrome() {
     var links = NAV.map(function (n) { return '<a href="' + n[0] + '"' + (n[2] === PAGE ? ' aria-current="page"' : "") + ">" + n[1] + "</a>"; }).join("");
@@ -507,7 +507,7 @@
     });
   }
   function renderExperience() {
-    if (PAGE === "home") return;   // the Overview draws its own version (js/home.js)
+    if (PAGE === "home" || PAGE === "about") return;   // drawn by js/home.js and js/about.js
     var host = $("#experience"); if (!host) return;
     host.innerHTML = (D.experience || []).map(function (x, i) {
       return '<button class="tl-item" type="button" data-x="' + i + '" data-r><span class="mono mute">' + esc(x.dates) + "<br>" + esc(x.location || "") + "</span><span><h3>" + esc(x.company) + '</h3><p class="mono">' + esc(x.role) + '</p></span><span class="tl-sum">' + esc(x.summary) + '</span><span class="row-go" aria-hidden="true">' + ARROW + "</span></button>";
@@ -515,7 +515,7 @@
     host.addEventListener("click", function (e) { var b = e.target.closest("[data-x]"); if (!b) return; var x = D.experience[+b.getAttribute("data-x")]; openGeneric("Experience", x.dates + " · " + (x.location || ""), x.company, x.role, x.summary, x.bullets, x.photos, x.link ? [x.link, x.linkLabel || "Open ↗"] : null); });
   }
   function renderLeadership() {
-    if (PAGE === "home") return;   // the Overview draws its own version (js/home.js)
+    if (PAGE === "home" || PAGE === "about") return;   // drawn by js/home.js and js/about.js
     var f = $("#lead-feature"), g = $("#lead-grid"); if (!g) return;
     var feat = (D.leadership || []).filter(function (l) { return l.featured; })[0], rest = (D.leadership || []).filter(function (l) { return !l.featured; });
     if (f && feat) f.innerHTML = '<div class="feature" data-r><div><span class="pill live r-accumulate">' + esc(feat.years) + "</span><h3>" + esc(feat.role + ", " + feat.organization) + '</h3><p style="color:var(--ink-2)">' + esc(feat.summary) + "</p></div><ul>" + (feat.bullets || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div>";
@@ -527,7 +527,7 @@
     g.addEventListener("click", function (e) { var b = e.target.closest("[data-l]"); if (!b) return; var l = rest[+b.getAttribute("data-l")]; openGeneric("Leadership", l.years, l.role, l.organization, l.summary, l.bullets, l.photos); });
   }
   function renderEducation() {
-    if (PAGE === "home") return;   // the Overview draws its own version (js/home.js)
+    if (PAGE === "home" || PAGE === "about") return;   // drawn by js/home.js and js/about.js
     var host = $("#education"); if (!host) return;
     host.innerHTML = (D.education || []).map(function (x, i) {
       return '<button class="tl-item" type="button" data-e="' + i + '" data-r><span class="mono mute">' + esc(x.years) + "</span><span><h3>" + esc(x.institution) + '</h3><p class="mono">' + esc(x.degree) + '</p></span><span class="tl-sum">' + esc(x.focus) + '</span><span class="row-go" aria-hidden="true">' + ARROW + "</span></button>";
@@ -689,7 +689,7 @@
   }
   window.DM = { D: D, MODELS: MODELS, RATED: RATED, models: MODELS, HAS_GSAP: HAS_GSAP, REDUCED: REDUCED, introDone: false,
     ledgerReady: ledgerReady, trackReady: trackReady, calls: function () { return CALLS; }, led: function () { return LED; }, lenis: function () { return lenis; },
-    openResearch: openResearch, openDeal: openDeal, openGeneric: openGeneric, liveLine: liveLine, pct: pct, cls: cls, esc: esc, fmtDate: fmtDate, pill: pill };
+    openResearch: openResearch, openDeal: openDeal, openGeneric: openGeneric, reveal: function (scope) { reveal(scope); }, liveLine: liveLine, pct: pct, cls: cls, esc: esc, fmtDate: fmtDate, pill: pill };
   buildChrome();
   setupTheme(); setupNav(); setupClock(); setupSheet(); setupPal(); setupSpotlight(); setupAnalytics();
   renderHero(); renderTape(); renderLatest(); renderRecord(); renderDeals(); renderTools();

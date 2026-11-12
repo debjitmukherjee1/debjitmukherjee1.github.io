@@ -2,9 +2,9 @@
    data.js — THE ONLY FILE YOU (OR A FUTURE AI) NEED TO EDIT FOR CONTENT.
    ----------------------------------------------------------------------------
    Every piece of text, every link, every image path on the site lives here.
-   The site is five pages — index.html (Overview), research.html (the full
-   report library), deals.html (Deal Decoded), tools.html (the tools grid)
-   and lab.html (the Workbench calculators) — all reading from this one
+   The site is six pages — index.html (Overview), research.html (the full
+   report library), deals.html (Deal Decoded), tools.html (the tools grid),
+   lab.html (the Workbench calculators) and about.html (Profile, a digital CV) — all reading from this one
    file, styled by css/site.css and rendered by js/site.js. None of those
    ever need to change for routine content updates.
 
@@ -74,7 +74,7 @@ const siteData = {
      shown on all three pages. Each item: label, value, direction ("up" |
      "down" | "flat"), sectionId to jump to, and page — the file that
      section actually lives on ("index.html" | "research.html" |
-     "tools.html"). Clicking scrolls same-page if you're already on that
+     "tools.html" | "about.html" for the personal sections). Clicking scrolls same-page if you're already on that
      page, otherwise navigates there first. Valid sectionIds: education,
      leadership, experience, models, credentials, skills, contact.
      -------------------------------------------------------------------- */
@@ -95,10 +95,10 @@ const siteData = {
     { label: "GOOGL",      value: "HOLD · FV $384",          direction: "flat", sectionId: "models",      page: "research.html" },
     { label: "TCS",        value: "VALUATION NOTE",         direction: "up",   sectionId: "models",      page: "research.html" },
     { label: "V",          value: "HOLD · FV $355",          direction: "flat", sectionId: "models",      page: "research.html" },
-    { label: "CFA L1",     value: "CANDIDATE · 2027",        direction: "up",   sectionId: "credentials", page: "index.html" },
-    { label: "FINANCE SOCIETY", value: "FOUNDER",        direction: "up",   sectionId: "leadership",  page: "index.html" },
-    { label: "B.COM (H&R)", value: "AMITY KOLKATA",          direction: "flat", sectionId: "education",   page: "index.html" },
-    { label: "INTERNSHIPS", value: "3 COMPLETED",            direction: "up",   sectionId: "experience",  page: "index.html" },
+    { label: "CFA L1",     value: "CANDIDATE · 2027",        direction: "up",   sectionId: "credentials", page: "about.html" },
+    { label: "FINANCE SOCIETY", value: "FOUNDER",        direction: "up",   sectionId: "leadership",  page: "about.html" },
+    { label: "B.COM (H&R)", value: "AMITY KOLKATA",          direction: "flat", sectionId: "education",   page: "about.html" },
+    { label: "INTERNSHIPS", value: "3 COMPLETED",            direction: "up",   sectionId: "experience",  page: "about.html" },
     { label: "STATUS",     value: "OPEN TO OPPORTUNITIES",   direction: "up",   sectionId: "contact",     page: "index.html" }
   ],
 
