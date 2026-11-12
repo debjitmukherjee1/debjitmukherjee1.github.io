@@ -1,6 +1,6 @@
 /* ambient.js — inner pages: the same landscape as the Overview, drifting quietly
    behind the content. Each page has its own glow colour (data-world on <body>). */
-import { stage, buildStage, goView, setWorld } from "./stage.js?v=90";
+import { stage, buildStage, goView, setWorld } from "./stage.js?v=95";
 const DM = window.DM;
 setWorld(document.body.getAttribute("data-world") || "open", 0);
 DM.ledgerReady.then(() => {

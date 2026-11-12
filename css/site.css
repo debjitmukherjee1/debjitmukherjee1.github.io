@@ -687,3 +687,26 @@ main { position: relative; z-index: 1; }
   .lg-ok .cc-side, .lg-ok .h-rail, .lg-ok .ridge-tip { -webkit-backdrop-filter: blur(18px) saturate(1.7); backdrop-filter: blur(18px) saturate(1.7); }
   body::after { display: none; }
 }
+
+/* emphasis is never italic on this site */
+em { font-style: normal; }
+.verdict { color: var(--ink-2); } .verdict em { color: var(--ink); }
+
+@media (max-width: 700px) {
+  .page-head .display { font-size: clamp(48px, 15.6vw, 84px); }
+  /* the live tracker becomes a labelled list */
+  #tracker .tbl-wrap { overflow: visible; border-top: 0; }
+  #tracker .tbl { min-width: 0; display: block; } #tracker .tbl thead { display: none; } #tracker .tbl tbody, #tracker .tbl tr { display: block; }
+  #tracker .tbl tr { border: 1px solid var(--line); border-radius: 20px; padding: 6px 18px 14px; background: rgba(255, 255, 255, .04); }
+  #tracker .tbl td { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 0; text-align: right; font-size: 14px; }
+  #tracker .tbl td.nm { display: block; text-align: left; font: 400 26px/1.1 var(--display); padding-top: 14px; }
+  #tracker .tbl td[data-label]::before { content: attr(data-label); font: 400 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
+  #tracker .tbl td:last-child { border-bottom: 0; }
+  /* calculator results sit two to a row */
+  .out-hero > div { flex: 1 1 130px; padding: 16px 16px 18px; } .out-hero b { font-size: 30px; margin-top: 8px; }
+  .lab-tabs { padding-top: 10px; padding-bottom: 10px; } .lab-tabs button { height: 38px; padding: 0 14px; }
+  .panel { padding: 18px; border-radius: 16px; }
+  .sens { font-size: 11px; border-spacing: 2px; } .sens td { padding: 9px 4px; }
+  .deal { padding: 20px; } .deal h3 { font-size: 34px; } .deal .keys { grid-template-columns: 1fr 1fr; }
+  .card { border-radius: 18px; }
+}
