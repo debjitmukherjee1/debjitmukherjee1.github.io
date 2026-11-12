@@ -90,6 +90,9 @@
   // True when the user's OS asks for less motion — we then skip all
   // JS-driven animation (counters jump straight to their final value, etc.)
   var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // When GSAP is on the page, js/motion.js runs the entrances and scroll
+  // reveals; the hand-rolled versions below stand down.
+  var hasGsap = !!window.gsap && !reducedMotion;
 
   /* Stats row under the bio: numbers count up when they become visible */
   function renderStats() {
@@ -113,7 +116,7 @@
      and every time the shown integer changes it triggers a quick mechanical
      "flap" (a CSS keyframe) — like an airport/odometer board settling. */
   function flapCount(node, target, suffix) {
-    if (reducedMotion) { node.textContent = target + suffix; return; }
+    if (reducedMotion || hasGsap) { node.textContent = target + suffix; return; }
     var duration = 1500, start = null, shown = -1;
     function tick(ts) {
       if (start === null) start = ts;
@@ -157,6 +160,7 @@
      viewport, staggered within each group. Classes are removed again after
      the entrance so they can't interfere with hover transitions. */
   function setupReveals() {
+    if (hasGsap) return;
     if (reducedMotion || !("IntersectionObserver" in window)) return;
 
     var groups = [
@@ -1030,7 +1034,9 @@
     });
     wrap.appendChild(legend);
 
-    // grow segments from zero once laid out (instant under reduced motion)
+    // grow segments from zero once laid out (instant under reduced motion;
+    // with GSAP, motion.js grows them when the bar scrolls into view)
+    if (hasGsap) return;
     if (reducedMotion) {
       segs.forEach(function (s) { s.style.width = s.getAttribute("data-w"); });
     } else {
@@ -1205,6 +1211,7 @@
   function runBoot() {
     var boot = byId("boot");
     if (!boot) return;
+    if (hasGsap) return;   // js/motion.js plays the boot sequence and hands into the page intro
 
     var seen = false;
     try { seen = sessionStorage.getItem("dm-booted") === "1"; } catch (e) { /* private mode */ }
@@ -1518,6 +1525,7 @@
   /* Engraved section rules ink in left-to-right as each header scrolls into
      view. Rules are visible by default (no-JS safe); JS only adds the wipe. */
   function setupSectionRules() {
+    if (hasGsap) return;
     if (reducedMotion || !("IntersectionObserver" in window)) return;
     var obs = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
@@ -1534,6 +1542,7 @@
      vignette lightens with, so the "room" brightens subtly while you move and
      settles when you stop. */
   function setupScrollShimmer() {
+    if (hasGsap) return;
     if (reducedMotion) return;
     var lastY = window.scrollY, vel = 0, raf = null, root = document.documentElement;
     function loop() {
@@ -1648,6 +1657,7 @@
      the band scrolls into view. Reduced motion / no-IntersectionObserver just
      shows them all lit. */
   function setupRevealLine() {
+    if (hasGsap) return;
     var line = document.querySelector(".reveal-line");
     if (!line) return;
     var words = line.querySelectorAll(".rw");
