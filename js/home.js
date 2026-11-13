@@ -76,7 +76,7 @@ function renderCalls(list) {
       '<div class="cc-live" hidden><dt>Since the call</dt><dd data-since="' + esc(m.id) + '">—</dd></div><div class="cc-live" hidden><dt data-bench-l="' + esc(m.id) + '">Benchmark</dt><dd data-bench="' + esc(m.id) + '">—</dd></div></dl>' +
       '<button class="btn btn-solid" type="button" data-open="' + esc(m.id) + '" data-cursor="Open">Open the note <span class="arr">↗</span></button></div></article>';
   }).join("") +
-    '<article class="call-ch call-more" data-i="' + list.length + '" data-rating="open"><p class="cc-top mono"><b>And the rest</b><span>' + DM.MODELS.length + ' notes · every model attached</span></p><h3 class="cc-tk cc-tk-sm" style="--n:2"><span><i>' + DM.COVERED.length + '</i></span></h3><div class="cc-side"><p class="cc-name">companies covered</p><p class="cc-thesis">Banks on excess return. Conglomerates on sum of the parts. Staples on dividends. US names are rated against the bond yield; Indian names are published as valuation exercises, without a rating.</p><a class="btn btn-solid" href="research" data-cursor="Go">The full library <span class="arr">↗</span></a></div></article>';
+    '<article class="call-ch call-more" data-i="' + list.length + '" data-rating="open"><p class="cc-top mono"><b>And the rest</b><span>' + DM.MODELS.length + ' notes · every model attached</span></p><h3 class="cc-tk cc-tk-sm" style="--n:2"><span><i>' + DM.COVERED.length + '</i></span></h3><div class="cc-side"><p class="cc-name">companies covered</p><p class="cc-thesis">Banks on excess return. Conglomerates on sum of the parts. Staples on dividends. US names are rated against the bond yield; Indian notes are shared privately and published in full once their 12-month horizon ends.</p><a class="btn btn-solid" href="research" data-cursor="Go">The full library <span class="arr">↗</span></a></div></article>';
   $("#h-rail").innerHTML = list.map((m, i) => '<button type="button" data-go="' + i + '">' + esc(m.tk) + "</button>").join("") + '<button type="button" data-go="' + list.length + '">ALL</button>';
 }
 function fillCalls() {
@@ -99,7 +99,7 @@ function renderRecord() {
   host.innerHTML = '<p class="rec-big"><span class="count" data-to="' + CALLS.length + '">' + CALLS.length + '</span></p>' +
     '<p class="rec-cap">calls logged in public at the price on the day, including the ones that went wrong.</p>' +
     '<dl class="rec-row"><div><dt>Companies</dt><dd>' + companies + "</dd></div><div><dt>First call</dt><dd>" + esc(DM.fmtDate(first)) + "</dd></div><div><dt>Record so far</dt><dd>" + months + (months === 1 ? " month" : " months") + "</dd></div><div><dt>Target horizon</dt><dd>12 months</dd></div></dl>" +
-    '<p class="note" style="margin-inline:auto;text-align:center;max-width:62ch">Targets are 12-month, and the oldest call is ' + months + " months old, so it is too early to judge accuracy. Every call stays on the log, and each one is compared with its local index. " +
+    '<p class="note" style="margin-inline:auto;text-align:center;max-width:62ch">Targets are 12-month, and the oldest call is ' + months + " months old, so it is too early to judge accuracy. Every call stays on the log and is compared with its local index; Indian calls join it once they are a year old. " +
     '<a href="https://debjitmukherjee1.github.io/ledger/" target="_blank" rel="noopener" style="text-decoration:underline">Open the log</a>' + (updated ? " · prices updated " + esc(updated) : "") + ".</p>";
   const lv = $("#h-live"); if (lv) lv.textContent = CALLS.length + " calls logged in public";
 }

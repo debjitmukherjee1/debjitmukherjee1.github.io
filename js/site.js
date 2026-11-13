@@ -45,10 +45,11 @@
     var fv = m.rating ? ((/~?[$₹][\d,]+/.exec(raw) || [""])[0]) : "";
     // Notes on Indian listed companies are published as valuation exercises: no rating, no price target
     // (SEBI treats ratings and targets on listed securities as research-analyst activity).
-    var note = m.market === "India" && !!m.rating;
+    var note = m.market === "India" && m.access === "private";      // full note shared privately until revealAfter
+    var matured = m.access === "matured";                             // horizon ended: published in full, with its outcome
     return { i: i, src: m, id: tk || slug(name), tk: tk, name: name, kind: (parts[1] || "").trim(),
-      fv: note ? "" : fv, upside: note ? null : upside, modelValue: note ? fv : "", note: note,
-      rating: note ? "NOTE" : (m.rating || ""), market: m.market || "", sector: m.sector || "", date: m.date || "", macro: !m.rating };
+      fv: note ? "" : fv, upside: note ? null : upside, note: note, matured: matured, revealAfter: m.revealAfter || "",
+      rating: note ? "NOTE" : (m.rating || ""), market: m.market || "", sector: m.sector || "", date: m.date || "", macro: !m.rating && !note };
   });
   var COVERED = MODELS.filter(function (m) { return !m.macro; });                 // every company with a note
   var RATED = MODELS.filter(function (m) { return !m.macro && !m.note; });        // companies that carry a rating (US)
@@ -64,7 +65,7 @@
   // Has the price moved through the rating since it was set? Compares the published fair value with today's price.
   function review(m) {
     var c = LED && m.tk && LED[m.tk], fvn = num(m.fv);
-    if (!c || !fvn || m.note || m.macro || c.rating !== m.rating || !c.live_price) return null;
+    if (!c || !fvn || m.note || m.matured || m.macro || c.rating !== m.rating || !c.live_price) return null;
     var implied = (fvn / c.live_price - 1) * 100, r = m.rating, out = false;
     if (r === "BUY" || r === "ACCUMULATE") out = implied < 5;
     else if (r === "HOLD") out = implied < -5 || implied > 15;
@@ -82,7 +83,8 @@
       .catch(function (e) { if (urls.length) return getJSON(urls); throw e; });
   }
   var ledgerReady = window.fetch ? getJSON(["/ledger/data/calls.json", "https://debjitmukherjee1.github.io/ledger/data/calls.json"]).then(function (d) {
-    CALLS = (d.calls || []).filter(function (c) { return c.series && c.series.length > 1; });
+    var yearAgo = new Date(Date.now() - 365 * 864e5).toISOString().slice(0, 10);
+    CALLS = (d.calls || []).filter(function (c) { return c.series && c.series.length > 1 && !(c.market === "India" && c.call_date > yearAgo); });
     LED = {};
     CALLS.forEach(function (c) { var p = LED[c.ticker]; if (!p || c.call_date > p.call_date) LED[c.ticker] = c; });
     LED._updated = d.updated_at;
@@ -163,7 +165,7 @@
       '<a href="' + esc(hero.resumeUrl) + '" target="_blank" rel="noopener">Curriculum vitae<span>PDF ↓</span></a>' +
       '<a href="https://debjitmukherjee1.github.io/ledger/" target="_blank" rel="noopener">Public track record<span>LEDGER ↗</span></a></div></div>' +
       '<p class="wordmark" aria-hidden="true">' + esc(first) + " <em>" + esc(last) + "</em></p></div>" +
-      '<footer class="foot"><div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 32px"><p>© ' + new Date().getFullYear() + " " + esc(hero.name) + ". Student valuation work from public filings, published for learning and discussion. Nothing on this site is a recommendation to buy, sell or hold any security, or investment advice. I am not registered with SEBI as a research analyst or investment adviser, or with any other regulator. Notes on Indian listed companies are valuation exercises and carry no rating or price target. Check each note for its holdings disclosure.</p><p>" + esc(hero.personalLine || "") + "</p></div></footer>";
+      '<footer class="foot"><div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 32px"><p>© ' + new Date().getFullYear() + " " + esc(hero.name) + ". Student valuation work from public filings, published for learning and discussion. Nothing on this site is a recommendation to buy, sell or hold any security, or investment advice. I am not registered with SEBI as a research analyst or investment adviser, or with any other regulator. Notes on Indian listed companies carry no public rating or price target until their 12-month horizon has ended. Check each note for its holdings disclosure.</p><p>" + esc(hero.personalLine || "") + "</p></div></footer>";
     document.body.appendChild(c);
   }
 
@@ -250,20 +252,23 @@
     var html = '<p class="mono mute">' + esc([m.sector, m.market, m.date].filter(Boolean).join(" · ")) + "</p>" +
       '<h2 id="sheet-title">' + esc(m.name) + "</h2>" +
       '<div class="sheet-meta">' + pill(m.rating) + reviewPill(m) +
-        (m.note ? '<span class="fv">Model output ' + esc(m.modelValue) + " · " + esc(m.date) + "</span>" : (s.targetPrice || s.impliedValue ? '<span class="fv">' + esc(s.targetPrice || s.impliedValue) + "</span>" : "")) +
+        (m.matured ? '<span class="pill r-macro">Matured call</span>' : "") +
+        (m.note ? '<span class="fv">Full note on request · public from ' + esc(fmtDate(m.revealAfter)) + "</span>" : (s.targetPrice || s.impliedValue ? '<span class="fv">' + esc(s.targetPrice || s.impliedValue) + "</span>" : "")) +
         (!m.note && !m.macro && asOf(m) ? '<span class="mono mute">' + esc(asOf(m)) + "</span>" : "") + (m.kind ? '<span class="mono mute">' + esc(m.kind) + "</span>" : "") + "</div>" +
       (call ? '<div class="big-chart"><div id="bc"></div><div class="chart-stats"><div><small>Since the call</small><b class="' + cls(call.return_pct) + '">' + pct(call.return_pct) + "</b></div><div><small>" + esc(call.benchmark) + '</small><b>' + pct(call.benchmark_return_pct) + "</b></div><div><small>Called " + esc(fmtDate(call.call_date)) + "</small><b>" + (call.currency === "INR" ? "₹" : "$") + Number(call.price_at_call).toLocaleString() + "</b></div></div></div>" : "") +
       (review(m) ? (function (rv) { return '<p class="sheet-flag">Under review. Since this rating was set the price has moved to ' + rv.cur + Number(rv.price).toLocaleString() + " (" + esc(fmtDate(rv.asof)) + "), where the published fair value implies " + pct(rv.implied) + ". That is outside the " + esc(m.rating) + " band; the rating has not yet been updated.</p>"; })(review(m)) : "") +
-      (m.note ? '<p class="sheet-flag">Valuation exercise, recorded as of its date. Notes on Indian listed companies are published for study and discussion only: they carry no rating or price target and are not a recommendation to buy, sell or hold. I am not registered with SEBI as a research analyst.</p>' : "") +
+      (m.note ? '<p class="sheet-flag">The full note on this Indian listed company, with its valuation, price target and Excel model, is shared privately with recruiters and employers on request. It is published here, with its outcome, once its 12-month horizon ends on ' + esc(fmtDate(m.revealAfter)) + '. Until then it carries no public rating or target. I am not registered with SEBI as a research analyst.</p>' : "") +
+      (m.matured ? '<p class="sheet-flag">Matured call. This note was shared privately while it was live and published once its 12-month horizon ended on ' + esc(fmtDate(m.revealAfter)) + '. It is a historical record, not a current view or a recommendation.</p>' : "") +
       '<p class="quote">' + esc(s.thesis) + "</p>" +
-      '<div class="body">' + paras(s.detail) + "</div>" +
+      (m.note ? '' : '<div class="body">' + paras(s.detail) + '</div>') +
       (s.methodologyNote ? "<h4>How it's valued</h4><div class=\"body\"><p>" + esc(s.methodologyNote) + "</p></div>" : "") +
       (s.methods ? bullets(s.methods.map(function (x) { return x.role + " — " + x.method + (x.detail ? ": " + x.detail : ""); })) : "") +
       '<div class="sheet-actions">' +
+      (m.note ? '<a class="btn btn-solid" href="mailto:' + esc(hero.email) + "?subject=" + encodeURIComponent("Request: full note on " + m.name) + '">Request the full note <span class="arr">↗</span></a>' : "") +
       (s.fileUrl ? '<a class="btn btn-solid" href="' + esc(s.fileUrl) + '" target="_blank" rel="noopener">' + esc(s.fileLabel || "Read the report") + ' <span class="arr">↗</span></a>' : "") +
       (s.fileUrl2 ? '<a class="btn" href="' + esc(s.fileUrl2) + '" download>' + esc(s.fileLabel2 || "Download the model") + " ↓</a>" : "") +
       (call ? '<a class="btn" href="https://debjitmukherjee1.github.io/ledger/" target="_blank" rel="noopener">Track record ↗</a>' : "") + "</div>" +
-      '<p class="note">' + esc("Student valuation work from public filings, published for learning and discussion. Nothing on this site is a recommendation to buy, sell or hold any security, or investment advice. I am not registered with SEBI as a research analyst or investment adviser, or with any other regulator. Notes on Indian listed companies are valuation exercises and carry no rating or price target. Check each note for its holdings disclosure.") + " Prices are daily closes from Ledger.</p>";
+      '<p class="note">' + esc("Student valuation work from public filings, published for learning and discussion. Nothing on this site is a recommendation to buy, sell or hold any security, or investment advice. I am not registered with SEBI as a research analyst or investment adviser, or with any other regulator. Notes on Indian listed companies carry no public rating or price target until their 12-month horizon has ended. Check each note for its holdings disclosure.") + " Prices are daily closes from Ledger.</p>";
     openSheet("Research · " + (m.tk || "Macro"), html, function () { if (call) bigChart(m.note ? Object.assign({}, call, { target: null }) : call, $("#bc")); });
     if (PAGE === "research") history.replaceState(null, "", "#" + m.id);
   }

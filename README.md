@@ -53,10 +53,16 @@ The colour the page takes for each rating is the `WORLDS` table at the top of
 `js/stage.js`; each inner page picks its colour with `data-world` on `<body>`. Tool screenshots live in `assets/images/tools/<name>.jpg`
 (lower-case tool name); retake one whenever a tool's look changes.
 
-**Indian notes:** any `models` entry with `market: "India"` is shown as a dated
-valuation exercise, with no rating or price target, anywhere on the site. US ratings
-show the date and price they were set at, and an "Under review" flag when the price
-has since moved through the rating.
+**Indian notes:** the public site shows Indian listed companies as valuation notes
+with no rating, target or files (`access: "private"` in `data.js`). The full notes,
+their targets, PDFs and models, and the Indian track record live outside this
+repository in `../PRIVATE/` (a recruiter pack to share privately, plus
+`india-notes.json`). Each note becomes public 12 months after its call
+(`revealAfter`): run `python3 scripts/reveal_matured.py ../PRIVATE/india-notes.json
+--write`, copy the files it lists into `assets/files/`, and the note shows as a
+"Matured call". The site's live track record shows Indian calls only once they
+are a year old. US ratings show the date and price they were set at, and an
+"Under review" flag when the price has since moved through the rating.
 
 **Change the colours or fonts:** edit the `:root` tokens at the top of
 `css/site.css` (dark theme) and the `:root[data-theme="light"]` block below it.
