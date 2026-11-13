@@ -58,9 +58,13 @@ with no rating, target or files (`access: "private"` in `data.js`). The full not
 their targets, PDFs and models, and the Indian track record live outside this
 repository in `../PRIVATE/` (a recruiter pack to share privately, plus
 `india-notes.json`). Each note becomes public 12 months after its call
-(`revealAfter`): run `python3 scripts/reveal_matured.py ../PRIVATE/india-notes.json
---write`, copy the files it lists into `assets/files/`, and the note shows as a
-"Matured call". The site's live track record shows Indian calls only once they
+(`revealAfter`). That happens automatically: the GitHub Action
+`.github/workflows/india-reveal.yml` runs every morning, opens the encrypted copy of
+`../PRIVATE` in `private/india-vault.tar.gz.enc` with the repository secret
+`INDIA_VAULT_KEY`, runs `scripts/reveal_matured.py` and commits the note as a
+"Matured call" with its PDF and model. After adding or changing an Indian note in
+`../PRIVATE`, run `sh scripts/seal_private.sh` and commit the vault.
+`python3 scripts/build_india_pack.py` refreshes the private recruiter pack (PDF). The site's live track record shows Indian calls only once they
 are a year old. US ratings show the date and price they were set at, and an
 "Under review" flag when the price has since moved through the rating.
 

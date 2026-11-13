@@ -1,0 +1,60 @@
+name: Publish matured Indian notes
+
+# Every day, publish any Indian valuation note whose 12-month horizon has ended.
+# The full notes live in private/india-vault.tar.gz.enc (sealed by scripts/seal_private.sh);
+# the key is the repository secret INDIA_VAULT_KEY. On a day when nothing is due the job
+# stops after one quick check and never opens the vault.
+on:
+  schedule:
+    - cron: "30 3 * * *"        # 09:00 in India
+  workflow_dispatch: {}
+
+concurrency:
+  group: india-reveal
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  reveal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Anything due today?
+        id: due
+        run: |
+          today=$(date -u +%F)
+          due=$(grep -A1 'access: "private"' js/data.js | grep -o 'revealAfter: "[0-9-]*"' | grep -o '[0-9-]\{10\}' | awk -v t="$today" '$1 <= t' | wc -l)
+          echo "count=$due" >> "$GITHUB_OUTPUT"
+          echo "Notes due: $due"
+
+      - name: Open the vault
+        if: steps.due.outputs.count != '0'
+        env:
+          INDIA_VAULT_KEY: ${{ secrets.INDIA_VAULT_KEY }}
+        run: |
+          [ -n "$INDIA_VAULT_KEY" ] || { echo "The INDIA_VAULT_KEY secret is missing"; exit 1; }
+          printf '%s' "$INDIA_VAULT_KEY" > "$RUNNER_TEMP/key"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -md sha256 \
+            -in private/india-vault.tar.gz.enc -pass file:"$RUNNER_TEMP/key" | tar -xzf - -C "$RUNNER_TEMP"
+          rm -f "$RUNNER_TEMP/key"
+
+      - name: Publish matured notes
+        if: steps.due.outputs.count != '0'
+        run: |
+          python3 scripts/reveal_matured.py "$RUNNER_TEMP/vault/india-notes.json" --write --copy-from "$RUNNER_TEMP/vault/files"
+          node --check js/data.js
+          rm -rf "$RUNNER_TEMP/vault"
+
+      - name: Commit if changed
+        if: steps.due.outputs.count != '0'
+        run: |
+          git config user.name "india-reveal-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add js/data.js assets/files
+          if git diff --cached --quiet; then echo "No change"; exit 0; fi
+          git commit -m "Publish matured Indian notes ($(date -u +%F))"
+          git pull --rebase origin main
+          git push

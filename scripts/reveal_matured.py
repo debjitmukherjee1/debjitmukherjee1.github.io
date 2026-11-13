@@ -7,6 +7,10 @@ time after a note's date has passed:
 
     python3 scripts/reveal_matured.py ../PRIVATE/india-notes.json            # show what would change
     python3 scripts/reveal_matured.py ../PRIVATE/india-notes.json --write    # change js/data.js
+    python3 scripts/reveal_matured.py NOTES.json --write --copy-from FILES_DIR   # also copy the PDFs/models in
+
+The daily GitHub Action (.github/workflows/india-reveal.yml) runs the last form
+automatically, using the encrypted copy of the private folder in private/.
 
 For each matured note it puts the rating, target, full write-up and file links back into
 js/data.js and marks it `access: "matured"`, which the site shows as a historical
@@ -15,10 +19,11 @@ PRIVATE/India Research Pack/files/ into assets/files/. Run `node --check js/data
 afterwards. Ledger shows the matured call's record by itself (it publishes Indian calls
 once they are a year old).
 """
-import datetime, json, os, re, sys
+import datetime, json, os, re, shutil, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "..", "js", "data.js")
+FILES = os.path.join(HERE, "..", "assets", "files")
 
 
 def js(v):
@@ -60,6 +65,11 @@ def main():
     print("Copy these from 'PRIVATE/India Research Pack/files/' into assets/files/:\n  " + "\n  ".join(files))
     if write:
         open(DATA, "w").write(s)
+        if "--copy-from" in sys.argv:
+            src = sys.argv[sys.argv.index("--copy-from") + 1]
+            for f in files:
+                shutil.copy2(os.path.join(src, f), os.path.join(FILES, f))
+            print("Copied the files into assets/files/.")
     else:
         print("\n(dry run: add --write to change js/data.js)")
 
