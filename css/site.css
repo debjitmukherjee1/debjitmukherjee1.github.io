@@ -715,3 +715,35 @@ em { font-style: normal; }
 .pill.r-review { color: #ffb35c; border-color: #ffb35c; margin-left: 6px; }
 .sheet-flag { margin: 18px 0 0; padding: 14px 16px; border: 1px solid var(--line-2); border-radius: 14px; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); background: rgba(255, 255, 255, .03); }
 .foot p { max-width: 92ch; }
+
+/* ---------- research access page (access.html) ------------------------- */
+.ax { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, 520px); gap: clamp(32px, 6vw, 96px); padding-top: clamp(40px, 8vh, 96px); padding-bottom: clamp(80px, 14vh, 160px); align-items: start; }
+.ax-sec { padding-bottom: clamp(36px, 6vh, 64px); }
+.ax-intro { color: var(--ink-2); margin: 4px 0 6px; }
+.ax-list { border-top: 1px solid var(--line-2); counter-reset: none; }
+.ax-list li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 6px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.ax-list li .mono { color: var(--mute); padding-top: 3px; }
+.ax-list li p { font-size: 15.5px; line-height: 1.6; color: var(--ink); max-width: 66ch; }
+.ax-terms li p b { font-weight: 500; }
+.ax-privacy { font-size: 14.5px; line-height: 1.65; color: var(--ink-2); max-width: 66ch; border-top: 1px solid var(--line-2); padding-top: 16px; }
+.ax-side { position: sticky; top: calc(var(--nav-h) + 24px); }
+.ax-form, .ax-done { display: grid; gap: 14px; padding: clamp(20px, 2.4vw, 32px); border-radius: 24px; }
+.ax-form-h { font: 400 30px/1.1 var(--display); letter-spacing: -.02em; }
+.ax-form textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); font: 400 14px/1.5 var(--sans); padding: 10px 12px; resize: vertical; outline: none; }
+.ax-form textarea:focus { border-color: var(--ink-2); }
+.ax-form .field input[type="text"], .ax-form .field input[type="email"], .ax-form .field input[type="url"] { font-family: var(--sans); }
+.ax-notes { border: 0; padding: 0; margin: 0; }
+.ax-notes legend { font-size: 12.5px; color: var(--ink-2); margin-bottom: 8px; }
+#ax-notes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; }
+.ax-check { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 10px; align-items: start; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); cursor: pointer; }
+.ax-check input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--ink); }
+.ax-check b { color: var(--ink); font-weight: 500; }
+.ax-all { grid-column: 1 / -1; padding-bottom: 6px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.ax-agree { color: var(--ink); font-size: 14px; }
+.ax-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.ax-send { justify-self: start; }
+.ax-send[disabled] { opacity: .6; cursor: wait; }
+.ax-status { font-size: 13.5px; min-height: 1em; } .ax-status.err { color: var(--neg); }
+.ax-done p { color: var(--ink-2); }
+@media (max-width: 960px) { .ax { grid-template-columns: 1fr; } .ax-side { position: static; } }
+@media (max-width: 520px) { #ax-notes { grid-template-columns: 1fr; } .ax-form .fields.two { grid-template-columns: 1fr; } }

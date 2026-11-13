@@ -64,7 +64,15 @@ repository in `../PRIVATE/` (a recruiter pack to share privately, plus
 `INDIA_VAULT_KEY`, runs `scripts/reveal_matured.py` and commits the note as a
 "Matured call" with its PDF and model. After adding or changing an Indian note in
 `../PRIVATE`, run `sh scripts/seal_private.sh` and commit the vault.
-`python3 scripts/build_india_pack.py` refreshes the private recruiter pack (PDF). The site's live track record shows Indian calls only once they
+`python3 scripts/build_india_pack.py` refreshes the private recruiter pack (PDF).
+
+**Recruiter access page (`access.html`):** recruiters read the facts and terms and
+request the Indian notes. Each request goes to the Google Form "Research access
+requests (website)" in your Google account, which emails you; you then share the
+Drive folder "India Research Pack (private)" with the email given. The text (facts,
+terms, privacy note) is the `access:` section of `data.js`; bump `termsVersion`
+whenever the terms change. Facts marked `needsConfirming` stay hidden until you set
+`confirmed: true`. The site's live track record shows Indian calls only once they
 are a year old. US ratings show the date and price they were set at, and an
 "Under review" flag when the price has since moved through the rating.
 

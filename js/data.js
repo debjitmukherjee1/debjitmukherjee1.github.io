@@ -890,6 +890,51 @@ const siteData = {
   ],
 
   /* --------------------------------------------------------------------
+     RESEARCH ACCESS — the request page for the private Indian notes
+     (access.html, rendered by js/access.js).
+     - formAction / fields: the Google Form "Research access requests
+       (website)" in your Google account that receives each request, and its
+       field ids. Google emails you on every request; share the Drive folder
+       "India Research Pack (private)" with the email given. Change these
+       only if you make a new form.
+     - facts: statements shown to every requester. A fact with
+       needsConfirming: true stays hidden until you check it is true and set
+       confirmed: true.
+     - terms: what the requester agrees to. If you change them, change
+       termsVersion too, so each request records the version agreed to.
+     -------------------------------------------------------------------- */
+  access: {
+    formAction: "https://docs.google.com/forms/d/e/1FAIpQLSf90-LrEAQgzzmOn6ugR0adsnt__piiA44GgiLkL5j9A7z2YA/formResponse",
+    fields: {
+      name: "entry.203199067", email: "entry.1788100854", firm: "entry.577196572", role: "entry.2114480373",
+      linkedin: "entry.1042752667", notes: "entry.918227060", message: "entry.2080916818",
+      terms: "entry.2085524100", source: "entry.1914732434"
+    },
+    termsVersion: "1.0 (13 Nov 2026)",
+    responseTime: "I read every request myself and reply within two working days. If I share the notes, you will get a Google Drive invitation at the email you give.",
+    facts: [
+      { text: "I am Debjit Mukherjee, a second-year undergraduate on the B.Com (Honours & Research) programme at Amity University Kolkata, expected to graduate in 2029." },
+      { text: "I am not registered with the Securities and Exchange Board of India (SEBI) as a research analyst or an investment adviser, and I am not registered with any other financial regulator." },
+      { text: "The notes are student work. I prepared them myself from public information: company filings, results announcements, exchange data and published market prices. I did not use any non-public information." },
+      { text: "Each rating and price target is the output of my own valuation model on the date of the note. It is not updated after publication unless the note says so, and it may now be out of date." },
+      { text: "None of this is investment advice, a recommendation to buy, sell or hold any security, or an offer of any kind." },
+      { text: "Every target is set on a 12-month horizon. None of the Indian calls is a year old yet, so their returns so far are early readings, not evidence of accuracy." },
+      { text: "Each note is published in full on my website, with its outcome, once its 12-month horizon ends. Until then it is shared only privately, one person at a time." },
+      { text: "I hold no position in any company covered in these notes.", needsConfirming: true, confirmed: false },
+      { text: "I have not been paid by, and have no business relationship with, any company covered in these notes.", needsConfirming: true, confirmed: false }
+    ],
+    terms: [
+      { title: "Purpose", text: "You are asking for these materials only to assess me for a job, an internship, or an academic or professional purpose of the same kind." },
+      { title: "Keep them private", text: "You will not publish, post, forward or share the materials, or quote them in public, beyond the people at your firm involved in assessing me." },
+      { title: "No investment use", text: "You will not use the materials, or let anyone use them, as a basis for buying, selling or holding any security, or for advising anyone else to." },
+      { title: "No reliance", text: "The materials are provided as they are. They may contain errors, I give no warranty about them, and I accept no responsibility for any use of them." },
+      { title: "Accurate details", text: "The details you give below are true, and you are asking in a professional capacity." },
+      { title: "Access can be withdrawn", text: "I decide whether to share the materials, and I may withdraw access at any time. If I ask, you will delete any copies you have made." }
+    ],
+    privacy: "What I collect: the details in this form. Why: only to confirm who you are, reply to you and share the notes you ask for. Where it is kept: in a Google Form and its responses, in my own Google account. Who sees it: only me; I do not sell or share it. How long: until I have dealt with your request, and no more than 12 months after that. You can ask me to delete it at any time by emailing m.debjit2007@gmail.com."
+  },
+
+  /* --------------------------------------------------------------------
      WORKBENCH — the in-site calculators on lab.html (built in js/lab.js).
      Only the card text lives here: name, type and summary. id must match
      the calculator's id in lab.js (rdcf, lbo, merger, arb, ff, hurdle).

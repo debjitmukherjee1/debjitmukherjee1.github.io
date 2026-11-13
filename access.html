@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-019N8X8CC8"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-019N8X8CC8');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Page text comes from js/data.js, rendered by js/site.js. Design: css/site.css. -->
+  <title>Research access — Debjit Mukherjee</title>
+  <meta name="description" content="Request Debjit Mukherjee's private notes on Indian listed companies: the facts about the work, the terms of access, and the request form.">
+  <link rel="canonical" href="https://debjitmukherjee1.github.io/access">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Research access — Debjit Mukherjee">
+  <meta property="og:description" content="Request Debjit Mukherjee's private notes on Indian listed companies: the facts about the work, the terms of access, and the request form.">
+  <meta property="og:url" content="https://debjitmukherjee1.github.io/access">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#050505">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/site.css?v=100">
+  <script>
+    (function (d) {
+      d.classList.remove("no-js");
+      try {
+        if (sessionStorage.getItem("seen") || matchMedia("(prefers-reduced-motion: reduce)").matches) d.classList.add("loaded");
+      } catch (e) { d.classList.add("loaded"); }
+      setTimeout(function () { if (!window.gsap) d.classList.add("loaded"); }, 2500);
+    })(document.documentElement);
+  </script>
+</head>
+<body data-page="access" data-world="calm">
+
+
+  <!-- The landscape of every published call, drifting behind the page (js/stage.js). -->
+  <canvas id="stage" aria-hidden="true"></canvas>
+  <div class="veil" aria-hidden="true"></div>
+
+  <main id="main">
+
+    <!-- RESEARCH ACCESS: facts, terms and the request form. Text from js/data.js (access:), behaviour in js/access.js. -->
+    <header class="page-head">
+      <div class="wrap page-head-row">
+        <div><p class="sec-label mono">Debjit Mukherjee · Research access</p><h1 class="display">Request the Indian notes</h1></div>
+        <p class="lede">My notes on Indian listed companies, with their ratings, price targets and Excel models, are shared privately with recruiters and employers. Read the facts and the terms below, then send a request.</p>
+      </div>
+    </header>
+
+    <div class="wrap ax">
+      <div class="ax-copy">
+        <section class="ax-sec" aria-labelledby="ax-facts-h">
+          <h2 class="sec-label mono" id="ax-facts-h">The facts</h2>
+          <ol class="ax-list" id="ax-facts"></ol>
+        </section>
+        <section class="ax-sec" aria-labelledby="ax-terms-h">
+          <h2 class="sec-label mono" id="ax-terms-h">Terms of access</h2>
+          <p class="ax-intro">By sending a request you agree that:</p>
+          <ol class="ax-list ax-terms" id="ax-terms"></ol>
+          <p class="mono mute" id="ax-version"></p>
+        </section>
+        <section class="ax-sec" aria-labelledby="ax-priv-h">
+          <h2 class="sec-label mono" id="ax-priv-h">Your details</h2>
+          <p class="ax-privacy" id="ax-privacy"></p>
+        </section>
+      </div>
+
+      <div class="ax-side">
+        <form class="ax-form panel" id="ax-form" novalidate>
+          <h2 class="ax-form-h">Your request</h2>
+          <div class="fields two">
+            <div class="field"><label for="ax-name">Full name</label><div class="in"><input id="ax-name" name="name" type="text" autocomplete="name" required></div></div>
+            <div class="field"><label for="ax-email">Work email</label><div class="in"><input id="ax-email" name="email" type="email" autocomplete="email" required></div></div>
+            <div class="field"><label for="ax-firm">Firm</label><div class="in"><input id="ax-firm" name="firm" type="text" autocomplete="organization" required></div></div>
+            <div class="field"><label for="ax-role">Role</label><div class="in"><input id="ax-role" name="role" type="text" autocomplete="organization-title" required></div></div>
+          </div>
+          <div class="field"><label for="ax-li">LinkedIn profile <span class="mute">(optional; needed with a personal email)</span></label><div class="in"><input id="ax-li" name="linkedin" type="url" placeholder="https://www.linkedin.com/in/…"></div></div>
+          <fieldset class="ax-notes"><legend>Notes you would like</legend><div id="ax-notes"></div></fieldset>
+          <div class="field"><label for="ax-msg">Message <span class="mute">(optional)</span></label><textarea id="ax-msg" name="message" rows="3"></textarea></div>
+          <div class="ax-hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></div>
+          <label class="ax-check ax-agree"><input type="checkbox" name="agree"><span>I have read the facts and I agree to the terms of access.</span></label>
+          <label class="ax-check ax-agree"><input type="checkbox" name="capacity"><span>I am asking in a professional capacity, to assess Debjit for a role or an academic purpose, and not to make investment decisions.</span></label>
+          <label class="ax-check ax-agree"><input type="checkbox" name="privacyok"><span>I have read how my details will be used.</span></label>
+          <button class="btn btn-solid ax-send" type="submit">Send request</button>
+          <p class="ax-status" id="ax-status" role="status" aria-live="polite"></p>
+          <p class="note" id="ax-time"></p>
+        </form>
+        <div class="ax-done panel" id="ax-done" hidden>
+          <h2 class="ax-form-h">Request received</h2>
+          <p>Thank you. I will reply to <b id="ax-done-email"></b> within two working days. If I share the notes, the invitation will come from Google Drive.</p>
+          <p class="note">If you do not hear back, please email me directly.</p>
+          <a class="btn" href="research">Back to the research</a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <noscript><p style="padding:120px 24px;font-family:sans-serif">This form needs JavaScript. To ask for the notes, email <a href="mailto:m.debjit2007@gmail.com">m.debjit2007@gmail.com</a>.</p></noscript>
+
+  <!-- Motion libraries (free; served from this site), then content, then behaviour. -->
+  <script src="js/vendor/gsap.min.js"></script>
+  <script src="js/vendor/ScrollTrigger.min.js"></script>
+  <script src="js/vendor/lenis.min.js"></script>
+  <script src="js/data.js?v=15"></script>
+  <script src="js/site.js?v=100"></script>
+  <script src="js/access.js?v=100"></script>
+  <script type="module" src="js/ambient.js?v=100"></script>
+</body>
+</html>

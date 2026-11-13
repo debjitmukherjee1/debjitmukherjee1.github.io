@@ -28,7 +28,8 @@
       '<div class="cv-links"><a href="mailto:' + esc(h.email) + '">' + esc(h.email) + "<span>Email</span></a>" +
       '<a href="' + esc(h.linkedinUrl) + '" target="_blank" rel="noopener">LinkedIn<span>↗</span></a>' +
       '<a href="research">Research library<span>' + DM.MODELS.length + " notes</span></a>" +
-      '<a href="https://debjitmukherjee1.github.io/ledger/" target="_blank" rel="noopener">Track record<span>Ledger ↗</span></a></div>' +
+      '<a href="https://debjitmukherjee1.github.io/ledger/" target="_blank" rel="noopener">Track record<span>Ledger ↗</span></a>' +
+      '<a href="access">Indian notes (private)<span>Request</span></a></div>' +
       '<dl class="cv-facts">' + (h.stats || []).map(function (s) { return "<div><dt>" + esc(s.label) + "</dt><dd>" + s.value + esc(s.suffix || "") + "</dd></div>"; }).join("") + facts + "</dl>";
   }
 

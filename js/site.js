@@ -163,7 +163,8 @@
       '<a href="mailto:' + esc(hero.email) + '">' + esc(hero.email) + "<span>EMAIL ↗</span></a>" +
       '<a href="' + esc(hero.linkedinUrl) + '" target="_blank" rel="noopener">LinkedIn<span>CONNECT ↗</span></a>' +
       '<a href="' + esc(hero.resumeUrl) + '" target="_blank" rel="noopener">Curriculum vitae<span>PDF ↓</span></a>' +
-      '<a href="https://debjitmukherjee1.github.io/ledger/" target="_blank" rel="noopener">Public track record<span>LEDGER ↗</span></a></div></div>' +
+      '<a href="https://debjitmukherjee1.github.io/ledger/" target="_blank" rel="noopener">Public track record<span>LEDGER ↗</span></a>' +
+      '<a href="access">Request the Indian notes<span>RECRUITERS</span></a></div></div>' +
       '<p class="wordmark" aria-hidden="true">' + esc(first) + " <em>" + esc(last) + "</em></p></div>" +
       '<footer class="foot"><div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 32px"><p>© ' + new Date().getFullYear() + " " + esc(hero.name) + ". Student valuation work from public filings, published for learning and discussion. Nothing on this site is a recommendation to buy, sell or hold any security, or investment advice. I am not registered with SEBI as a research analyst or investment adviser, or with any other regulator. Notes on Indian listed companies carry no public rating or price target until their 12-month horizon has ended. Check each note for its holdings disclosure.</p><p>" + esc(hero.personalLine || "") + "</p></div></footer>";
     document.body.appendChild(c);
@@ -264,7 +265,7 @@
       (s.methodologyNote ? "<h4>How it's valued</h4><div class=\"body\"><p>" + esc(s.methodologyNote) + "</p></div>" : "") +
       (s.methods ? bullets(s.methods.map(function (x) { return x.role + " — " + x.method + (x.detail ? ": " + x.detail : ""); })) : "") +
       '<div class="sheet-actions">' +
-      (m.note ? '<a class="btn btn-solid" href="mailto:' + esc(hero.email) + "?subject=" + encodeURIComponent("Request: full note on " + m.name) + '">Request the full note <span class="arr">↗</span></a>' : "") +
+      (m.note ? '<a class="btn btn-solid" href="access?note=' + encodeURIComponent(m.tk || "") + '">Request the full note <span class="arr">↗</span></a>' : "") +
       (s.fileUrl ? '<a class="btn btn-solid" href="' + esc(s.fileUrl) + '" target="_blank" rel="noopener">' + esc(s.fileLabel || "Read the report") + ' <span class="arr">↗</span></a>' : "") +
       (s.fileUrl2 ? '<a class="btn" href="' + esc(s.fileUrl2) + '" download>' + esc(s.fileLabel2 || "Download the model") + " ↓</a>" : "") +
       (call ? '<a class="btn" href="https://debjitmukherjee1.github.io/ledger/" target="_blank" rel="noopener">Track record ↗</a>' : "") + "</div>" +
@@ -311,6 +312,7 @@
     (D.deals || []).filter(function (d) { return d.published; }).forEach(function (d) { palItems.push({ g: "Deals", k: "DEAL #" + d.series, t: d.title, h: d.status, run: function () { openDeal(d); } }); });
     (D.workbench || []).forEach(function (w) { palItems.push({ g: "Workbench", k: "CALC", t: w.name + " — " + w.type, h: "Open", run: function () { location.href = "lab#" + w.id; if (PAGE === "lab") location.reload(); } }); });
     (D.tools || []).filter(function (t) { return t.url; }).forEach(function (t) { palItems.push({ g: "Live tools", k: "APP", t: t.name + " — " + t.type, h: "Launch ↗", run: function () { window.open(t.url, "_blank", "noopener"); } }); });
+    palItems.push({ g: "Actions", k: "ACCESS", t: "Request the private Indian notes", h: "Recruiters", run: function () { location.href = "access"; } });
     palItems.push({ g: "Actions", k: "CV", t: "Download the CV (PDF)", h: "File", run: function () { window.open(hero.resumeUrl, "_blank", "noopener"); } });
     palItems.push({ g: "Actions", k: "MAIL", t: "Email " + hero.email, h: "Contact", run: function () { location.href = "mailto:" + hero.email; } });
     palItems.push({ g: "Actions", k: "IN", t: "Open LinkedIn", h: "Contact", run: function () { window.open(hero.linkedinUrl, "_blank", "noopener"); } });
