@@ -897,7 +897,9 @@ const siteData = {
        field ids. Google emails you on every request; share the Drive folder
        "India Research Pack (private)" with the email given. Change these
        only if you make a new form.
-     - facts: statements shown to every requester. A fact with
+     - facts: statements shown to every requester. The holdings fact is
+       dated: if you buy shares in a covered company, update it (and the
+       note) before sharing that note, and change the date. A fact with
        needsConfirming: true stays hidden until you check it is true and set
        confirmed: true.
      - terms: what the requester agrees to. If you change them, change
@@ -920,7 +922,7 @@ const siteData = {
       { text: "None of this is investment advice, a recommendation to buy, sell or hold any security, or an offer of any kind." },
       { text: "Every target is set on a 12-month horizon. None of the Indian calls is a year old yet, so their returns so far are early readings, not evidence of accuracy." },
       { text: "Each note is published in full on my website, with its outcome, once its 12-month horizon ends. Until then it is shared only privately, one person at a time." },
-      { text: "I hold no shares in any company covered in these notes. My only investments are units in HDFC Mutual Fund schemes. HDFC Mutual Fund is run by HDFC Asset Management Company, a separate company from HDFC Bank, and I do not choose which stocks those schemes hold, so they may include companies covered here.", needsConfirming: true, confirmed: true },
+      { text: "As of 13 Nov 2026, I hold no shares in any company covered in these notes. My only investments are units in HDFC Mutual Fund schemes. HDFC Mutual Fund is run by HDFC Asset Management Company, a separate company from HDFC Bank, and I do not choose which stocks those schemes hold, so they may include companies covered here.", needsConfirming: true, confirmed: true },
       { text: "I have never been paid by any company covered in these notes, and I do not work for or advise any of them.", needsConfirming: true, confirmed: true }
     ],
     terms: [
