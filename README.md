@@ -16,8 +16,9 @@ The site is six pages: `index.html` (Overview), `research.html`, `deals.html`,
 `leadership`, `education`, `credentials` and `skills` by `js/about.js`). Each
 page holds only its section shells; `js/site.js` fills them from `js/data.js`
 and adds the shared nav, search palette (Ctrl/Cmd-K), detail drawer, contact
-block and footer. Motion uses GSAP, ScrollTrigger and Lenis from a free CDN;
-if they fail to load the site still works, just without animation.
+block and footer. Motion uses GSAP, ScrollTrigger and Lenis, and the 3D scene
+uses three.js; all four are free and served from `js/vendor/` on this site, not a
+CDN. If the 3D scene can't load, every page still shows all of its content.
 
 ## Folder structure
 
