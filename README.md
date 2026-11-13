@@ -1,7 +1,10 @@
 # Debjit's Portfolio Website — Maintenance Guide
 
 This is a plain HTML/CSS/JavaScript website. No build step, no framework, no
-backend. Open `index.html` in a browser and it works. It's written so that a
+backend. To preview it locally, serve the folder (for example `python3 -m http.server`
+in this folder, then open http://localhost:8000). Opening `index.html` straight from
+the disk (file://) does not work fully: browsers block the 3D scene module and the
+live price data there. It's written so that a
 non-developer (or an AI assistant in a fresh conversation) can update it safely.
 
 ## The one rule
@@ -130,14 +133,16 @@ placeholder frame instead of breaking.
 of: `education`, `leadership`, `experience`, `models`, `credentials`, `skills`,
 `contact`.
 
-**Change the browser-tab title / share description:** edit the `meta:` section.
+**Change the browser-tab title / share description:** edit the `<title>` and
+`<meta name="description">` / `og:` tags at the top of each `.html` page. The
+share image is `assets/og.png` (1200×630).
 
 ## Editing tips
 
 - Keep the double quotes around every value. If your text contains a double
   quote, write it as `\"`.
 - Every entry in a list ends with a comma except optionally the last one.
-- After editing, open `index.html` in a browser. If the page comes up blank or
+- After editing, run `node --check js/data.js`, then reload the local preview. If the page comes up blank or
   a section is empty, you most likely deleted a comma, quote, or brace — check
   your last edit.
 - Compress photos before adding them (aim for under ~300 KB each; any free

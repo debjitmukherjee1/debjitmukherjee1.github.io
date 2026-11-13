@@ -50,7 +50,7 @@ function renderIntro() {
   const h = hero.headline || [hero.tagline || ""];
   $("#h-word").innerHTML = esc(hero.name || "").split(" ").map(w => "<span>" + esc(w) + "</span>").join(" ");
   $("#h-line").innerHTML = h.map((l, i) => '<span class="hl' + (i === h.length - 1 ? " em" : "") + '"><span>' + esc(l) + "</span></span>").join("");
-  $("#h-cta").innerHTML = '<a class="btn btn-solid" href="research" data-cursor="Read">The research <span class="arr">↗</span></a><a class="btn" href="mailto:' + esc(hero.email) + '">Email</a><a class="btn" href="' + esc(hero.resumeUrl) + '" target="_blank" rel="noopener">CV (PDF)</a><a class="btn" href="' + esc(hero.linkedinUrl) + '" target="_blank" rel="noopener">LinkedIn</a>';
+  $("#h-cta").innerHTML = '<a class="btn btn-solid" href="research">The research <span class="arr">↗</span></a><a class="btn" href="mailto:' + esc(hero.email) + '">Email</a><a class="btn" href="' + esc(hero.resumeUrl) + '" target="_blank" rel="noopener">CV (PDF)</a><a class="btn" href="' + esc(hero.linkedinUrl) + '" target="_blank" rel="noopener">LinkedIn</a>';
   $("#h-status").innerHTML = '<p class="h-who">' + esc(hero.status || "") + '</p><p class="h-seek"><span class="pill live r-accumulate">' + esc(hero.seeking || "Open to opportunities") + '</span><span id="h-live"></span></p>';
   fitWord();
 }
@@ -66,18 +66,19 @@ function renderCalls(list) {
   const host = $("#h-calls-inner"), LED = DM.led() || {};
   host.innerHTML = list.map((m, i) => {
     const s = m.src;
-    return '<article class="call-ch" data-i="' + i + '" data-rating="' + esc(m.rating) + '" aria-label="' + esc(m.name) + '">' +
+    return '<article class="call-ch" data-i="' + i + '" data-rating="' + esc(m.rating) + '" aria-labelledby="cc-h' + i + '">' +
+      '<h3 class="sr-only" id="cc-h' + i + '">Call ' + (i + 1) + " of " + list.length + ": " + esc(m.name) + " (" + esc(m.tk) + "), " + esc(m.rating) + "</h3>" +
       '<p class="cc-top mono"><b>Call ' + ("0" + (i + 1)).slice(-2) + " / " + ("0" + list.length).slice(-2) + "</b><span>" + esc([m.sector, m.market, m.date].join(" · ")) + "</span></p>" +
-      '<h3 class="cc-tk" aria-hidden="true" style="--n:' + m.tk.length + '">' + esc(m.tk).split("").map(ch => '<span><i>' + esc(ch) + "</i></span>").join("") + "</h3>" +
+      '<div class="cc-tk" aria-hidden="true" style="--n:' + m.tk.length + '">' + esc(m.tk).split("").map(ch => '<span><i>' + esc(ch) + "</i></span>").join("") + "</div>" +
       '<div class="cc-side glass"><span class="cc-stamps"><span class="stamp s-' + m.rating.toLowerCase() + '">' + esc(m.rating) + '</span><span class="cc-asof mono" data-asof="' + esc(m.id) + '">' + esc(m.date ? "Published " + m.date : "") + "</span></span>" +
       '<p class="cc-name">' + esc(m.name) + "</p>" +
       '<p class="cc-thesis">' + esc(s.thesis) + "</p>" +
       '<dl class="cc-nums"><div><dt>Fair value</dt><dd>' + esc(m.fv || "—") + "</dd></div><div><dt>Against price</dt><dd>" + (m.upside == null ? "—" : pct(m.upside)) + "</dd></div>" +
       '<div class="cc-live" hidden><dt>Since the call</dt><dd data-since="' + esc(m.id) + '">—</dd></div><div class="cc-live" hidden><dt data-bench-l="' + esc(m.id) + '">Benchmark</dt><dd data-bench="' + esc(m.id) + '">—</dd></div></dl>' +
-      '<button class="btn btn-solid" type="button" data-open="' + esc(m.id) + '" data-cursor="Open">Open the note <span class="arr">↗</span></button></div></article>';
+      '<button class="btn btn-solid" type="button" data-open="' + esc(m.id) + '">Open the note <span class="arr">↗</span></button></div></article>';
   }).join("") +
-    '<article class="call-ch call-more" data-i="' + list.length + '" data-rating="open"><p class="cc-top mono"><b>And the rest</b><span>' + DM.MODELS.length + ' notes · every model attached</span></p><h3 class="cc-tk cc-tk-sm" style="--n:2"><span><i>' + DM.COVERED.length + '</i></span></h3><div class="cc-side"><p class="cc-name">companies covered</p><p class="cc-thesis">Banks on excess return. Conglomerates on sum of the parts. Staples on dividends. US names are rated against the bond yield; Indian notes are shared privately and published in full once their 12-month horizon ends.</p><a class="btn btn-solid" href="research" data-cursor="Go">The full library <span class="arr">↗</span></a></div></article>';
-  $("#h-rail").innerHTML = list.map((m, i) => '<button type="button" data-go="' + i + '">' + esc(m.tk) + "</button>").join("") + '<button type="button" data-go="' + list.length + '">ALL</button>';
+    '<article class="call-ch call-more" data-i="' + list.length + '" data-rating="open"><p class="cc-top mono"><b>And the rest</b><span>' + DM.MODELS.length + ' notes · every model attached</span></p><h3 class="sr-only">All ' + DM.COVERED.length + ' companies covered</h3><div class="cc-tk cc-tk-sm" aria-hidden="true" style="--n:2"><span><i>' + DM.COVERED.length + '</i></span></div><div class="cc-side"><p class="cc-name">companies covered</p><p class="cc-thesis">Banks on excess return. Conglomerates on sum of the parts. Staples on dividends. US names are rated against the bond yield; Indian notes are shared privately and published in full once their 12-month horizon ends.</p><a class="btn btn-solid" href="research">The full library <span class="arr">↗</span></a></div></article>';
+  $("#h-rail").innerHTML = list.map((m, i) => '<button type="button" data-go="' + i + '" aria-label="Call ' + (i + 1) + ": " + esc(m.name) + '">' + esc(m.tk) + "</button>").join("") + '<button type="button" data-go="' + list.length + '" aria-label="All companies covered">ALL</button>';
 }
 function fillCalls() {
   const LED = DM.led() || {};
@@ -107,13 +108,13 @@ function renderTools() {
   const host = $("#h-tools-track"); if (!host) return;
   const tools = (D.tools || []), bench = (D.workbench || []);
   host.innerHTML = '<div class="tp tp-lead"><p class="sec-label mono">Tools</p><h2>I also build<br>the <em>software.</em></h2><p>' + tools.length + " live apps and " + bench.length + ' calculators. Free, in the browser, no sign-up.</p><p class="mono mute tp-hint">Keep scrolling →</p></div>' +
-    tools.map((t, i) => '<a class="tp" href="' + esc(t.url) + '" target="_blank" rel="noopener" data-cursor="Launch" style="--tilt:' + (i % 2 ? 1.6 : -1.6) + 'deg"><div class="tp-shot"><div class="tp-bar"><i></i><i></i><i></i><span>' + esc(t.url.replace("https://", "")) + '</span></div><img src="assets/images/tools/' + esc(t.name.toLowerCase()) + '.jpg" alt="Screenshot of ' + esc(t.name) + '" loading="lazy" onerror="this.remove()"></div><div class="tp-meta"><span class="mono">' + ("0" + (i + 1)).slice(-2) + " · " + esc(t.type) + "</span><h3>" + esc(t.name) + "</h3><p>" + esc(t.summary) + "</p></div></a>").join("") +
-    '<div class="tp tp-bench"><p class="sec-label mono">Workbench</p><h3>Six calculators,<br>built into this site.</h3><ul>' + bench.map((w, i) => '<li><a href="lab#' + esc(w.id) + '" data-cursor="Open"><span class="mono">' + ("0" + (i + 1)).slice(-2) + "</span><b>" + esc(w.name) + "</b><i>" + esc(w.type) + "</i>" + ARROW + "</a></li>").join("") + "</ul></div>";
+    tools.map((t, i) => '<a class="tp" href="' + esc(t.url) + '" target="_blank" rel="noopener" style="--tilt:' + (i % 2 ? 1.6 : -1.6) + 'deg"><div class="tp-shot"><div class="tp-bar"><i></i><i></i><i></i><span>' + esc(t.url.replace("https://", "")) + '</span></div><img src="assets/images/tools/' + esc(t.name.toLowerCase()) + '.jpg" alt="Screenshot of ' + esc(t.name) + '" loading="lazy" onerror="this.remove()"></div><div class="tp-meta"><span class="mono">' + ("0" + (i + 1)).slice(-2) + " · " + esc(t.type) + "</span><h3>" + esc(t.name) + "</h3><p>" + esc(t.summary) + "</p></div></a>").join("") +
+    '<div class="tp tp-bench"><p class="sec-label mono">Workbench</p><h3>Six calculators,<br>built into this site.</h3><ul>' + bench.map((w, i) => '<li><a href="lab#' + esc(w.id) + '"><span class="mono">' + ("0" + (i + 1)).slice(-2) + "</span><b>" + esc(w.name) + "</b><i>" + esc(w.type) + "</i>" + ARROW + "</a></li>").join("") + "</ul></div>";
 }
 function renderDeals() {
   const host = $("#h-deals"); if (!host) return;
   const list = (D.deals || []).filter(d => d.published).sort((a, b) => b.series - a.series);
-  host.innerHTML = list.map(d => '<button class="deal-x" type="button" data-deal-open="' + esc(d.id) + '" data-cursor="Open"><span class="mono dx-top"><span>Deal Decoded #' + d.series + " · " + esc(d.sector) + '</span><span class="pill ' + (d.status === "Pending" ? "live r-accumulate" : "r-hold") + '">' + esc(d.status) + "</span></span>" +
+  host.innerHTML = list.map(d => '<button class="deal-x" type="button" data-deal-open="' + esc(d.id) + '"><span class="mono dx-top"><span>Deal Decoded #' + d.series + " · " + esc(d.sector) + '</span><span class="pill ' + (d.status === "Pending" ? "live r-accumulate" : "r-hold") + '">' + esc(d.status) + "</span></span>" +
     '<h3>' + esc(d.acquirer) + '<em>×</em>' + esc(d.target.replace(/\s*\(.*\)/, "")) + "</h3>" +
     '<p class="dx-hook">' + esc(d.hook) + "</p>" +
     '<span class="dx-keys">' + (d.keyNumbers || []).slice(0, 3).map(k => "<span><b>" + esc(k.value) + "</b>" + esc(k.label) + "</span>").join("") + "</span>" +
@@ -123,7 +124,7 @@ function renderDeals() {
 }
 function renderAbout() {
   const exp = $("#h-exp");
-  if (exp) exp.innerHTML = (D.experience || []).map(x => '<a class="xp" href="about#experience" data-cursor="Profile"><span class="mono">' + esc(x.dates) + "</span><h3>" + esc(x.company) + '</h3><span class="xp-role">' + esc(x.role) + "</span>" + ARROW + "</a>").join("");
+  if (exp) exp.innerHTML = (D.experience || []).map(x => '<a class="xp" href="about#experience"><span class="mono">' + esc(x.dates) + "</span><h3>" + esc(x.company) + '</h3><span class="xp-role">' + esc(x.role) + "</span>" + ARROW + "</a>").join("");
   const sk = $("#h-skills");
   if (sk && D.skills) sk.innerHTML = '<div class="wrap"><h3 class="sec-label mono">Skills</h3><div class="chips">' + (D.skills.technical || []).map(s => '<span class="chip">' + esc(s) + "</span>").join("") + "</div></div>";
 }
@@ -139,7 +140,7 @@ function aim(i, dur) {
 function showChapter(i) {
   if (i === activeCh) return; const prev = activeCh; activeCh = i;
   const chs = $$(".call-ch"), ch = chs[i];
-  $$("#h-rail button").forEach((b, j) => b.classList.toggle("on", j === i));
+  $$("#h-rail button").forEach((b, j) => { b.classList.toggle("on", j === i); if (j === i) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current"); });
   chs.forEach((c, j) => c.classList.toggle("on", j === i));
   if (!ch) return;
   aim(i, 1.1);
@@ -158,7 +159,7 @@ function showChapter(i) {
   gsap.fromTo($(".cc-side", ch), { y: 60 * dir, opacity: 0, scale: .96 }, { y: 0, opacity: 1, scale: 1, duration: .9, ease: "power3.out", overwrite: true });
 }
 function choreograph() {
-  if (!MOTION) { root.classList.add("static-home"); setWorld("open", 0); return; }
+  if (!MOTION || innerHeight < 560) { root.classList.add("static-home"); setWorld("open", 0); return; }
   gsap.registerPlugin(ScrollTrigger);
   // intro: the headline grows and passes as the camera dives
   const intro = gsap.timeline({ scrollTrigger: { trigger: ".h-intro", start: "top top", end: "+=70%", pin: true, scrub: .6,
@@ -224,14 +225,14 @@ renderIntro(); renderTools(); renderDeals(); renderAbout();
 list = chapters(); renderCalls(list);
 choreograph(); tactile();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitWord);
-addEventListener("resize", fitWord);
+let fitT; addEventListener("resize", () => { clearTimeout(fitT); fitT = setTimeout(fitWord, 120); });
 if (DM.introDone) introIn(); else addEventListener("dm:intro", introIn, { once: true });
 Promise.race([DM.ledgerReady, new Promise(r => setTimeout(r, 6000))]).then(() => {
   fillCalls(); renderRecord();
   if (window.ScrollTrigger) ScrollTrigger.refresh();
   const calls = DM.calls().slice().sort((a, b) => a.call_date < b.call_date ? 1 : -1);   // newest nearest the camera
   if (!calls.length || DM.REDUCED) return;
-  import("./stage.js?v=110").then(mod => {
+  import("./stage.js?v=120").then(mod => {
     S = mod; S.buildStage(calls);
     if (!ST().ok) { S = null; return; }
     if (activeCh > -1) aim(activeCh, 0); else setWorld("open", 0);

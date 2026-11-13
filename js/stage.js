@@ -5,7 +5,7 @@
    call, height = return since, depth = order of publication (newest nearest).
    Exports the scene controls used by home.js (camera views, focusing a ridge,
    changing the colour of the "world") and by the small ambient script on the
-   inner pages. Pointing at the landscape names the nearest call; clicking it
+   inner pages. Pointing at the landscape names the nearest call; the notes
    opens the note. three.js is free (MIT) and served from js/vendor/ on this site.
    ========================================================================== */
 import * as THREE from "./vendor/three.module.min.js";
@@ -143,16 +143,18 @@ export function buildStage(calls) {
   const cur = { p: stage.goal.p.clone().add(new THREE.Vector3(0, 9, 10)), l: stage.goal.l.clone() }, mouse = { x: 0, y: 0, sx: 0, sy: 0 };
   addEventListener("pointermove", e => { mouse.x = e.clientX / innerWidth - .5; mouse.y = e.clientY / innerHeight - .5; }, { passive: true });
   function size() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); }
-  size(); addEventListener("resize", size);
+  size(); let rsT; addEventListener("resize", () => { clearTimeout(rsT); rsT = setTimeout(size, 150); });
+  // if the GPU drops the context (driver reset, too many tabs), fall back to the plain page instead of a black frame
+  canvas.addEventListener("webglcontextlost", e => { e.preventDefault(); canvas._lost = true; canvas.style.opacity = "0"; });
 
   const baseFov = cam.fov; let fov = baseFov;
   let last = performance.now(), running = true;
   // Slow machine (software rendering, an old integrated GPU): after a short sample, stop animating the
   // landscape and draw it only while the camera is moving. Glass effects are switched off too (.low-power).
   let sampleFrames = 0, sampleStart = 0, slow = false, frameNo = 0;
-  document.addEventListener("visibilitychange", () => { running = !document.hidden; if (running) { last = performance.now(); requestAnimationFrame(frame); } });
+  document.addEventListener("visibilitychange", () => { running = !document.hidden && !canvas._lost; if (running) { last = performance.now(); requestAnimationFrame(frame); } });
   function frame(now) {
-    if (!running) return;
+    if (!running || canvas._lost) return;
     const dt = Math.min(.05, (now - last) / 1000); last = now;
     const k = 1 - Math.exp(-dt * 2.4);
     cur.p.lerp(stage.goal.p, k); cur.l.lerp(stage.goal.l, k);
@@ -183,7 +185,7 @@ export function buildStage(calls) {
     gsap.to(r.lm.uniforms.uDraw, { value: 1, duration: 2.2, delay: .2 + i * .045, ease: "power2.inOut" });
     gsap.to(r.rise, { value: 1, duration: 2.4, delay: .5 + i * .05, ease: "elastic.out(1, .55)" });     // the landscape rises out of a flat sea, nearest ridge first
   });
-  // point at the landscape: the nearest call lights up and names itself; click opens the note
+  // point at the landscape: the nearest call lights up and names itself
   const tip = document.createElement("div"); tip.className = "ridge-tip"; document.body.appendChild(tip);
   const v3 = new THREE.Vector3();
   function pick(e) {
@@ -203,7 +205,6 @@ export function buildStage(calls) {
   stage.hoverOff = () => hoverRidge(-1);
   if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
     addEventListener("pointermove", pick, { passive: true });
-    addEventListener("click", e => { if (stage.hover < 0 || stage.active > -1 || (e.target.closest && e.target.closest("a,button,input,.sheet,.pal,.nav,[data-open],tr"))) return; const tk = stage.ridges[stage.hover].call.ticker, m = DM.MODELS.find(x => x.tk === tk); if (m) DM.openResearch(m); });
   }
 }
 export function goView(v) { if (!stage.ok || !v) return; stage.goal.p.copy(v.p); stage.goal.l.copy(v.l); }

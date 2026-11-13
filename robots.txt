@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /private/
+Disallow: /scripts/
+
+Sitemap: https://debjitmukherjee1.github.io/sitemap.xml

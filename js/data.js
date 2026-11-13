@@ -60,16 +60,15 @@ const siteData = {
     portraitImage: "",
     /* Backdrop photo behind the masthead (heavily darkened by the site
        so text stays readable). Set to "" for a plain background. */
-    backdropImage: "assets/images/skyline.jpg",
     /* A short human line shown near the footer. Set to "" to hide. */
     personalLine: "Languages: English, Hindi, Bengali · Interests: financial modelling, industry research, football, Tae Kwon Do",
     /* Stats shown under the bio — the numbers count up when the page loads.
        value must be a plain number; suffix is text glued after it ("+", "%", ""). */
     stats: [
       { value: 23, suffix: "",  label: "Companies covered" },
-      { value: 27, suffix: "",  label: "Research reports & models" },
-      { value: 3,  suffix: "",  label: "Internships" },
-      { value: 9,  suffix: "",  label: "Bank job simulations" }
+      { value: 12, suffix: "",  label: "US calls on the public record" },
+      { value: 11, suffix: "",  label: "Indian notes (private until a year old)" },
+      { value: 3,  suffix: "",  label: "Internships" }
     ]
   },
 
@@ -233,7 +232,7 @@ const siteData = {
       role: "Student Equity Research Analyst",
       dates: "Jul 2026 – present",
       location: "Remote",
-      summary: "Independent equity research contributor — authoring U.S.-listed company reports and valuation models for editorial review and publication.",
+      summary: "Vireo is a student-run equity research collective. I author reports and valuation models on U.S.-listed companies, which go through its editorial review before publication.",
       bullets: [
         "Author full equity research notes and DCF/comps valuation models on U.S.-listed companies, rebuilt to Vireo's house template and methodology",
         "Reconcile each valuation against an independent model — intrinsic value and blended target within ±2%, rating identical — before editorial submission",
@@ -517,7 +516,7 @@ const siteData = {
     },
     {
       title: "Amazon.com (AMZN) — Equity Research Note",
-      sector: "Consumer",
+      sector: "Consumer Discretionary",
       market: "US",
       featured: false,
       date: "Jul 2026",
@@ -551,7 +550,7 @@ const siteData = {
     },
     {
       title: "Tesla, Inc. (TSLA) — Equity Research Note",
-      sector: "Autos & EV",
+      sector: "Automobiles",
       market: "US",
       featured: false,
       date: "Jul 2026",
@@ -568,7 +567,7 @@ const siteData = {
     },
     {
       title: "Visa Inc. (V) — Equity Research Report",
-      sector: "Payments",
+      sector: "Financials",
       market: "US",
       featured: true,
       date: "Jul 2026",
@@ -585,7 +584,7 @@ const siteData = {
     },
     {
       title: "Coca-Cola (KO) — Equity Research Note",
-      sector: "Consumer",
+      sector: "Consumer Staples",
       market: "US",
       featured: false,
       date: "Jul 2026",
@@ -593,7 +592,7 @@ const siteData = {
       rating: "HOLD",
       targetPrice: "$86 (−1%)",
       impliedValue: "",
-      detail: "Q2 FY2026 (reported 28 Jul) beat on both lines — comparable EPS $0.97 vs $0.93, revenue $13.4bn (+7%) — and management raised full-year guidance, sending the stock ~3.5% higher to a fresh all-time high near $87. Valued four ways, DDM-led for a 64-year dividend King (Gordon ~$99, 27x P/E ~$87, EV/EBITDA ~$78, DCF floor ~$59): blended fair value ~$86, essentially the price. With a ~2.4% yield, total return is ~+1%; the DDM leans on a generous 5% perpetual-growth assumption, so risk is skewed down. Moved to HOLD (from ACCUMULATE) — quality fully priced; I'd build again toward the high-$70s.",
+      detail: "Q2 FY2026 (reported 28 Jul) beat on both lines — comparable EPS $0.97 vs $0.93, revenue $13.4bn (+7%) — and management raised full-year guidance, sending the stock ~3.5% higher to a fresh all-time high near $87. Valued four ways, DDM-led for a 64-year Dividend King (Gordon ~$99, 27x P/E ~$87, EV/EBITDA ~$78, DCF floor ~$59): blended fair value ~$86, essentially the price. With a ~2.4% yield, total return is ~+1%; the DDM leans on a generous 5% perpetual-growth assumption, so risk is skewed down. Moved to HOLD (from ACCUMULATE) — quality fully priced; I'd build again toward the high-$70s.",
       fileUrl: "assets/files/coca-cola-research-note.pdf",
       fileLabel: "Read the research note (PDF)",
       fileUrl2: "assets/files/coca-cola-business-model.xlsx",
@@ -621,7 +620,7 @@ const siteData = {
     },
     {
       title: "Hindustan Unilever (HINDUNILVR) — Investment Report",
-      sector: "Consumer",
+      sector: "Consumer Staples",
       market: "India",
       access: "private",              /* full note in PRIVATE/india-notes.json */
       revealAfter: "2027-07-14",
@@ -640,7 +639,7 @@ const siteData = {
     },
     {
       title: "Tata Consultancy Services (TCS) — Equity Research Report",
-      sector: "IT Services",
+      sector: "Technology",
       market: "India",
       access: "private",              /* full note in PRIVATE/india-notes.json */
       revealAfter: "2027-06-18",
@@ -659,7 +658,7 @@ const siteData = {
     },
     {
       title: "Infosys (INFY) — Equity Research Report",
-      sector: "IT Services",
+      sector: "Technology",
       market: "India",
       access: "private",              /* full note in PRIVATE/india-notes.json */
       revealAfter: "2027-07-02",
@@ -678,7 +677,7 @@ const siteData = {
     },
     {
       title: "HDFC Bank (HDFCBANK) — Equity Research Report",
-      sector: "Banking",
+      sector: "Financials",
       market: "India",
       access: "private",              /* full note in PRIVATE/india-notes.json */
       revealAfter: "2027-06-25",
@@ -697,7 +696,7 @@ const siteData = {
     },
     {
       title: "ICICI Bank (ICICIBANK) — Equity Research Report",
-      sector: "Banking",
+      sector: "Financials",
       market: "India",
       access: "private",              /* full note in PRIVATE/india-notes.json */
       revealAfter: "2027-07-06",
@@ -978,7 +977,7 @@ const siteData = {
       name: "CFA Program — Level I",
       issuer: "CFA Institute",
       status: "Candidate — target 2027",
-      progress: 35,
+      progress: null,
       detail: "Registered Level I candidate studying alongside the degree, with a 2027 exam target."
     },
     {

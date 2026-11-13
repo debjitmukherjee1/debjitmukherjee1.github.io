@@ -64,8 +64,7 @@
   }).join("");
 
   var sk = $("#cv-skills");
-  if (sk && D.skills) sk.innerHTML = '<div><h3 class="mono mute">Technical</h3><div class="chips">' + (D.skills.technical || []).map(function (s) { return '<span class="chip">' + esc(s) + "</span>"; }).join("") + "</div></div>" +
-    '<div><h3 class="mono mute">Working style</h3><div class="chips">' + (D.skills.soft || []).map(function (s) { return '<span class="chip">' + esc(s) + "</span>"; }).join("") + "</div></div>";
+  if (sk && D.skills) sk.innerHTML = '<div><h3 class="mono mute">Technical</h3><div class="chips">' + (D.skills.technical || []).map(function (s) { return '<span class="chip">' + esc(s) + "</span>"; }).join("") + "</div></div>";
 
   if (DM.reveal) DM.reveal(document);
   if (location.hash && document.querySelector(location.hash)) setTimeout(function () { document.querySelector(location.hash).scrollIntoView(); }, 400);

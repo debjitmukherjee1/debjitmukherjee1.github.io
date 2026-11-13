@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Favicon: italic "dm" monogram, champagne on warm ink -->
-  <rect width="64" height="64" rx="32" fill="#d2b274"/>
-  <text x="31" y="42" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="30" fill="#0b0a09">dm</text>
+  <!-- Favicon: upright "dm" monogram, white on near-black -->
+  <rect width="64" height="64" rx="14" fill="#0b0b0d"/>
+  <text x="32" y="42" text-anchor="middle" font-family="Newsreader, Georgia, 'Times New Roman', serif" font-size="31" letter-spacing="-1" fill="#f3f3f1">dm</text>
 </svg>

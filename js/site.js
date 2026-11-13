@@ -129,7 +129,7 @@
       '<a class="brand" href="./" aria-label="' + esc(hero.name) + ' — home"><span class="brand-mark" aria-hidden="true">dm</span><span>' + esc(hero.name) + "<small>Independent equity research</small></span></a>" +
       '<nav class="nav-links" aria-label="Site pages">' + links + "</nav>" +
       '<div class="nav-right">' +
-      '<button class="icon-btn pal-btn" id="pal-btn" type="button" aria-label="Search the site (Ctrl or Command K)"><svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.4"/><path d="m10.5 10.5 3.5 3.5" stroke="currentColor" stroke-width="1.4"/></svg><span>Search</span><kbd>⌘K</kbd></button>' +
+      '<button class="icon-btn pal-btn" id="pal-btn" type="button" aria-label="Search the site (Ctrl or Command K)"><svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.4"/><path d="m10.5 10.5 3.5 3.5" stroke="currentColor" stroke-width="1.4"/></svg><span>Search</span><kbd>' + (/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "⌘K" : "Ctrl K") + '</kbd></button>' +
       '<button class="icon-btn menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu">Menu</button></div>';
     document.body.insertBefore(nav, document.body.firstChild);
 
@@ -145,7 +145,7 @@
     tail.innerHTML =
       '<div class="scrim" id="scrim"></div>' +
       '<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" data-lenis-prevent><div class="sheet-bar"><span class="mono" id="sheet-kicker"></span><button class="icon-btn" id="sheet-close" type="button" aria-label="Close">Close ✕</button></div><div class="sheet-body" id="sheet-body"></div></aside>' +
-      '<div class="pal" id="pal" role="dialog" aria-modal="true" aria-label="Search the site" data-lenis-prevent><input id="pal-in" type="text" placeholder="Search a ticker, a deal, a tool, a page…" autocomplete="off" spellcheck="false" aria-controls="pal-list"><div class="pal-list" id="pal-list" role="listbox"></div><div class="pal-foot mono"><span>↑↓ move</span><span>↵ open</span><span>esc close</span></div></div>';
+      '<div class="pal" id="pal" role="dialog" aria-modal="true" aria-label="Search the site" data-lenis-prevent><input id="pal-in" type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-label="Search the site" placeholder="Search a ticker, a deal, a tool, a page…" autocomplete="off" spellcheck="false" aria-controls="pal-list"><div class="pal-list" id="pal-list" role="listbox" aria-label="Results"></div><div class="pal-foot mono"><span>↑↓ move</span><span>↵ open</span><span>esc close</span></div></div>';
     while (tail.firstChild) document.body.appendChild(tail.firstChild);
     // liquid glass: a displacement map bends whatever sits behind the dock and panels (Chromium only; others keep the frosted look)
     if (window.chrome && !REDUCED && window.innerWidth > 820 && window.CSS && CSS.supports("backdrop-filter", "blur(1px)")) {
@@ -158,7 +158,7 @@
     var first = (hero.name || "").split(" ")[0], last = (hero.name || "").split(" ").slice(1).join(" ");
     var c = document.createElement("section");
     c.className = "contact"; c.id = "contact"; c.setAttribute("aria-labelledby", "contact-title");
-    c.innerHTML = '<div class="wrap"><div class="contact-top"><div><p class="sec-label mono">Contact</p><h2 class="display" id="contact-title">Have a desk that needs <em>an analyst?</em></h2></div>' +
+    c.innerHTML = '<div class="wrap"><div class="contact-top"><div><p class="sec-label mono">Contact</p><h2 class="display" id="contact-title">Get in touch.</h2></div>' +
       '<div class="contact-links" data-r>' +
       '<a href="mailto:' + esc(hero.email) + '">' + esc(hero.email) + "<span>EMAIL ↗</span></a>" +
       '<a href="' + esc(hero.linkedinUrl) + '" target="_blank" rel="noopener">LinkedIn<span>CONNECT ↗</span></a>' +
@@ -166,20 +166,11 @@
       '<a href="https://debjitmukherjee1.github.io/ledger/" target="_blank" rel="noopener">Public track record<span>LEDGER ↗</span></a>' +
       '<a href="access">Request the Indian notes<span>RECRUITERS</span></a></div></div>' +
       '<p class="wordmark" aria-hidden="true">' + esc(first) + " <em>" + esc(last) + "</em></p></div>" +
-      '<footer class="foot"><div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 32px"><p>© ' + new Date().getFullYear() + " " + esc(hero.name) + ". Student valuation work from public filings, published for learning and discussion. Nothing on this site is a recommendation to buy, sell or hold any security, or investment advice. I am not registered with SEBI as a research analyst or investment adviser, or with any other regulator. Notes on Indian listed companies carry no public rating or price target until their 12-month horizon has ended. Check each note for its holdings disclosure.</p><p>" + esc(hero.personalLine || "") + "</p></div></footer>";
+      '<footer class="foot"><div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 32px"><p>© ' + new Date().getFullYear() + " " + esc(hero.name) + ". Student valuation work from public filings, published for learning and discussion. Nothing on this site is a recommendation to buy, sell or hold any security, or investment advice. I am not registered with SEBI as a research analyst or investment adviser, or with any other regulator. Notes on Indian listed companies carry no public rating or price target until their 12-month horizon has ended. Check each note for its holdings disclosure. Visits are counted with Google Analytics, without advertising features.</p><p>" + esc(hero.personalLine || "") + "</p></div></footer>";
     document.body.appendChild(c);
   }
 
   /* ---------- theme, nav behaviour, clocks ------------------------------ */
-  function setupTheme() {
-    if (!$("#theme-btn")) return;
-    $("#theme-btn").addEventListener("click", function () {
-      var next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
-      var apply = function () { root.setAttribute("data-theme", next); };
-      if (document.startViewTransition && !REDUCED && !document.hidden) { var vt = document.startViewTransition(apply); if (vt && vt.finished) vt.finished.catch(function () {}); if (vt && vt.ready) vt.ready.catch(function () {}); } else apply();
-      try { localStorage.setItem("theme", next); } catch (e) {}
-    });
-  }
   function setupNav() {
     var nav = $("#nav"), last = 0, mm = $("#mobile-menu"), mb = $("#menu-btn");
     window.addEventListener("scroll", function () {
@@ -188,48 +179,44 @@
       nav.classList.toggle("hide", PAGE !== "lab" && y > last && y > 400 && !mm.classList.contains("open"));
       last = y;
     }, { passive: true });
-    mb.addEventListener("click", function () {
-      var open = mm.classList.toggle("open");
+    function setMenu(open) {
+      mm.classList.toggle("open", open);
       mb.setAttribute("aria-expanded", open); mb.textContent = open ? "Close" : "Menu";
       lock(open);
-    });
+      if (open) { var a = $("a", mm); if (a) setTimeout(function () { a.focus(); }, 60); } else mb.focus();
+    }
+    mb.addEventListener("click", function () { setMenu(!mm.classList.contains("open")); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && mm.classList.contains("open")) setMenu(false); });
   }
   function lock(on) { if (lenis) { on ? lenis.stop() : lenis.start(); } document.body.style.overflow = on ? "hidden" : ""; }
-  function setupClock() {
-    var host = $("#clock"); if (!host || !window.Intl) return;
-    var mk = [["NSE", "Asia/Kolkata", 555, 930], ["NYSE", "America/New_York", 570, 960]];
-    function tick() {
-      host.innerHTML = mk.map(function (m) {
-        var p = {}; new Intl.DateTimeFormat("en-GB", { timeZone: m[1], weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date()).forEach(function (x) { p[x.type] = x.value; });
-        var mins = (+p.hour % 24) * 60 + +p.minute, open = p.weekday !== "Sat" && p.weekday !== "Sun" && mins >= m[2] && mins < m[3];
-        return '<span class="' + (open ? "open" : "") + '"><i></i>' + m[0] + " " + p.hour + ":" + p.minute + "</span>";
-      }).join("");
-    }
-    tick(); setInterval(tick, 30000);
-  }
-
   /* ---------- detail sheet ---------------------------------------------- */
   var sheetReturn = null;
   function openSheet(kicker, html, after) {
     var sh = $("#sheet"), body = $("#sheet-body");
-    sheetReturn = document.activeElement;
+    if (!sh.classList.contains("on")) { sheetReturn = document.activeElement; if (!(history.state && history.state.sheet)) history.pushState({ sheet: 1 }, ""); }
     $("#sheet-kicker").textContent = kicker;
     body.innerHTML = html; body.scrollTop = 0;
     sh.classList.add("on"); $("#scrim").classList.add("on"); lock(true);
     if (after) after(body);
     setTimeout(function () { $("#sheet-close").focus(); }, 60);
   }
-  function closeSheet() {
+  function closeSheet(fromHistory) {
     var sh = $("#sheet"); if (!sh.classList.contains("on")) return;
     sh.classList.remove("on"); $("#scrim").classList.remove("on"); lock(false);
-    if (PAGE === "research" && location.hash) history.replaceState(null, "", location.pathname + location.search);
+    if (fromHistory !== true && history.state && history.state.sheet) history.back();
+    else if (PAGE === "research" && location.hash) history.replaceState(null, "", location.pathname + location.search);
     if (sheetReturn && sheetReturn.focus) sheetReturn.focus();
   }
   function setupSheet() {
     $("#sheet-close").addEventListener("click", closeSheet);
+    window.addEventListener("popstate", function () {
+      closeSheet(true);
+      if (PAGE === "research" && location.hash) history.replaceState(null, "", location.pathname + location.search);
+    });
     $("#scrim").addEventListener("click", function () { closeSheet(); closePal(); });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") { closePal(); closeSheet(); }
+      if (e.key === "Tab" && $("#pal").classList.contains("on")) { e.preventDefault(); $("#pal-in").focus(); return; }
       if (e.key === "Tab" && $("#sheet").classList.contains("on")) {
         var f = $$("a[href],button,input", $("#sheet")); if (!f.length) return;
         if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
@@ -329,18 +316,19 @@
     var list = $("#pal-list"), g = "";
     list.innerHTML = palShown.length ? palShown.map(function (it, i) {
       var head = it.g !== g ? '<p class="pal-group mono">' + esc(g = it.g) + "</p>" : "";
-      return head + '<button class="pal-item' + (i === 0 ? " sel" : "") + '" type="button" role="option" data-i="' + i + '"><span class="k">' + esc(it.k) + '</span><span class="t">' + esc(it.t) + '</span><span class="h">' + esc(it.h) + "</span></button>";
+      return head + '<button class="pal-item' + (i === 0 ? " sel" : "") + '" type="button" role="option" id="pal-o' + i + '" aria-selected="' + (i === 0) + '" tabindex="-1" data-i="' + i + '"><span class="k">' + esc(it.k) + '</span><span class="t">' + esc(it.t) + '</span><span class="h">' + esc(it.h) + "</span></button>";
     }).join("") : '<p class="pal-empty">Nothing matches “' + esc(q) + "”.</p>";
+    var inp = $("#pal-in"); if (palShown.length) inp.setAttribute("aria-activedescendant", "pal-o0"); else inp.removeAttribute("aria-activedescendant");
   }
-  function openPal() { var p = $("#pal"); p.classList.add("on"); $("#scrim").classList.add("on"); lock(true); var i = $("#pal-in"); i.value = ""; renderPal(""); i.focus(); }
-  function closePal() { var p = $("#pal"); if (!p.classList.contains("on")) return; p.classList.remove("on"); if (!$("#sheet").classList.contains("on")) { $("#scrim").classList.remove("on"); lock(false); } }
+  var palReturn = null;
+  function openPal() { palReturn = document.activeElement; var p = $("#pal"); p.classList.add("on"); $("#scrim").classList.add("on"); lock(true); var i = $("#pal-in"); i.value = ""; renderPal(""); i.focus(); }
+  function closePal() { var p = $("#pal"); if (!p.classList.contains("on")) return; p.classList.remove("on"); if (!$("#sheet").classList.contains("on")) { $("#scrim").classList.remove("on"); lock(false); } if (palReturn && palReturn.focus && document.contains(palReturn)) palReturn.focus(); }
   function runPal(i) { var it = palShown[i]; if (!it) return; closePal(); it.run(); }
   function setupPal() {
     buildPalIndex();
     $("#pal-btn").addEventListener("click", openPal);
     document.addEventListener("keydown", function (e) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); $("#pal").classList.contains("on") ? closePal() : openPal(); }
-      else if (e.key === "/" && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); openPal(); }
     });
     var inp = $("#pal-in"), list = $("#pal-list");
     inp.addEventListener("input", function () { renderPal(inp.value); });
@@ -348,7 +336,8 @@
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         e.preventDefault(); if (!palShown.length) return;
         palSel = (palSel + (e.key === "ArrowDown" ? 1 : -1) + palShown.length) % palShown.length;
-        $$(".pal-item", list).forEach(function (b, i) { b.classList.toggle("sel", i === palSel); if (i === palSel) b.scrollIntoView({ block: "nearest" }); });
+        $$(".pal-item", list).forEach(function (b, i) { b.classList.toggle("sel", i === palSel); b.setAttribute("aria-selected", i === palSel); if (i === palSel) b.scrollIntoView({ block: "nearest" }); });
+        inp.setAttribute("aria-activedescendant", "pal-o" + palSel);
       } else if (e.key === "Enter") { e.preventDefault(); runPal(palSel); }
     });
     list.addEventListener("click", function (e) { var b = e.target.closest(".pal-item"); if (b) runPal(+b.getAttribute("data-i")); });
@@ -365,7 +354,9 @@
       else if (m && review(m)) t = { label: t.label, value: t.value + " · UNDER REVIEW", direction: t.direction };
       return '<a href="' + esc(m ? "research#" + m.id : page + (t.sectionId ? "#" + t.sectionId : "")) + '"' + (m ? ' data-open="' + esc(m.id) + '"' : "") + '><i class="' + esc(t.direction) + '">' + (glyph[t.direction] || "■") + "</i><b>" + esc(t.label) + "</b>" + esc(t.value) + "</a>";
     }).join("");
-    host.innerHTML = '<div class="tape-track">' + items + '</div><div class="tape-track" aria-hidden="true">' + items.replace(/<a /g, '<a tabindex="-1" ') + "</div>";
+    var paused = host.classList.contains("paused");
+    host.innerHTML = '<button class="tape-pause" type="button" aria-pressed="' + paused + '">' + (paused ? "Play" : "Pause") + '<span class="sr-only"> the moving ticker</span></button><div class="tape-track">' + items + '</div><div class="tape-track" aria-hidden="true">' + items.replace(/<a /g, '<a tabindex="-1" ') + "</div>";
+    if (!host._pz) { host._pz = 1; host.addEventListener("click", function (e) { var b = e.target.closest(".tape-pause"); if (!b) return; var on = host.classList.toggle("paused"); b.setAttribute("aria-pressed", on); b.firstChild.textContent = on ? "Play" : "Pause"; }); }
   }
   // any [data-open="TICKER"] opens the research sheet in place
   document.addEventListener("click", function (e) {
@@ -381,104 +372,12 @@
     node.innerHTML = words.map(function (w, i) { var inner = emLast && i === words.length - 1 ? "<em>" + esc(w) + "</em>" : esc(w); return '<span class="w" aria-hidden="true"><span>' + inner + "</span></span>"; }).join(" ");
     return $$(".w > span", node);
   }
-  function renderHero() {
-    var host = $("#hero"); if (!host) return;
-    var status = (D.ticker || []).filter(function (t) { return t.label === "STATUS"; })[0];
-    $("#hero-kicker").innerHTML = '<h1 class="mono">' + esc(hero.name) + '</h1><span class="mono">Independent equity research · India &amp; US large caps</span>' + (status ? '<span class="pill live r-accumulate">' + esc(status.value) + "</span>" : "");
-    $("#hero-display").textContent = hero.tagline || "";
-    $("#hero-bio").textContent = hero.bio || "";
-    $("#hero-cta").innerHTML = '<a class="btn btn-solid" href="research">Read the research <span class="arr">↗</span></a><a class="btn" href="' + esc(hero.resumeUrl) + '" target="_blank" rel="noopener">Download CV ↓</a><a class="btn" href="' + esc(hero.linkedinUrl) + '" target="_blank" rel="noopener">LinkedIn</a>';
-    $("#hero-stats").innerHTML = (hero.stats || []).map(function (s) { return '<div><b class="count" data-to="' + s.value + '" data-suffix="' + esc(s.suffix || "") + '">' + s.value + esc(s.suffix || "") + '</b><span class="mono">' + esc(s.label) + "</span></div>"; }).join("");
-  }
-  function heroChart() {
-    var host = $("#hero-chart"); if (!host || !CALLS.length) { if (host) host.style.display = "none"; return; }
-    var svgNS = "http://www.w3.org/2000/svg", tip = $("#chart-tip"), lines = [];
-    var t0 = Infinity, t1 = -Infinity, lo = 0, hi = 0;
-    var data = CALLS.map(function (c) {
-      var base = c.series[0].c, pts = c.series.map(function (p) { var t = Date.parse(p.d), v = (p.c / base - 1) * 100; if (t < t0) t0 = t; if (t > t1) t1 = t; if (v < lo) lo = v; if (v > hi) hi = v; return [t, v]; });
-      return { c: c, pts: pts };
-    });
-    var span = Math.max(hi, -lo) * 1.08; lo = -span * (Math.abs(lo) / Math.max(hi, -lo) < .5 ? .6 : 1); hi = span * (hi / Math.max(hi, -lo * 1) < .5 ? .6 : 1);
-    function draw(animate) {
-      var w = host.clientWidth, h = host.clientHeight, pr = Math.max(56, w * .04), pl = parseFloat(getComputedStyle(host).getPropertyValue("--pl")) || 0, pb = 26, pt = 30;
-      var X = function (t) { return pl + (t - t0) / (t1 - t0) * (w - pr - pl); }, Y = function (v) { return pt + (1 - (v - lo) / (hi - lo)) * (h - pt - pb); };
-      var out = '<svg viewBox="0 0 ' + w + " " + h + '" role="img" aria-label="Every published call, as percentage return since its call date"><line class="zero" x1="0" x2="' + w + '" y1="' + Y(0) + '" y2="' + Y(0) + '"/>';
-      [hi * .75, 0, lo * .75].forEach(function (v) { v = Math.round(v / 5) * 5; out += '<text class="axis" x="' + (w - 8) + '" y="' + (Y(v) - 6) + '" text-anchor="end">' + (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v) + "%</text>"; });
-      var d0 = new Date(t0); d0 = new Date(Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() + 1, 1));
-      for (; d0.getTime() < t1; d0 = new Date(Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() + 1, 1))) out += '<text class="axis" x="' + X(d0.getTime()) + '" y="' + (h - 6) + '">' + ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"][d0.getUTCMonth()] + "</text>";
-      lines = data.map(function (o, i) {
-        var px = o.pts.map(function (p) { return [X(p[0]), Y(p[1])]; });
-        out += '<path class="ln" data-i="' + i + '" pathLength="1" d="' + px.map(function (p, j) { return (j ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join("") + '"/><circle class="dot" data-i="' + i + '" r="3" cx="' + px[px.length - 1][0].toFixed(1) + '" cy="' + px[px.length - 1][1].toFixed(1) + '"/>';
-        return px;
-      });
-      host.querySelector(".plot").innerHTML = out + "</svg>";
-      if (animate && HAS_GSAP) {
-        gsap.fromTo($$(".ln", host), { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 2.2, ease: "power2.inOut", stagger: .035, delay: .5, onComplete: function () { $$(".ln", host).forEach(function (p) { p.removeAttribute("stroke-dasharray"); p.style.strokeDasharray = "none"; }); } });
-        gsap.from($$(".dot", host), { scale: 0, transformOrigin: "center", duration: .5, stagger: .035, delay: 2.2 });
-      }
-    }
-    draw(true);
-    var rt; new ResizeObserver(function () { clearTimeout(rt); rt = setTimeout(function () { draw(false); }, 120); }).observe(host);
-    var cur = -1;
-    function hover(e) {
-      var r = host.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top, best = -1, bd = 40, bp = null;
-      lines.forEach(function (px, i) {
-        if (mx < px[0][0] - 12 || mx > px[px.length - 1][0] + 12) return;
-        var j = 0; while (j < px.length - 1 && px[j + 1][0] < mx) j++;
-        var a = px[j], b = px[Math.min(j + 1, px.length - 1)], f = b[0] === a[0] ? 0 : Math.max(0, Math.min(1, (mx - a[0]) / (b[0] - a[0]))), y = a[1] + (b[1] - a[1]) * f, dist = Math.abs(y - my);
-        if (dist < bd) { bd = dist; best = i; bp = [Math.max(a[0], Math.min(mx, px[px.length - 1][0])), y]; }
-      });
-      if (best === cur && best > -1) { tip.style.left = bp[0] + "px"; tip.style.top = bp[1] + "px"; return; }
-      cur = best;
-      $$(".on", host).forEach(function (n) { n.classList.remove("on", "neg-line"); });
-      host.classList.toggle("has-hover", best > -1); tip.classList.toggle("on", best > -1); host.style.cursor = best > -1 ? "pointer" : "";
-      if (best < 0) return;
-      var c = data[best].c;
-      $$('[data-i="' + best + '"]', host).forEach(function (n) { n.classList.add("on"); if (c.return_pct < 0) n.classList.add("neg-line"); n.parentNode.appendChild(n); });
-      tip.innerHTML = "<b>" + esc(c.ticker) + "</b> · " + esc(c.rating) + (c.status === "closed" ? " (closed)" : "") + "<br>" + pct(c.return_pct) + " since " + esc(fmtDate(c.call_date)) + "<br>" + esc(c.benchmark) + " " + pct(c.benchmark_return_pct);
-      tip.style.left = bp[0] + "px"; tip.style.top = bp[1] + "px";
-    }
-    host.addEventListener("pointermove", hover);
-    host.addEventListener("pointerleave", function () { cur = -1; host.classList.remove("has-hover"); tip.classList.remove("on"); $$(".on", host).forEach(function (n) { n.classList.remove("on", "neg-line"); }); });
-    host.addEventListener("click", function () { if (cur < 0) return; var tk = data[cur].c.ticker, m = MODELS.filter(function (x) { return x.tk === tk; })[0]; if (m) openResearch(m); });
-  }
-
   /* ---------- home sections --------------------------------------------- */
-  function rowHTML(m) {
-    return '<button class="row" type="button" data-open="' + esc(m.id) + '" data-r>' +
-      '<span class="row-tk">' + esc(m.tk || "Macro") + "</span>" +
-      '<span class="row-name">' + esc(m.name) + "<small>" + esc(m.sector + " · " + m.date) + "</small></span>" +
-      '<span class="row-thesis">' + esc(m.src.thesis) + "</span>" + pill(m.rating) +
-      '<span class="row-fv">' + (m.fv ? "FV " + esc(m.fv) : "") + (m.upside != null ? '<small class="' + cls(m.upside) + '">' + pct(m.upside) + " vs price</small>" : "") + "</span>" +
-      '<span class="row-go" aria-hidden="true">' + ARROW + "</span></button>";
-  }
-  function renderLatest() {
-    var host = $("#latest"); if (!host) return;
-    host.innerHTML = RATED.filter(function (m) { return m.src.featured; }).slice(0, 7).map(rowHTML).join("");
-    var n = $("#latest-all"); if (n) n.innerHTML = "All " + MODELS.length + ' notes <span class="arr">↗</span>';
-  }
   function distHTML(list) {
     var order = ["BUY", "ACCUMULATE", "HOLD", "REDUCE"], n = {};
     list.forEach(function (m) { n[m.rating] = (n[m.rating] || 0) + 1; });
     return '<div class="dist" role="img" aria-label="' + order.map(function (r) { return (n[r] || 0) + " " + r; }).join(", ") + '">' + order.filter(function (r) { return n[r]; }).map(function (r) { return '<span class="d-' + r.toLowerCase() + '" style="flex:' + n[r] + '">' + n[r] + "</span>"; }).join("") + "</div>" +
       '<div class="dist-legend mono">' + order.filter(function (r) { return n[r]; }).map(function (r) { return "<span>" + r + " " + n[r] + "</span>"; }).join("") + "</div>";
-  }
-  function renderRecord() {
-    var host = $("#record"); if (!host) return;
-    var dist = $("#record-dist"); if (dist) dist.innerHTML = distHTML(RATED);
-    ledgerReady.then(function () {
-      if (!CALLS.length) { host.style.display = "none"; return; }
-      var dir = CALLS.filter(function (c) { return c.direction; }), ahead = dir.filter(function (c) { return c.signed_alpha > 0; }).length;
-      var al = dir.map(function (c) { return c.signed_alpha; }).sort(function (a, b) { return a - b; }), med = al.length ? (al.length % 2 ? al[(al.length - 1) / 2] : (al[al.length / 2 - 1] + al[al.length / 2]) / 2) : 0;
-      var worst = dir.slice().sort(function (a, b) { return a.signed_alpha - b.signed_alpha; })[0];
-      host.innerHTML =
-        '<div class="kpi" data-r><span class="mono mute">Calls on the record</span><b>' + CALLS.length + "</b><p>Every published rating, including the ones later changed. Nothing is removed.</p></div>" +
-        '<div class="kpi" data-r><span class="mono mute">Ahead of benchmark</span><b>' + ahead + "<small style=\"font-size:.45em\"> / " + dir.length + "</small></b><p>Directional calls (everything except HOLD) that are beating their index, in the direction of the call.</p></div>" +
-        '<div class="kpi" data-r><span class="mono mute">Median alpha</span><b class="' + cls(med) + '">' + pct(med) + "</b><p>Median return against the local index across directional calls, signed for the rating.</p></div>" +
-        '<div class="kpi" data-r><span class="mono mute">Worst call so far</span><b class="down">' + esc(worst.ticker) + "</b><p>" + esc(worst.rating) + " on " + esc(fmtDate(worst.call_date)) + ", " + pct(worst.signed_alpha) + " against the " + esc(worst.benchmark) + ". Losers are shown as plainly as winners.</p></div>";
-      var u = $("#record-updated"); if (u && LED._updated) u.textContent = "Prices updated " + LED._updated;
-      reveal(host);
-    });
   }
   var GLYPHS = {
     line: '<path class="g-m" d="M0 90h400M0 60h400M0 30h400"/><path class="g-s" d="M0 96 40 80 80 86 120 58 160 66 200 40 240 50 280 26 320 34 360 14 400 20"/>',
@@ -624,7 +523,6 @@
       draw();
     });
     host.addEventListener("click", function (e) { var s = e.target.closest("[data-sort]"); if (!s) return; var k = s.getAttribute("data-sort"); st.dir = st.sort === k ? -st.dir : (k === "upside" || k === "since" ? -1 : 1); st.sort = k; draw(); });
-    host.addEventListener("keydown", function (e) { if (e.key === "Enter" && e.target.matches("tr[data-open]")) e.target.click(); });
     draw(); ledgerReady.then(draw);
 
     // coverage dashboard
@@ -670,20 +568,12 @@
       lenis = new Lenis({ lerp: .11, anchors: true });
       lenis.on("scroll", ScrollTrigger.update);
       gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
-      gsap.ticker.lagSmoothing(0);
     }
     // intro: loader wipes up (first page of a visit), then the headline rises word by word
     var words = $$(".display").filter(function (n) { return !n.closest(".contact"); }).reduce(function (a, n) { return a.concat(splitWords(n, n.hasAttribute("data-em-last"))); }, []);
     var tl = gsap.timeline({ defaults: { ease: "power4.out" } });
-    var loader = null, first = false;   // the loading counter was removed
-    if (first && loader) {
-      var n = { v: 0 }, num = $("#loader-n");
-      tl.to(n, { v: 100, duration: 1.1, ease: "power2.inOut", onUpdate: function () { num.textContent = ("00" + Math.round(n.v)).slice(-3); } })
-        .to(loader, { yPercent: -100, duration: .9, ease: "power4.inOut", onComplete: function () { root.classList.add("loaded"); } });
-      try { sessionStorage.setItem("seen", "1"); } catch (e) {}
-    }
-    tl.add(function () { window.DM.introDone = true; window.dispatchEvent(new Event("dm:intro")); }, first ? "-=.6" : 0);
-    if (words.length) tl.from(words, { yPercent: 115, duration: 1.15, stagger: .045 }, first ? "-=.55" : 0)
+    tl.add(function () { window.DM.introDone = true; window.dispatchEvent(new Event("dm:intro")); }, 0);
+    if (words.length) tl.from(words, { yPercent: 115, duration: 1.15, stagger: .045 }, 0)
       .from(".page-head .lede, .page-head .sec-label", { opacity: 0, y: 18, duration: .8, stagger: .07, clearProps: "transform" }, "<.25");
     $$(".count").forEach(function (c) {
       var o = { v: 0 }, to = +c.getAttribute("data-to"), suf = c.getAttribute("data-suffix") || "";
@@ -693,15 +583,8 @@
     $$(".sec-title, .contact .display, .lab-intro h2").forEach(function (t) {
       gsap.from(t, { opacity: 0, y: 50, duration: 1.1, ease: "power3.out", scrollTrigger: { trigger: t, start: "top 90%", once: true } });
     });
-    // manifesto lights word by word
-    $$(".manifesto").forEach(function (m) {
-      var w = [];
-      (function walk(node) { Array.prototype.slice.call(node.childNodes).forEach(function (c) { if (c.nodeType === 3) { var f = document.createDocumentFragment(); c.textContent.split(/(\s+)/).forEach(function (p) { if (/^\s*$/.test(p)) f.appendChild(document.createTextNode(p)); else { var s = document.createElement("span"); s.className = "mw"; s.textContent = p; f.appendChild(s); w.push(s); } }); node.replaceChild(f, c); } else walk(c); }); })(m);
-      gsap.to(w, { opacity: 1, stagger: .1, ease: "none", scrollTrigger: { trigger: m, start: "top 78%", end: "bottom 45%", scrub: true } });
-    });
     if ($(".wordmark")) gsap.from(".wordmark", { yPercent: 40, opacity: 0, ease: "none", scrollTrigger: { trigger: ".wordmark", start: "top bottom", end: "bottom bottom", scrub: true } });
     $$(".dist").forEach(function (d) { gsap.from(d.children, { scaleX: 0, duration: 1, ease: "power3.out", stagger: .08, scrollTrigger: { trigger: d, start: "top 88%", once: true } }); });
-    var hc = $("#hero-chart"); if (hc) gsap.to(hc, { yPercent: 14, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
     reveal(document);
     setTimeout(function () { root.classList.add("loaded"); }, 3200);
   }
@@ -720,11 +603,27 @@
     }, true);
   }
 
-  /* ---------- boot ------------------------------------------------------ */
-  if (PAGE === "home" && D.meta) {
-    document.title = D.meta.siteTitle || document.title;
-    var md = $('meta[name="description"]'); if (md && D.meta.description) md.setAttribute("content", D.meta.description);
+  /* ---------- accessibility sweep ---------------------------------------- */
+  function a11ySweep(scope) {
+    $$('a[target="_blank"]', scope).forEach(function (a) {
+      if (a._nt) return; a._nt = 1;
+      var s = document.createElement("span"); s.className = "sr-only"; s.textContent = " (opens in a new tab)"; a.appendChild(s);
+    });
+    $$("[data-open]:not(a):not(button):not(tr), [data-deal-row]", scope).forEach(function (n) {
+      if (n.hasAttribute("tabindex")) return; n.setAttribute("tabindex", "0"); n.setAttribute("role", "button");
+    });
   }
+  function setupA11y() {
+    a11ySweep(document);
+    var t; new MutationObserver(function () { clearTimeout(t); t = setTimeout(function () { a11ySweep(document); }, 50); }).observe(document.body, { childList: true, subtree: true });
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      var n = e.target; if (!n.matches || n.matches("a,button,input,textarea,select")) return;
+      if (n.matches("[data-open], [data-deal-row]")) { e.preventDefault(); n.dispatchEvent(new MouseEvent("click", { bubbles: true })); }
+    });
+  }
+
+  /* ---------- boot ------------------------------------------------------ */
   var WORLDS = {     // [glow, base] — grey everywhere except inside a call chapter, which takes its rating's colour
     open: ["#6a6e78", "#050505"], BUY: ["#19e68c", "#050907"], ACCUMULATE: ["#1fd8c4", "#05090a"], HOLD: ["#8f7dff", "#07060d"],
     REDUCE: ["#ff5a36", "#0b0605"], record: ["#7c808a", "#050505"], calm: ["#3c3e44", "#050505"]
@@ -733,10 +632,11 @@
     ledgerReady: ledgerReady, trackReady: trackReady, calls: function () { return CALLS; }, led: function () { return LED; }, lenis: function () { return lenis; },
     openResearch: openResearch, openDeal: openDeal, openGeneric: openGeneric, reveal: function (scope) { reveal(scope); }, liveLine: liveLine, pct: pct, cls: cls, esc: esc, fmtDate: fmtDate, pill: pill };
   buildChrome();
-  setupTheme(); setupNav(); setupClock(); setupSheet(); setupPal(); setupSpotlight(); setupAnalytics();
-  renderHero(); renderTape(); ledgerReady.then(renderTape);   // redraw once prices arrive, to flag stale ratings renderLatest(); renderRecord(); renderDeals(); renderTools();
+  setupNav(); setupSheet(); setupPal(); setupSpotlight(); setupAnalytics();
+  renderTape(); ledgerReady.then(renderTape);   // redrawn once prices arrive, to flag stale ratings
+  renderDeals(); renderTools();
   renderExperience(); renderLeadership(); renderEducation(); renderLibrary();
   setupMotion();
-  ledgerReady.then(heroChart);
+  setupA11y();
 
 })();
