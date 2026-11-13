@@ -47,7 +47,11 @@ const siteData = {
     tagline: "Building institutional-grade equity research and valuation models, independently.",
     /* The Overview's opening lines: headline is shown one line per entry
        (the last line is set in white, the others in grey). */
-    headline: ["Institutional-grade", "equity research,", "built independently."],
+    headline: ["Equity research", "on Indian and US", "large caps."],
+    /* The two lines under the name on the Overview: who you are, and what you want.
+       Add the intake you are applying for (e.g. "summer 2027") when you know it. */
+    status: "Second-year B.Com (Honours & Research), Amity University Kolkata · Class of 2029",
+    seeking: "Looking for equity research and investment banking internships · Kolkata, India",
     bio: "B.Com (Honours & Research), Amity University Kolkata · CFA Program Level I candidate. I research, model and publish full equity reports on Indian and US large caps, each with its Excel model.",
     email: "m.debjit2007@gmail.com",
     linkedinUrl: "https://www.linkedin.com/in/debjit-mukherjee101/",
@@ -286,7 +290,10 @@ const siteData = {
      featured: true shows this entry in the compact preview on the Overview
        page (index.html) — keep it to a handful across sectors/markets.
      rating / targetPrice / impliedValue: shown in the mono data readout —
-       leave any of them "" to hide that line.
+       leave any of them "" to hide that line. For market "India" the site
+       shows neither the rating nor the target: those notes appear as
+       dated valuation exercises (SEBI treats ratings and price targets on
+       listed securities as research-analyst activity).
      fileUrl / fileLabel:   primary link (research report PDF).
      fileUrl2 / fileLabel2: optional second link (Excel model download).
      -------------------------------------------------------------------- */
@@ -301,7 +308,7 @@ const siteData = {
       rating: "REDUCE",
       targetPrice: "$154 (−6.5%)",
       impliedValue: "",
-      detail: "3Q26 adjusted EPS $4.23 against $4.04 expected; Energy Products earned $9.1bn on a $50 refining margin. We value on a mid-cycle deck ($84 Brent in 2027, then $70 real; refining margins $16, then $12 real), starting from XOM's plan at XOM's prices plus its own sensitivities, scaled by what 2026 actually delivered. DCF $178, EV/EBITDA on 2028E against Chevron and ConocoPhillips (6.6x, post-3Q) $128 and P/E on 2028E $133, weighted 50/25/25 to $154: with the 2.6% dividend, a −3.9% total return at the $164.47 10-Nov close. The call rests on a beta of 1.0; on the desk's bottom-up beta (0.60) fair value is $183, a BUY, and the note prints both. Bear $134 (Hormuz reopens), bull $183. All eight broker targets after the print were raises (median $188).",
+      detail: "3Q26 adjusted EPS $4.23 against $4.04 expected; Energy Products earned $9.1bn on a $50 refining margin. We value on a mid-cycle deck ($84 Brent in 2027, then $70 real; refining margins $16, then $12 real), starting from XOM's plan at XOM's prices plus its own sensitivities, scaled by what 2026 actually delivered. DCF $178, EV/EBITDA on 2028E against Chevron and ConocoPhillips (6.6x, post-3Q) $128 and P/E on 2028E $133, weighted 50/25/25 to $154: with the 2.6% dividend, a −3.9% total return at the $164.47 10-Nov close. The call rests on a beta of 1.0; on my bottom-up beta (0.60) fair value is $183, a BUY, and the note prints both. Bear $134 (Hormuz reopens), bull $183. All eight broker targets after the print were raises (median $188).",
       fileUrl: "assets/files/exxonmobil-research-report.pdf",
       fileLabel: "Read the report (PDF)",
       fileUrl2: "assets/files/exxonmobil-financial-model.xlsx",

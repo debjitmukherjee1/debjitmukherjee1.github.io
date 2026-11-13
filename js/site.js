@@ -43,18 +43,42 @@
     var um = /\(([~+−-]?)\s*([\d.]+)%\)/.exec(raw);
     var upside = um ? (um[1] === "−" || um[1] === "-" ? -1 : 1) * parseFloat(um[2]) : null;
     var fv = m.rating ? ((/~?[$₹][\d,]+/.exec(raw) || [""])[0]) : "";
-    return { i: i, src: m, id: tk || slug(name), tk: tk, name: name, kind: (parts[1] || "").trim(), fv: fv, upside: upside,
-      rating: m.rating || "", market: m.market || "", sector: m.sector || "", date: m.date || "", macro: !m.rating };
+    // Notes on Indian listed companies are published as valuation exercises: no rating, no price target
+    // (SEBI treats ratings and targets on listed securities as research-analyst activity).
+    var note = m.market === "India" && !!m.rating;
+    return { i: i, src: m, id: tk || slug(name), tk: tk, name: name, kind: (parts[1] || "").trim(),
+      fv: note ? "" : fv, upside: note ? null : upside, modelValue: note ? fv : "", note: note,
+      rating: note ? "NOTE" : (m.rating || ""), market: m.market || "", sector: m.sector || "", date: m.date || "", macro: !m.rating };
   });
-  var RATED = MODELS.filter(function (m) { return !m.macro; });
-  function rClass(r) { return "r-" + (r ? r.toLowerCase() : "macro"); }
-  function pill(r) { return '<span class="pill ' + rClass(r) + '">' + esc(r || "Macro") + "</span>"; }
+  var COVERED = MODELS.filter(function (m) { return !m.macro; });                 // every company with a note
+  var RATED = MODELS.filter(function (m) { return !m.macro && !m.note; });        // companies that carry a rating (US)
+  function rClass(r) { return "r-" + (r && r !== "NOTE" ? r.toLowerCase() : "macro"); }
+  function pill(r) { return '<span class="pill ' + rClass(r) + '">' + esc(r === "NOTE" ? "Valuation note" : (r || "Macro")) + "</span>"; }
+  function num(sv) { var x = parseFloat(String(sv || "").replace(/[^\d.]/g, "")); return isFinite(x) ? x : null; }
+  // When was the rating set, and at what price (from Ledger's latest call on that ticker)
+  function asOf(m) {
+    var c = LED && m.tk && LED[m.tk];
+    if (c && c.rating === m.rating) return "Rated " + fmtDate(c.call_date) + " at " + (c.currency === "INR" ? "₹" : "$") + Number(c.price_at_call).toLocaleString();
+    return m.date ? "Published " + m.date : "";
+  }
+  // Has the price moved through the rating since it was set? Compares the published fair value with today's price.
+  function review(m) {
+    var c = LED && m.tk && LED[m.tk], fvn = num(m.fv);
+    if (!c || !fvn || m.note || m.macro || c.rating !== m.rating || !c.live_price) return null;
+    var implied = (fvn / c.live_price - 1) * 100, r = m.rating, out = false;
+    if (r === "BUY" || r === "ACCUMULATE") out = implied < 5;
+    else if (r === "HOLD") out = implied < -5 || implied > 15;
+    else if (r === "REDUCE") out = implied > 5;
+    return out ? { implied: implied, price: c.live_price, cur: c.currency === "INR" ? "₹" : "$", asof: c.as_of } : null;
+  }
+  function reviewPill(m) { return review(m) ? '<span class="pill r-review" title="The price has moved through this rating since it was set">Under review</span>' : ""; }
 
   /* ---------- live data ------------------------------------------------- */
   var LED = null, CALLS = [];
   function getJSON(urls) {
     var u = urls.shift();
-    return fetch(u, { cache: "no-cache" }).then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    var ctl = window.AbortController ? new AbortController() : null, timer = ctl ? setTimeout(function () { ctl.abort(); }, 5000) : 0;
+    return fetch(u, { cache: "no-cache", signal: ctl ? ctl.signal : undefined }).then(function (r) { clearTimeout(timer); if (!r.ok) throw 0; return r.json(); })
       .catch(function (e) { if (urls.length) return getJSON(urls); throw e; });
   }
   var ledgerReady = window.fetch ? getJSON(["/ledger/data/calls.json", "https://debjitmukherjee1.github.io/ledger/data/calls.json"]).then(function (d) {
@@ -139,7 +163,7 @@
       '<a href="' + esc(hero.resumeUrl) + '" target="_blank" rel="noopener">Curriculum vitae<span>PDF ↓</span></a>' +
       '<a href="https://debjitmukherjee1.github.io/ledger/" target="_blank" rel="noopener">Public track record<span>LEDGER ↗</span></a></div></div>' +
       '<p class="wordmark" aria-hidden="true">' + esc(first) + " <em>" + esc(last) + "</em></p></div>" +
-      '<footer class="foot"><div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 32px"><p>© ' + new Date().getFullYear() + " " + esc(hero.name) + ". Independent work from public filings — not investment advice.</p><p>" + esc(hero.personalLine || "") + "</p></div></footer>";
+      '<footer class="foot"><div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 32px"><p>© ' + new Date().getFullYear() + " " + esc(hero.name) + ". Student valuation work from public filings, published for learning and discussion. Nothing on this site is a recommendation to buy, sell or hold any security, or investment advice. I am not registered with SEBI as a research analyst or investment adviser, or with any other regulator. Notes on Indian listed companies are valuation exercises and carry no rating or price target. Check each note for its holdings disclosure.</p><p>" + esc(hero.personalLine || "") + "</p></div></footer>";
     document.body.appendChild(c);
   }
 
@@ -225,8 +249,12 @@
     var s = m.src, call = LED && m.tk && LED[m.tk];
     var html = '<p class="mono mute">' + esc([m.sector, m.market, m.date].filter(Boolean).join(" · ")) + "</p>" +
       '<h2 id="sheet-title">' + esc(m.name) + "</h2>" +
-      '<div class="sheet-meta">' + pill(m.rating) + (s.targetPrice || s.impliedValue ? '<span class="fv">' + esc(s.targetPrice || s.impliedValue) + "</span>" : "") + (m.kind ? '<span class="mono mute">' + esc(m.kind) + "</span>" : "") + "</div>" +
+      '<div class="sheet-meta">' + pill(m.rating) + reviewPill(m) +
+        (m.note ? '<span class="fv">Model output ' + esc(m.modelValue) + " · " + esc(m.date) + "</span>" : (s.targetPrice || s.impliedValue ? '<span class="fv">' + esc(s.targetPrice || s.impliedValue) + "</span>" : "")) +
+        (!m.note && !m.macro && asOf(m) ? '<span class="mono mute">' + esc(asOf(m)) + "</span>" : "") + (m.kind ? '<span class="mono mute">' + esc(m.kind) + "</span>" : "") + "</div>" +
       (call ? '<div class="big-chart"><div id="bc"></div><div class="chart-stats"><div><small>Since the call</small><b class="' + cls(call.return_pct) + '">' + pct(call.return_pct) + "</b></div><div><small>" + esc(call.benchmark) + '</small><b>' + pct(call.benchmark_return_pct) + "</b></div><div><small>Called " + esc(fmtDate(call.call_date)) + "</small><b>" + (call.currency === "INR" ? "₹" : "$") + Number(call.price_at_call).toLocaleString() + "</b></div></div></div>" : "") +
+      (review(m) ? (function (rv) { return '<p class="sheet-flag">Under review. Since this rating was set the price has moved to ' + rv.cur + Number(rv.price).toLocaleString() + " (" + esc(fmtDate(rv.asof)) + "), where the published fair value implies " + pct(rv.implied) + ". That is outside the " + esc(m.rating) + " band; the rating has not yet been updated.</p>"; })(review(m)) : "") +
+      (m.note ? '<p class="sheet-flag">Valuation exercise, recorded as of its date. Notes on Indian listed companies are published for study and discussion only: they carry no rating or price target and are not a recommendation to buy, sell or hold. I am not registered with SEBI as a research analyst.</p>' : "") +
       '<p class="quote">' + esc(s.thesis) + "</p>" +
       '<div class="body">' + paras(s.detail) + "</div>" +
       (s.methodologyNote ? "<h4>How it's valued</h4><div class=\"body\"><p>" + esc(s.methodologyNote) + "</p></div>" : "") +
@@ -235,8 +263,8 @@
       (s.fileUrl ? '<a class="btn btn-solid" href="' + esc(s.fileUrl) + '" target="_blank" rel="noopener">' + esc(s.fileLabel || "Read the report") + ' <span class="arr">↗</span></a>' : "") +
       (s.fileUrl2 ? '<a class="btn" href="' + esc(s.fileUrl2) + '" download>' + esc(s.fileLabel2 || "Download the model") + " ↓</a>" : "") +
       (call ? '<a class="btn" href="https://debjitmukherjee1.github.io/ledger/" target="_blank" rel="noopener">Track record ↗</a>' : "") + "</div>" +
-      '<p class="note">Independent analysis from public filings. Prices are daily closes from Ledger. Not investment advice.</p>';
-    openSheet("Research · " + (m.tk || "Macro"), html, function () { if (call) bigChart(call, $("#bc")); });
+      '<p class="note">' + esc("Student valuation work from public filings, published for learning and discussion. Nothing on this site is a recommendation to buy, sell or hold any security, or investment advice. I am not registered with SEBI as a research analyst or investment adviser, or with any other regulator. Notes on Indian listed companies are valuation exercises and carry no rating or price target. Check each note for its holdings disclosure.") + " Prices are daily closes from Ledger.</p>";
+    openSheet("Research · " + (m.tk || "Macro"), html, function () { if (call) bigChart(m.note ? Object.assign({}, call, { target: null }) : call, $("#bc")); });
     if (PAGE === "research") history.replaceState(null, "", "#" + m.id);
   }
   function liveLine(t) {
@@ -274,7 +302,7 @@
   function buildPalIndex() {
     palItems = [];
     NAV.forEach(function (n) { palItems.push({ g: "Pages", k: "GO", t: n[1], h: "Page", run: function () { location.href = n[0]; } }); });
-    MODELS.forEach(function (m) { palItems.push({ g: "Research", k: m.tk || "MACRO", t: m.name + (m.rating ? " — " + m.rating + (m.fv ? " · FV " + m.fv : "") : ""), h: m.sector, q: m.src.thesis, run: function () { openResearch(m); } }); });
+    MODELS.forEach(function (m) { palItems.push({ g: "Research", k: m.tk || "MACRO", t: m.name + (m.note ? " — valuation note" : m.rating ? " — " + m.rating + (m.fv ? " · FV " + m.fv : "") : ""), h: m.sector, q: m.src.thesis, run: function () { openResearch(m); } }); });
     (D.deals || []).filter(function (d) { return d.published; }).forEach(function (d) { palItems.push({ g: "Deals", k: "DEAL #" + d.series, t: d.title, h: d.status, run: function () { openDeal(d); } }); });
     (D.workbench || []).forEach(function (w) { palItems.push({ g: "Workbench", k: "CALC", t: w.name + " — " + w.type, h: "Open", run: function () { location.href = "lab#" + w.id; if (PAGE === "lab") location.reload(); } }); });
     (D.tools || []).filter(function (t) { return t.url; }).forEach(function (t) { palItems.push({ g: "Live tools", k: "APP", t: t.name + " — " + t.type, h: "Launch ↗", run: function () { window.open(t.url, "_blank", "noopener"); } }); });
@@ -326,6 +354,8 @@
     var items = D.ticker.map(function (t) {
       var page = (t.page || "index.html").replace(".html", ""); if (page === "index") page = "./";
       var m = MODELS.filter(function (x) { return x.tk === t.label; })[0];
+      if (m && m.note) t = { label: t.label, value: "VALUATION NOTE · " + m.date.toUpperCase(), direction: "flat" };
+      else if (m && review(m)) t = { label: t.label, value: t.value + " · UNDER REVIEW", direction: t.direction };
       return '<a href="' + esc(m ? "research#" + m.id : page + (t.sectionId ? "#" + t.sectionId : "")) + '"' + (m ? ' data-open="' + esc(m.id) + '"' : "") + '><i class="' + esc(t.direction) + '">' + (glyph[t.direction] || "■") + "</i><b>" + esc(t.label) + "</b>" + esc(t.value) + "</a>";
     }).join("");
     host.innerHTML = '<div class="tape-track">' + items + '</div><div class="tape-track" aria-hidden="true">' + items.replace(/<a /g, '<a tabindex="-1" ') + "</div>";
@@ -567,12 +597,12 @@
         host.innerHTML = '<div class="tbl-wrap"><table class="tbl"><thead><tr>' + th("tk", "Ticker") + th("name", "Company") + th("rating", "Rating") + th("upside", "Fair value", 1) + th("upside", "vs price", 1) + '<th scope="col">Since call</th>' + th("since", "Return", 1) + th("date", "Published", 1) + "</tr></thead><tbody>" +
           L.map(function (m) {
             var c = LED && m.tk && LED[m.tk];
-            return '<tr tabindex="0" data-open="' + esc(m.id) + '"><td class="tk">' + esc(m.tk || "—") + '</td><td class="nm">' + esc(m.name) + "<small>" + esc(m.sector + " · " + m.market) + "</small></td><td>" + pill(m.rating) + '</td><td class="r">' + esc(m.fv || "—") + '</td><td class="r ' + cls(m.upside) + '">' + (m.upside == null ? "—" : pct(m.upside)) + "</td><td>" + sparkSVG(c) + '</td><td class="r ' + (c ? cls(c.return_pct) : "") + '">' + (c ? pct(c.return_pct) : "—") + '</td><td class="r mute">' + esc(m.date) + "</td></tr>";
+            return '<tr tabindex="0" data-open="' + esc(m.id) + '"><td class="tk">' + esc(m.tk || "—") + '</td><td class="nm">' + esc(m.name) + "<small>" + esc(m.sector + " · " + m.market) + "</small></td><td>" + pill(m.rating) + reviewPill(m) + '</td><td class="r">' + esc(m.fv || "—") + '</td><td class="r ' + cls(m.upside) + '">' + (m.upside == null ? "—" : pct(m.upside)) + "</td><td>" + sparkSVG(c) + '</td><td class="r ' + (c ? cls(c.return_pct) : "") + '">' + (c ? pct(c.return_pct) : "—") + '</td><td class="r mute">' + esc(m.date) + "</td></tr>";
           }).join("") + "</tbody></table></div>";
       } else {
         host.innerHTML = '<div class="grid g-3 r-cards">' + L.map(function (m) {
           var c = LED && m.tk && LED[m.tk];
-          return '<button class="card" type="button" data-open="' + esc(m.id) + '"><div class="card-top mono"><span>' + esc(m.sector + " · " + m.date) + "</span>" + pill(m.rating) + "</div><h3>" + esc(m.name) + '</h3><p class="thesis">' + esc(m.src.thesis) + "</p>" + sparkSVG(c) +
+          return '<button class="card" type="button" data-open="' + esc(m.id) + '"><div class="card-top mono"><span>' + esc(m.sector + " · " + m.date) + "</span><span>" + pill(m.rating) + reviewPill(m) + "</span></div><h3>" + esc(m.name) + '</h3><p class="thesis">' + esc(m.src.thesis) + "</p>" + sparkSVG(c) +
             '<div class="card-foot mono"><span>' + esc(m.fv ? "FV " + m.fv : m.kind) + (m.upside != null ? ' · <span class="' + cls(m.upside) + '">' + pct(m.upside) + "</span>" : "") + '</span><span class="go">' + ARROW + "</span></div></button>";
         }).join("") + "</div>";
       }
@@ -592,9 +622,9 @@
 
     // coverage dashboard
     var dist = $("#lib-dist"); if (dist) {
-      var india = RATED.filter(function (m) { return m.market === "India"; }).length;
-      dist.innerHTML = '<h3 class="mono mute">Ratings across ' + RATED.length + " companies</h3>" + distHTML(RATED) +
-        '<dl class="keys" style="margin-top:22px"><div><dt>India</dt><dd>' + india + "</dd></div><div><dt>United States</dt><dd>" + (RATED.length - india) + "</dd></div><div><dt>Sectors</dt><dd>" + (sectors.length - 1) + "</dd></div><div><dt>Macro notes</dt><dd>" + (MODELS.length - RATED.length) + "</dd></div></dl>";
+      var india = COVERED.filter(function (m) { return m.market === "India"; }).length;
+      dist.innerHTML = '<h3 class="mono mute">Ratings across ' + RATED.length + " US companies · India notes carry no rating</h3>" + distHTML(RATED) +
+        '<dl class="keys" style="margin-top:22px"><div><dt>India</dt><dd>' + india + "</dd></div><div><dt>United States</dt><dd>" + (COVERED.length - india) + "</dd></div><div><dt>Sectors</dt><dd>" + (sectors.length - 1) + "</dd></div><div><dt>Macro notes</dt><dd>" + (MODELS.length - RATED.length) + "</dd></div></dl>";
     }
     var lad = $("#lib-ladder"); if (lad) {
       var drawLad = function () {
@@ -638,7 +668,7 @@
     // intro: loader wipes up (first page of a visit), then the headline rises word by word
     var words = $$(".display").filter(function (n) { return !n.closest(".contact"); }).reduce(function (a, n) { return a.concat(splitWords(n, n.hasAttribute("data-em-last"))); }, []);
     var tl = gsap.timeline({ defaults: { ease: "power4.out" } });
-    var loader = $(".loader"), first = !root.classList.contains("loaded");
+    var loader = null, first = false;   // the loading counter was removed
     if (first && loader) {
       var n = { v: 0 }, num = $("#loader-n");
       tl.to(n, { v: 100, duration: 1.1, ease: "power2.inOut", onUpdate: function () { num.textContent = ("00" + Math.round(n.v)).slice(-3); } })
@@ -688,12 +718,16 @@
     document.title = D.meta.siteTitle || document.title;
     var md = $('meta[name="description"]'); if (md && D.meta.description) md.setAttribute("content", D.meta.description);
   }
-  window.DM = { D: D, MODELS: MODELS, RATED: RATED, models: MODELS, HAS_GSAP: HAS_GSAP, REDUCED: REDUCED, introDone: false,
+  var WORLDS = {     // [glow, base] — grey everywhere except inside a call chapter, which takes its rating's colour
+    open: ["#6a6e78", "#050505"], BUY: ["#19e68c", "#050907"], ACCUMULATE: ["#1fd8c4", "#05090a"], HOLD: ["#8f7dff", "#07060d"],
+    REDUCE: ["#ff5a36", "#0b0605"], record: ["#7c808a", "#050505"], calm: ["#3c3e44", "#050505"]
+  };
+  window.DM = { D: D, MODELS: MODELS, RATED: RATED, COVERED: COVERED, WORLDS: WORLDS, asOf: asOf, review: review, models: MODELS, HAS_GSAP: HAS_GSAP, REDUCED: REDUCED, introDone: false,
     ledgerReady: ledgerReady, trackReady: trackReady, calls: function () { return CALLS; }, led: function () { return LED; }, lenis: function () { return lenis; },
     openResearch: openResearch, openDeal: openDeal, openGeneric: openGeneric, reveal: function (scope) { reveal(scope); }, liveLine: liveLine, pct: pct, cls: cls, esc: esc, fmtDate: fmtDate, pill: pill };
   buildChrome();
   setupTheme(); setupNav(); setupClock(); setupSheet(); setupPal(); setupSpotlight(); setupAnalytics();
-  renderHero(); renderTape(); renderLatest(); renderRecord(); renderDeals(); renderTools();
+  renderHero(); renderTape(); ledgerReady.then(renderTape);   // redraw once prices arrive, to flag stale ratings renderLatest(); renderRecord(); renderDeals(); renderTools();
   renderExperience(); renderLeadership(); renderEducation(); renderLibrary();
   setupMotion();
   ledgerReady.then(heroChart);

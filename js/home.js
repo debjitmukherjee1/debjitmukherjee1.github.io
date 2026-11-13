@@ -14,9 +14,20 @@
    Text comes from js/data.js (hero.headline, models, tools…).
    If WebGL or the motion libraries are unavailable, or the visitor prefers
    reduced motion, every chapter is shown as an ordinary stacked section.
-   three.js, GSAP and Lenis are free and loaded from a CDN.
+   three.js, GSAP and Lenis are free and served from js/vendor/ on this site.
    ========================================================================== */
-import { stage, buildStage, goView, blendView, focusRidge, setWorld } from "./stage.js?v=95";
+// The 3D stage is loaded on demand (see boot). Everything readable renders first, without it,
+// so a blocked or slow network still shows the whole page.
+let S = null;
+const ST = () => S ? S.stage : { ok: false, ridges: [], views: {} };
+function goView(v) { if (S && v) S.goView(v); }
+function blendView(a, b, t) { if (S && a && b) S.blendView(a, b, t); }
+function focusRidge(i) { if (S) S.focusRidge(i); }
+function setWorld(name, dur) {
+  if (S) return S.setWorld(name, dur);
+  const w = DM.WORLDS[name] || DM.WORLDS.calm;
+  document.documentElement.style.setProperty("--w1", w[0]); document.documentElement.style.setProperty("--w2", w[1]);
+}
 
 const DM = window.DM;
 const D = DM.D, hero = D.hero || {}, esc = DM.esc, pct = DM.pct, cls = DM.cls;
@@ -30,8 +41,7 @@ const ARROW = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-
 /* ---------- content -------------------------------------------------------- */
 function chapters() {
   // two rounds of REDUCE → BUY-rated → HOLD, newest first within each, so the world keeps changing colour
-  const LED = DM.led() || {};
-  const withCall = DM.MODELS.filter(m => m.tk && LED[m.tk] && !m.macro);
+  const withCall = DM.RATED.filter(m => m.tk);     // US notes; Indian notes carry no rating
   const g = { R: withCall.filter(m => m.rating === "REDUCE"), B: withCall.filter(m => m.rating === "BUY" || m.rating === "ACCUMULATE"), H: withCall.filter(m => m.rating === "HOLD") };
   const out = []; for (let k = 0; k < 2; k++) ["R", "B", "H"].forEach(x => { if (g[x][k]) out.push(g[x][k]); });
   return out;
@@ -40,9 +50,8 @@ function renderIntro() {
   const h = hero.headline || [hero.tagline || ""];
   $("#h-word").innerHTML = esc(hero.name || "").split(" ").map(w => "<span>" + esc(w) + "</span>").join(" ");
   $("#h-line").innerHTML = h.map((l, i) => '<span class="hl' + (i === h.length - 1 ? " em" : "") + '"><span>' + esc(l) + "</span></span>").join("");
-  $("#h-cta").innerHTML = '<a class="btn btn-solid" href="research" data-cursor="Read">The research <span class="arr">↗</span></a><a class="btn" href="' + esc(hero.resumeUrl) + '" target="_blank" rel="noopener">CV ↓</a><a class="btn" href="' + esc(hero.linkedinUrl) + '" target="_blank" rel="noopener">LinkedIn</a>';
-  const st = (D.ticker || []).find(t => t.label === "STATUS");
-  $("#h-status").innerHTML = (st ? '<span class="pill live r-accumulate">' + esc(st.value) + "</span>" : "") + '<span id="h-live"></span>';
+  $("#h-cta").innerHTML = '<a class="btn btn-solid" href="research" data-cursor="Read">The research <span class="arr">↗</span></a><a class="btn" href="mailto:' + esc(hero.email) + '">Email</a><a class="btn" href="' + esc(hero.resumeUrl) + '" target="_blank" rel="noopener">CV (PDF)</a><a class="btn" href="' + esc(hero.linkedinUrl) + '" target="_blank" rel="noopener">LinkedIn</a>';
+  $("#h-status").innerHTML = '<p class="h-who">' + esc(hero.status || "") + '</p><p class="h-seek"><span class="pill live r-accumulate">' + esc(hero.seeking || "Open to opportunities") + '</span><span id="h-live"></span></p>';
   fitWord();
 }
 function fitWord() {
@@ -56,31 +65,43 @@ function fitWord() {
 function renderCalls(list) {
   const host = $("#h-calls-inner"), LED = DM.led() || {};
   host.innerHTML = list.map((m, i) => {
-    const c = LED[m.tk], s = m.src;
+    const s = m.src;
     return '<article class="call-ch" data-i="' + i + '" data-rating="' + esc(m.rating) + '" aria-label="' + esc(m.name) + '">' +
       '<p class="cc-top mono"><b>Call ' + ("0" + (i + 1)).slice(-2) + " / " + ("0" + list.length).slice(-2) + "</b><span>" + esc([m.sector, m.market, m.date].join(" · ")) + "</span></p>" +
       '<h3 class="cc-tk" aria-hidden="true" style="--n:' + m.tk.length + '">' + esc(m.tk).split("").map(ch => '<span><i>' + esc(ch) + "</i></span>").join("") + "</h3>" +
-      '<div class="cc-side glass"><span class="stamp s-' + m.rating.toLowerCase() + '">' + esc(m.rating) + "</span>" +
+      '<div class="cc-side glass"><span class="cc-stamps"><span class="stamp s-' + m.rating.toLowerCase() + '">' + esc(m.rating) + '</span><span class="cc-asof mono" data-asof="' + esc(m.id) + '">' + esc(m.date ? "Published " + m.date : "") + "</span></span>" +
       '<p class="cc-name">' + esc(m.name) + "</p>" +
       '<p class="cc-thesis">' + esc(s.thesis) + "</p>" +
       '<dl class="cc-nums"><div><dt>Fair value</dt><dd>' + esc(m.fv || "—") + "</dd></div><div><dt>Against price</dt><dd>" + (m.upside == null ? "—" : pct(m.upside)) + "</dd></div>" +
-      (c ? "<div><dt>Since the call</dt><dd>" + pct(c.return_pct) + "</dd></div><div><dt>" + esc(c.benchmark) + "</dt><dd>" + pct(c.benchmark_return_pct) + "</dd></div>" : "") + "</dl>" +
+      '<div class="cc-live" hidden><dt>Since the call</dt><dd data-since="' + esc(m.id) + '">—</dd></div><div class="cc-live" hidden><dt data-bench-l="' + esc(m.id) + '">Benchmark</dt><dd data-bench="' + esc(m.id) + '">—</dd></div></dl>' +
       '<button class="btn btn-solid" type="button" data-open="' + esc(m.id) + '" data-cursor="Open">Open the note <span class="arr">↗</span></button></div></article>';
   }).join("") +
-    '<article class="call-ch call-more" data-i="' + list.length + '" data-rating="open"><p class="cc-top mono"><b>And the rest</b><span>' + DM.MODELS.length + ' notes · every model attached</span></p><h3 class="cc-tk cc-tk-sm" style="--n:2"><span><i>' + DM.RATED.length + '</i></span></h3><div class="cc-side"><p class="cc-name">companies covered</p><p class="cc-thesis">Banks on excess return. Conglomerates on sum of the parts. Staples on dividends. Each one rated against the bond yield, never against a feeling.</p><a class="btn btn-solid" href="research" data-cursor="Go">The full library <span class="arr">↗</span></a></div></article>';
+    '<article class="call-ch call-more" data-i="' + list.length + '" data-rating="open"><p class="cc-top mono"><b>And the rest</b><span>' + DM.MODELS.length + ' notes · every model attached</span></p><h3 class="cc-tk cc-tk-sm" style="--n:2"><span><i>' + DM.COVERED.length + '</i></span></h3><div class="cc-side"><p class="cc-name">companies covered</p><p class="cc-thesis">Banks on excess return. Conglomerates on sum of the parts. Staples on dividends. US names are rated against the bond yield; Indian names are published as valuation exercises, without a rating.</p><a class="btn btn-solid" href="research" data-cursor="Go">The full library <span class="arr">↗</span></a></div></article>';
   $("#h-rail").innerHTML = list.map((m, i) => '<button type="button" data-go="' + i + '">' + esc(m.tk) + "</button>").join("") + '<button type="button" data-go="' + list.length + '">ALL</button>';
+}
+function fillCalls() {
+  const LED = DM.led() || {};
+  list.forEach(m => {
+    const c = LED[m.tk]; if (!c) return;
+    const set = (sel, v) => { const n = $(sel); if (n) n.textContent = v; };
+    set('[data-since="' + m.id + '"]', pct(c.return_pct)); set('[data-bench="' + m.id + '"]', pct(c.benchmark_return_pct)); set('[data-bench-l="' + m.id + '"]', c.benchmark);
+    set('[data-asof="' + m.id + '"]', DM.asOf(m));
+    const art = $('.call-ch[data-i="' + list.indexOf(m) + '"]');
+    if (art) { $$(".cc-live", art).forEach(n => { n.hidden = false; }); if (DM.review(m)) { const st = $(".cc-stamps", art); if (st && !$(".r-review", st)) st.insertAdjacentHTML("beforeend", '<span class="pill r-review">Under review</span>'); } }
+  });
 }
 function renderRecord() {
   const CALLS = DM.calls(), host = $("#h-record"); if (!host) return;
   if (!CALLS.length) { host.closest("section").style.display = "none"; return; }
-  const dir = CALLS.filter(c => c.direction), ahead = dir.filter(c => c.signed_alpha > 0).length;
-  const al = dir.map(c => c.signed_alpha).sort((a, b) => a - b), med = al.length % 2 ? al[(al.length - 1) / 2] : (al[al.length / 2 - 1] + al[al.length / 2]) / 2;
-  const worst = dir.slice().sort((a, b) => a.signed_alpha - b.signed_alpha)[0], best = dir.slice().sort((a, b) => b.signed_alpha - a.signed_alpha)[0];
-  host.innerHTML = '<p class="rec-big"><span class="count" data-to="' + ahead + '">' + ahead + '</span><em>of</em><span>' + dir.length + "</span></p>" +
-    '<p class="rec-cap">directional calls are ahead of their benchmark, in the direction of the call.</p>' +
-    '<dl class="rec-row"><div><dt>Calls on the record</dt><dd>' + CALLS.length + "</dd></div><div><dt>Median alpha</dt><dd>" + pct(med) + "</dd></div><div><dt>Best call</dt><dd>" + esc(best.ticker) + " <small>" + pct(best.signed_alpha) + "</small></dd></div><div><dt>Worst call</dt><dd>" + esc(worst.ticker) + " <small>" + pct(worst.signed_alpha) + "</small></dd></div></dl>" +
-    '<p class="note" style="margin-inline:auto;text-align:center">Live from <a href="https://debjitmukherjee1.github.io/ledger/" target="_blank" rel="noopener" style="text-decoration:underline">Ledger</a>' + (DM.led()._updated ? ", prices updated " + esc(DM.led()._updated) : "") + ". HOLD ratings are excluded from the count. Nothing is ever removed. Past returns say nothing about future ones.</p>";
-  const lv = $("#h-live"); if (lv) lv.textContent = CALLS.length + " calls on the record · live";
+  const first = CALLS.map(c => c.call_date).sort()[0], updated = DM.led()._updated;
+  const months = Math.max(1, Math.round((Date.now() - Date.parse(first + "T00:00:00Z")) / (30.44 * 864e5)));
+  const companies = new Set(CALLS.map(c => c.ticker)).size;
+  host.innerHTML = '<p class="rec-big"><span class="count" data-to="' + CALLS.length + '">' + CALLS.length + '</span></p>' +
+    '<p class="rec-cap">calls logged in public at the price on the day, including the ones that went wrong.</p>' +
+    '<dl class="rec-row"><div><dt>Companies</dt><dd>' + companies + "</dd></div><div><dt>First call</dt><dd>" + esc(DM.fmtDate(first)) + "</dd></div><div><dt>Record so far</dt><dd>" + months + (months === 1 ? " month" : " months") + "</dd></div><div><dt>Target horizon</dt><dd>12 months</dd></div></dl>" +
+    '<p class="note" style="margin-inline:auto;text-align:center;max-width:62ch">Targets are 12-month, and the oldest call is ' + months + " months old, so it is too early to judge accuracy. Every call stays on the log, and each one is compared with its local index. " +
+    '<a href="https://debjitmukherjee1.github.io/ledger/" target="_blank" rel="noopener" style="text-decoration:underline">Open the log</a>' + (updated ? " · prices updated " + esc(updated) : "") + ".</p>";
+  const lv = $("#h-live"); if (lv) lv.textContent = CALLS.length + " calls logged in public";
 }
 function renderTools() {
   const host = $("#h-tools-track"); if (!host) return;
@@ -109,16 +130,19 @@ function renderAbout() {
 
 /* ---------- choreography --------------------------------------------------- */
 let list = [], activeCh = -1;
+function aim(i, dur) {
+  const m = list[i];
+  setWorld(m ? m.rating : "open", dur);
+  if (m) { const ri = ST().ridges.findIndex(r => r.call === (DM.led() || {})[m.tk]); if (ri > -1) { goView(ST().views.call(ri)); focusRidge(ri); } }
+  else { goView(ST().views.hero); focusRidge(-1); }
+}
 function showChapter(i) {
   if (i === activeCh) return; const prev = activeCh; activeCh = i;
   const chs = $$(".call-ch"), ch = chs[i];
   $$("#h-rail button").forEach((b, j) => b.classList.toggle("on", j === i));
   chs.forEach((c, j) => c.classList.toggle("on", j === i));
   if (!ch) return;
-  const m = list[i];
-  setWorld(m ? m.rating : "open", 1.1);
-  if (m) { const ri = stage.ridges.findIndex(r => r.call === (DM.led() || {})[m.tk]); if (ri > -1) { goView(stage.views.call(ri)); focusRidge(ri); } }
-  else { goView(stage.views.hero); focusRidge(-1); }
+  aim(i, 1.1);
   if (!MOTION) return;
   if (chs[prev]) gsap.to(chs[prev], { autoAlpha: 0, duration: .3, overwrite: true });
   const dir = i > prev ? 1 : -1;
@@ -136,13 +160,12 @@ function showChapter(i) {
 function choreograph() {
   if (!MOTION) { root.classList.add("static-home"); setWorld("open", 0); return; }
   gsap.registerPlugin(ScrollTrigger);
-  const V = stage.views;
   // intro: the headline grows and passes as the camera dives
   const intro = gsap.timeline({ scrollTrigger: { trigger: ".h-intro", start: "top top", end: "+=130%", pin: true, scrub: .6,
-    onUpdate: s => { if (stage.ok) blendView(V.hero, V.dive, gsap.parseEase("power2.inOut")(s.progress)); },
+    onUpdate: s => { if (ST().ok) blendView(ST().views.hero, ST().views.dive, gsap.parseEase("power2.inOut")(s.progress)); },
     onLeave: () => {}, onEnterBack: () => { setWorld("open"); focusRidge(-1); } } });
   intro.to("#h-word", { yPercent: -130, opacity: 0, ease: "power2.in", duration: .22 }, 0)
-    .to(".h-foot, .h-status", { opacity: 0, y: 30, duration: .12 }, 0)
+    .to(".h-foot, .h-status", { autoAlpha: 0, y: 30, duration: .12 }, 0)
     .to("#h-line", { scale: 2.1, yPercent: -34, xPercent: 0, ease: "power2.inOut", duration: .55 }, 0)
     .to("#h-line", { scale: 9, opacity: 0, ease: "power2.in", duration: .4 }, .58);
   // calls: one chapter per step
@@ -155,12 +178,12 @@ function choreograph() {
   $("#h-rail").addEventListener("click", e => { const b = e.target.closest("[data-go]"); if (!b) return; const st = ScrollTrigger.getAll().find(t => t.trigger && t.trigger.classList.contains("h-calls")); if (!st) return; const y = st.start + (st.end - st.start) * ((+b.getAttribute("data-go") + .5) / n); DM.lenis() ? DM.lenis().scrollTo(y, { duration: 1.2 }) : scrollTo({ top: y, behavior: "smooth" }); });
   // record: from above
   ScrollTrigger.create({ trigger: ".h-rec", start: "top 70%", end: "bottom 30%", onEnter: toRecord, onEnterBack: toRecord });
-  function toRecord() { setWorld("record"); goView(V.record); focusRidge(-1); stage.canHover = true; gsap.to("#stage", { opacity: 1, duration: .8 }); }
+  function toRecord() { setWorld("record"); goView(ST().views.record); focusRidge(-1); ST().canHover = true; gsap.to("#stage", { opacity: 1, duration: .8 }); }
   gsap.from(".rec-big > *", { yPercent: 110, duration: 1.2, ease: "power4.out", stagger: .08, scrollTrigger: { trigger: ".h-rec", start: "top 55%", once: true } });
   $$(".rec-big .count").forEach(c => { const o = { v: 0 }; gsap.to(o, { v: +c.getAttribute("data-to"), duration: 1.6, ease: "power3.out", onUpdate: () => { c.textContent = Math.round(o.v); }, scrollTrigger: { trigger: ".h-rec", start: "top 55%", once: true } }); });
   // everything after: the landscape dims and drifts
   ScrollTrigger.create({ trigger: ".h-deals-sec", start: "top 75%", onEnter: toCalm, onEnterBack: toCalm, onLeaveBack: toRecord });
-  function toCalm() { setWorld("calm"); goView(V.calm); focusRidge(-1); stage.canHover = false; if (stage.hoverOff) stage.hoverOff(); gsap.to("#stage", { opacity: .55, duration: 1 }); }
+  function toCalm() { setWorld("calm"); goView(ST().views.calm); focusRidge(-1); ST().canHover = false; if (ST().hoverOff) ST().hoverOff(); gsap.to("#stage", { opacity: .55, duration: 1 }); }
   // tools: sideways
   const track = $("#h-tools-track");
   if (track && innerWidth > 760) {
@@ -208,14 +231,20 @@ function tactile() {
 /* ---------- boot ----------------------------------------------------------- */
 setWorld("open", 0);
 renderIntro(); renderTools(); renderDeals(); renderAbout();
+list = chapters(); renderCalls(list);
+choreograph(); tactile();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitWord);
 addEventListener("resize", fitWord);
 cursor();
 if (DM.introDone) introIn(); else addEventListener("dm:intro", introIn, { once: true });
-DM.ledgerReady.then(() => {
+Promise.race([DM.ledgerReady, new Promise(r => setTimeout(r, 6000))]).then(() => {
+  fillCalls(); renderRecord();
+  if (window.ScrollTrigger) ScrollTrigger.refresh();
   const calls = DM.calls().slice().sort((a, b) => a.call_date < b.call_date ? 1 : -1);   // newest nearest the camera
-  if (calls.length && !DM.REDUCED) buildStage(calls);
-  list = chapters();
-  renderCalls(list); renderRecord();
-  choreograph(); tactile();
+  if (!calls.length || DM.REDUCED) return;
+  import("./stage.js?v=100").then(mod => {
+    S = mod; S.buildStage(calls);
+    if (!ST().ok) { S = null; return; }
+    if (activeCh > -1) aim(activeCh, 0); else setWorld("open", 0);
+  }).catch(() => {});   // no 3D: the page is complete without it
 });

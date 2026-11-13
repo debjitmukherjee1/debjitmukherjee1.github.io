@@ -128,7 +128,7 @@
       note: "The blend is the weight-averaged midpoint of each range; give a method a weight of 0 to show it without counting it. Every published note on this site uses several methods and a stated blend for the same reason." },
 
     { id: "hurdle", n: "The Hurdle", tag: "Rating engine", h: "The rule that <em>sets every rating.</em>",
-      blurb: "Ratings on this desk are set by expected total return against the local risk-free rate, not by feel. Enter a price and a fair value and it returns the rating, and the prices at which the rating would change.",
+      blurb: "Ratings on this site are set by expected total return against the local risk-free rate, not by feel. Enter a price and a fair value and it returns the rating, and the prices at which the rating would change.",
       fields: [["price", "Share price", 278.85, ""], ["fv", "Fair value", 288, ""], ["div", "Dividend yield", 5.2, "%"], ["rf", "10-year government yield", 7.21, "%"], ["ke", "Cost of equity", 11.78, "%"]],
       calc: function (v) {
         var tr = v.fv / v.price - 1 + v.div / 100, acc = v.rf / 100 + .02, ke = Math.max(v.ke / 100, acc), rating = tr < 0 ? "REDUCE" : tr < acc ? "HOLD" : tr < ke ? "ACCUMULATE" : "BUY";

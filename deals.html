@@ -25,7 +25,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/site.css?v=95">
+  <link rel="stylesheet" href="css/site.css?v=100">
   <script>
     (function (d) {
       d.classList.remove("no-js");
@@ -38,8 +38,6 @@
 </head>
 <body data-page="deals" data-world="HOLD">
 
-  <!-- First page of a visit only: a brief counter, then it wipes away. -->
-  <div class="loader" aria-hidden="true"><small>Debjit Mukherjee<br>Independent equity research</small><span id="loader-n">000</span></div>
 
   <!-- The landscape of every published call, drifting behind the page (js/stage.js). -->
   <canvas id="stage" aria-hidden="true"></canvas>
@@ -85,12 +83,12 @@
 
   <noscript><p style="padding:120px 24px;font-family:sans-serif">This site needs JavaScript to show the research library. The reports are also on <a href="https://www.linkedin.com/in/debjit-mukherjee101/">LinkedIn</a>.</p></noscript>
 
-  <!-- Motion libraries (free, from a CDN), then content, then behaviour. -->
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
-  <script src="js/data.js?v=14"></script>
-  <script src="js/site.js?v=95"></script>
-  <script type="module" src="js/ambient.js?v=95"></script>
+  <!-- Motion libraries (free; served from this site), then content, then behaviour. -->
+  <script src="js/vendor/gsap.min.js"></script>
+  <script src="js/vendor/ScrollTrigger.min.js"></script>
+  <script src="js/vendor/lenis.min.js"></script>
+  <script src="js/data.js?v=15"></script>
+  <script src="js/site.js?v=100"></script>
+  <script type="module" src="js/ambient.js?v=100"></script>
 </body>
 </html>

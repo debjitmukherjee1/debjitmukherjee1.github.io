@@ -6,24 +6,16 @@
    Exports the scene controls used by home.js (camera views, focusing a ridge,
    changing the colour of the "world") and by the small ambient script on the
    inner pages. Pointing at the landscape names the nearest call; clicking it
-   opens the note. three.js is free and loaded from a CDN.
+   opens the note. three.js is free (MIT) and served from js/vendor/ on this site.
    ========================================================================== */
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js";
+import * as THREE from "./vendor/three.module.min.js";
 
 const DM = window.DM;
 const $ = (s, r) => (r || document).querySelector(s);
 const MOTION = DM.HAS_GSAP, gsap = window.gsap, root = document.documentElement;
 
 /* ---------- worlds: the colour of the page at each point ------------------ */
-export const WORLDS = {     // [glow, base] — grey everywhere except inside a call chapter, which takes its rating's colour
-  open:       ["#6a6e78", "#050505"],
-  BUY:        ["#19e68c", "#050907"],
-  ACCUMULATE: ["#1fd8c4", "#05090a"],
-  HOLD:       ["#8f7dff", "#07060d"],
-  REDUCE:     ["#ff5a36", "#0b0605"],
-  record:     ["#7c808a", "#050505"],
-  calm:       ["#3c3e44", "#050505"]
-};
+export const WORLDS = DM.WORLDS;   // defined in site.js so the page can colour itself before this module loads
 const world = { a: new THREE.Color(WORLDS.open[0]), b: new THREE.Color(WORLDS.open[1]) };
 export function setWorld(name, dur) {
   const w = WORLDS[name] || WORLDS.calm, a = new THREE.Color(w[0]), b = new THREE.Color(w[1]);
@@ -189,7 +181,7 @@ export function buildStage(calls) {
     let best = -1, bd = 90 * 90, bx = 0, by = 0;
     stage.ridges.forEach((r, i) => { v3.set(r.end.x, r.end.y * r.rise.value, r.z).project(cam); if (v3.z > 1) return; const x = (v3.x + 1) / 2 * innerWidth, y = (1 - v3.y) / 2 * innerHeight, d = (x - e.clientX) ** 2 + (y - e.clientY) ** 2; if (d < bd) { bd = d; best = i; bx = x; by = y; } });
     hoverRidge(best);
-    if (best > -1) { const c = stage.ridges[best].call; tip.innerHTML = "<b>" + c.ticker + "</b> " + c.rating + '<span>' + (c.return_pct > 0 ? "+" : c.return_pct < 0 ? "−" : "") + Math.abs(c.return_pct).toFixed(1) + "% since the call</span>"; tip.style.transform = "translate(" + bx + "px," + by + "px)"; }
+    if (best > -1) { const c = stage.ridges[best].call; tip.innerHTML = "<b>" + DM.esc(c.ticker) + "</b> " + DM.esc(c.market === "India" ? "valuation note" : c.rating) + '<span>' + (c.return_pct > 0 ? "+" : c.return_pct < 0 ? "−" : "") + Math.abs(c.return_pct).toFixed(1) + "% since the call</span>"; tip.style.transform = "translate(" + bx + "px," + by + "px)"; }
     tip.classList.toggle("on", best > -1); document.body.classList.toggle("ridge-hot", best > -1);
   }
   function hoverRidge(i) {
