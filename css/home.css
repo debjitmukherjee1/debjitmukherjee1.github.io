@@ -241,3 +241,5 @@ body[data-page="home"] .tape { background: rgba(255, 255, 255, .04); -webkit-bac
   .h-title { font-size: clamp(40px, 12vw, 60px); }
   .sk-track span { font-size: 44px; }
 }
+/* mid-width windows: lift the hero's buttons clear of the dock */
+@media (min-width: 821px) and (max-width: 1280px) { .h-foot { bottom: 82px; } .h-status { bottom: 142px; } .h-line { margin-bottom: 27vh; } }
