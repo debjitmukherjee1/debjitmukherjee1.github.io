@@ -920,8 +920,8 @@ const siteData = {
       { text: "None of this is investment advice, a recommendation to buy, sell or hold any security, or an offer of any kind." },
       { text: "Every target is set on a 12-month horizon. None of the Indian calls is a year old yet, so their returns so far are early readings, not evidence of accuracy." },
       { text: "Each note is published in full on my website, with its outcome, once its 12-month horizon ends. Until then it is shared only privately, one person at a time." },
-      { text: "I hold no position in any company covered in these notes.", needsConfirming: true, confirmed: false },
-      { text: "I have not been paid by, and have no business relationship with, any company covered in these notes.", needsConfirming: true, confirmed: false }
+      { text: "I hold no shares in any company covered in these notes. My only investments are units in HDFC Mutual Fund schemes. HDFC Mutual Fund is run by HDFC Asset Management Company, a separate company from HDFC Bank, and I do not choose which stocks those schemes hold, so they may include companies covered here.", needsConfirming: true, confirmed: true },
+      { text: "I have never been paid by any company covered in these notes, and I do not work for or advise any of them.", needsConfirming: true, confirmed: true }
     ],
     terms: [
       { title: "Purpose", text: "You are asking for these materials only to assess me for a job, an internship, or an academic or professional purpose of the same kind." },
