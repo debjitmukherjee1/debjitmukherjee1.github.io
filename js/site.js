@@ -128,7 +128,7 @@
     nav.innerHTML =
       '<a class="brand" href="./" aria-label="' + esc(hero.name) + ' — home"><span class="brand-mark" aria-hidden="true">dm</span><span>' + esc(hero.name) + "<small>Independent equity research</small></span></a>" +
       '<nav class="nav-links" aria-label="Site pages">' + links + "</nav>" +
-      '<div class="nav-right"><div class="clock" id="clock" aria-hidden="true"></div>' +
+      '<div class="nav-right">' +
       '<button class="icon-btn pal-btn" id="pal-btn" type="button" aria-label="Search the site (Ctrl or Command K)"><svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.4"/><path d="m10.5 10.5 3.5 3.5" stroke="currentColor" stroke-width="1.4"/></svg><span>Search</span><kbd>⌘K</kbd></button>' +
       '<button class="icon-btn menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu">Menu</button></div>';
     document.body.insertBefore(nav, document.body.firstChild);

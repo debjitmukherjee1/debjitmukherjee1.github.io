@@ -125,7 +125,7 @@ function renderAbout() {
   const exp = $("#h-exp");
   if (exp) exp.innerHTML = (D.experience || []).map(x => '<a class="xp" href="about#experience" data-cursor="Profile"><span class="mono">' + esc(x.dates) + "</span><h3>" + esc(x.company) + '</h3><span class="xp-role">' + esc(x.role) + "</span>" + ARROW + "</a>").join("");
   const sk = $("#h-skills");
-  if (sk && D.skills) { const all = (D.skills.technical || []).concat(D.skills.soft || []), row = all.map(s => "<span>" + esc(s) + "</span>").join(""); sk.innerHTML = '<div class="sk-track">' + row + '</div><div class="sk-track" aria-hidden="true">' + row + "</div>"; }
+  if (sk && D.skills) sk.innerHTML = '<div class="wrap"><h3 class="sec-label mono">Skills</h3><div class="chips">' + (D.skills.technical || []).map(s => '<span class="chip">' + esc(s) + "</span>").join("") + "</div></div>";
 }
 
 /* ---------- choreography --------------------------------------------------- */
@@ -161,7 +161,7 @@ function choreograph() {
   if (!MOTION) { root.classList.add("static-home"); setWorld("open", 0); return; }
   gsap.registerPlugin(ScrollTrigger);
   // intro: the headline grows and passes as the camera dives
-  const intro = gsap.timeline({ scrollTrigger: { trigger: ".h-intro", start: "top top", end: "+=130%", pin: true, scrub: .6,
+  const intro = gsap.timeline({ scrollTrigger: { trigger: ".h-intro", start: "top top", end: "+=70%", pin: true, scrub: .6,
     onUpdate: s => { if (ST().ok) blendView(ST().views.hero, ST().views.dive, gsap.parseEase("power2.inOut")(s.progress)); },
     onLeave: () => {}, onEnterBack: () => { setWorld("open"); focusRidge(-1); } } });
   intro.to("#h-word", { yPercent: -130, opacity: 0, ease: "power2.in", duration: .22 }, 0)
@@ -171,19 +171,19 @@ function choreograph() {
   // calls: one chapter per step
   const n = list.length + 1;
   gsap.set(".call-ch", { autoAlpha: 0 });
-  ScrollTrigger.create({ trigger: ".h-calls", start: "top top", end: "+=" + n * 85 + "%", pin: true,
+  ScrollTrigger.create({ trigger: ".h-calls", start: "top top", end: "+=" + n * 55 + "%", pin: true,
     onUpdate: s => showChapter(Math.min(n - 1, Math.floor(s.progress * n))),
     onEnter: () => { root.classList.add("in-calls"); showChapter(0); }, onEnterBack: () => { root.classList.add("in-calls"); showChapter(n - 1); },
     onLeave: () => root.classList.remove("in-calls"), onLeaveBack: () => { root.classList.remove("in-calls"); const c = $$(".call-ch")[activeCh]; if (c) gsap.to(c, { autoAlpha: 0, duration: .3 }); activeCh = -1; setWorld("open"); focusRidge(-1); } });
   $("#h-rail").addEventListener("click", e => { const b = e.target.closest("[data-go]"); if (!b) return; const st = ScrollTrigger.getAll().find(t => t.trigger && t.trigger.classList.contains("h-calls")); if (!st) return; const y = st.start + (st.end - st.start) * ((+b.getAttribute("data-go") + .5) / n); DM.lenis() ? DM.lenis().scrollTo(y, { duration: 1.2 }) : scrollTo({ top: y, behavior: "smooth" }); });
   // record: from above
   ScrollTrigger.create({ trigger: ".h-rec", start: "top 70%", end: "bottom 30%", onEnter: toRecord, onEnterBack: toRecord });
-  function toRecord() { setWorld("record"); goView(ST().views.record); focusRidge(-1); ST().canHover = true; gsap.to("#stage", { opacity: 1, duration: .8 }); }
+  function toRecord() { if (S) ST().quiet = false; setWorld("record"); goView(ST().views.record); focusRidge(-1); ST().canHover = true; gsap.to("#stage", { opacity: 1, duration: .8 }); }
   gsap.from(".rec-big > *", { yPercent: 110, duration: 1.2, ease: "power4.out", stagger: .08, scrollTrigger: { trigger: ".h-rec", start: "top 55%", once: true } });
   $$(".rec-big .count").forEach(c => { const o = { v: 0 }; gsap.to(o, { v: +c.getAttribute("data-to"), duration: 1.6, ease: "power3.out", onUpdate: () => { c.textContent = Math.round(o.v); }, scrollTrigger: { trigger: ".h-rec", start: "top 55%", once: true } }); });
   // everything after: the landscape dims and drifts
   ScrollTrigger.create({ trigger: ".h-deals-sec", start: "top 75%", onEnter: toCalm, onEnterBack: toCalm, onLeaveBack: toRecord });
-  function toCalm() { setWorld("calm"); goView(ST().views.calm); focusRidge(-1); ST().canHover = false; if (ST().hoverOff) ST().hoverOff(); gsap.to("#stage", { opacity: .55, duration: 1 }); }
+  function toCalm() { if (S) ST().quiet = true; setWorld("calm"); goView(ST().views.calm); focusRidge(-1); ST().canHover = false; if (ST().hoverOff) ST().hoverOff(); gsap.to("#stage", { opacity: .55, duration: 1 }); }
   // tools: sideways
   const track = $("#h-tools-track");
   if (track && innerWidth > 760) {
@@ -200,17 +200,6 @@ function introIn() {
   gsap.from("#h-line .hl > span", { yPercent: 110, duration: 1.1, ease: "power4.out", stagger: .09, delay: .35 });
   gsap.from(".h-foot > *, .h-status > *", { opacity: 0, y: 18, duration: .8, stagger: .07, delay: .8 });
 }
-function cursor() {
-  if (!MOTION || !matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-  const c = document.createElement("div"); c.className = "cur"; c.innerHTML = "<span></span>"; document.body.appendChild(c); gsap.set(c, { xPercent: -50, yPercent: -50 });
-  const x = gsap.quickTo(c, "x", { duration: .35, ease: "power3" }), y = gsap.quickTo(c, "y", { duration: .35, ease: "power3" });
-  addEventListener("pointermove", e => { x(e.clientX); y(e.clientY); c.classList.add("live"); }, { passive: true });
-  document.addEventListener("pointerover", e => {
-    const t = e.target.closest && e.target.closest("[data-cursor]"), l = e.target.closest && e.target.closest("a,button,[data-open],tr[data-open]");
-    c.classList.toggle("label", !!t); c.classList.toggle("link", !t && !!l); c.firstChild.textContent = t ? t.getAttribute("data-cursor") : "";
-  });
-}
-
 function tactile() {
   if (!MOTION || !matchMedia("(hover: hover) and (pointer: fine)").matches) return;
   // tool screenshots lean toward the pointer
@@ -220,29 +209,29 @@ function tactile() {
     shot.parentNode.addEventListener("pointermove", e => { const r = shot.getBoundingClientRect(); ry(((e.clientX - r.left) / r.width - .5) * 14); rx(-((e.clientY - r.top) / r.height - .5) * 10); });
     shot.parentNode.addEventListener("pointerleave", () => { rx(0); ry(0); });
   });
-  // buttons are slightly magnetic
-  $$(".h-cta .btn, .cc-side .btn, .h-head .btn").forEach(b => {
-    const x = gsap.quickTo(b, "x", { duration: .5, ease: "power3" }), y = gsap.quickTo(b, "y", { duration: .5, ease: "power3" });
-    b.addEventListener("pointermove", e => { const r = b.getBoundingClientRect(); x((e.clientX - r.left - r.width / 2) * .3); y((e.clientY - r.top - r.height / 2) * .4); });
-    b.addEventListener("pointerleave", () => { x(0); y(0); });
-  });
 }
 
 /* ---------- boot ----------------------------------------------------------- */
+// "Skip to the research": jump past the intro to the first report chapter
+const skipBtn = $("#h-skip");
+if (skipBtn) skipBtn.addEventListener("click", () => {
+  const st = window.ScrollTrigger && ScrollTrigger.getAll().find(t => t.trigger && t.trigger.classList.contains("h-calls"));
+  const y = st ? st.start + Math.min(60, (st.end - st.start) * .02) : $("#research").getBoundingClientRect().top + scrollY;
+  DM.lenis() ? DM.lenis().scrollTo(y, { duration: 1 }) : scrollTo({ top: y, behavior: "smooth" });
+});
 setWorld("open", 0);
 renderIntro(); renderTools(); renderDeals(); renderAbout();
 list = chapters(); renderCalls(list);
 choreograph(); tactile();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitWord);
 addEventListener("resize", fitWord);
-cursor();
 if (DM.introDone) introIn(); else addEventListener("dm:intro", introIn, { once: true });
 Promise.race([DM.ledgerReady, new Promise(r => setTimeout(r, 6000))]).then(() => {
   fillCalls(); renderRecord();
   if (window.ScrollTrigger) ScrollTrigger.refresh();
   const calls = DM.calls().slice().sort((a, b) => a.call_date < b.call_date ? 1 : -1);   // newest nearest the camera
   if (!calls.length || DM.REDUCED) return;
-  import("./stage.js?v=100").then(mod => {
+  import("./stage.js?v=110").then(mod => {
     S = mod; S.buildStage(calls);
     if (!ST().ok) { S = null; return; }
     if (activeCh > -1) aim(activeCh, 0); else setWorld("open", 0);

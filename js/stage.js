@@ -29,10 +29,10 @@ export const stage = { ok: false, hover: -1, canHover: true, goal: { p: new THRE
 const W = 28, S = 1.7, FLOOR = -7, YS = .1;
 export function buildStage(calls) {
   const canvas = $("#stage"); if (!canvas) return;
-  let renderer;
-  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" }); renderer.setClearColor(0x000000, 0); } catch (e) { return; }
   const small = innerWidth < 760;
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, small ? 1.5 : 2));
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: !small, alpha: true, powerPreference: "low-power", failIfMajorPerformanceCaveat: true }); renderer.setClearColor(0x000000, 0); } catch (e) { return; }
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, small ? 1.25 : 1.5));
   const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(small ? 58 : 44, 1, .1, 400);
   const N = calls.length, DEPTH = N * S;
   let t0 = Infinity, t1 = -Infinity;
@@ -147,6 +147,9 @@ export function buildStage(calls) {
 
   const baseFov = cam.fov; let fov = baseFov;
   let last = performance.now(), running = true;
+  // Slow machine (software rendering, an old integrated GPU): after a short sample, stop animating the
+  // landscape and draw it only while the camera is moving. Glass effects are switched off too (.low-power).
+  let sampleFrames = 0, sampleStart = 0, slow = false, frameNo = 0;
   document.addEventListener("visibilitychange", () => { running = !document.hidden; if (running) { last = performance.now(); requestAnimationFrame(frame); } });
   function frame(now) {
     if (!running) return;
@@ -163,7 +166,14 @@ export function buildStage(calls) {
     stage.cam = cam;
     dust.position.x = Math.sin(now * .00006) * 2; dust.rotation.y = now * .000008;
     bright.material.opacity = .6 + .35 * Math.sin(now * .0017); bright.rotation.y = now * .000005;
-    renderer.render(scene, cam);
+    frameNo++;
+    if (!sampleStart) sampleStart = now;
+    else if (!slow && now - sampleStart < 4000) sampleFrames++;
+    else if (!slow && sampleFrames && sampleFrames / ((now - sampleStart) / 1000) < 24 && now - sampleStart < 4500) {
+      slow = stage.slow = true; root.classList.add("low-power");
+    }
+    const moving = cur.p.distanceToSquared(stage.goal.p) + cur.l.distanceToSquared(stage.goal.l) > 1e-4;
+    if (slow ? moving || frameNo % 30 === 0 : !(stage.quiet && frameNo % 2)) renderer.render(scene, cam);
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);

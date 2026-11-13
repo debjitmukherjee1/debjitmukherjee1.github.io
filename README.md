@@ -33,9 +33,8 @@ portfolio/
 ├── js/
 │   ├── data.js         ← ★ ALL CONTENT — the only file you edit
 │   ├── site.js         ← rendering + behaviour for every page
-│   ├── stage.js        ← the 3D landscape of every call (shared by all pages)
+│   ├── stage.js        ← the 3D landscape of every call (Overview only)
 │   ├── home.js         ← the Overview: scroll chapters that drive the landscape
-│   ├── ambient.js      ← inner pages: the landscape drifting behind the content
 │   └── lab.js          ← the Workbench calculators (maths lives here)
 ├── data/               ← deal-tracker.json, refreshed by a GitHub Action
 └── assets/
@@ -50,7 +49,8 @@ read Ledger (`/ledger/data/calls.json`); the deal tracker reads
 **The Overview's opening lines** are `hero.headline` (one entry per line) in
 `data.js`.
 The colour the page takes for each rating is the `WORLDS` table at the top of
-`js/stage.js`; each inner page picks its colour with `data-world` on `<body>`. Tool screenshots live in `assets/images/tools/<name>.jpg`
+`js/stage.js`. The 3D scene appears only on the Overview; on a slow machine it switches to a
+still frame and the glass effects turn solid (`low-power`). Tool screenshots live in `assets/images/tools/<name>.jpg`
 (lower-case tool name); retake one whenever a tool's look changes.
 
 **Indian notes:** the public site shows Indian listed companies as valuation notes
