@@ -392,7 +392,7 @@
     spread: '<path class="g-m" d="M0 30H400"/><path class="g-s" d="M0 96C80 92 120 60 180 52S300 38 400 32"/><path class="g-m" d="M300 30v9" /><circle class="g-f" cx="400" cy="32" r="4"/><circle class="g-f" cx="180" cy="52" r="3"/>',
     band: '<rect class="g-d" x="30" y="48" width="90" height="24" rx="4" opacity=".5"/><rect class="g-d" x="124" y="48" width="110" height="24" rx="4"/><rect class="g-f" x="238" y="48" width="60" height="24" rx="4" opacity=".55"/><rect class="g-f" x="302" y="48" width="68" height="24" rx="4"/><path class="g-s" d="M212 34v52"/>'
   };
-  var GLYPH_FOR = { Meridian: "flow", MarketPulse: "bars", Ledger: "line", Abacus: "heat", Tenline: "ten", rdcf: "curve", lbo: "sweep", merger: "merge", arb: "spread", ff: "field", hurdle: "band" };
+  var GLYPH_FOR = { Meridian: "flow", MarketPulse: "bars", Ledger: "line", Abacus: "heat", Tenline: "ten", Tenor: "curve", Covenant: "sweep", Redline: "band", rdcf: "curve", lbo: "sweep", merger: "merge", arb: "spread", ff: "field", hurdle: "band" };
   function glyph(key, i) {
     var keys = Object.keys(GLYPHS), g = GLYPHS[GLYPH_FOR[key]] || GLYPHS[keys[i % keys.length]];
     return '<div class="tool-glyph" aria-hidden="true"><svg viewBox="0 0 400 120" preserveAspectRatio="none">' + g + "</svg></div>";

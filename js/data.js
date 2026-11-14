@@ -886,6 +886,42 @@ const siteData = {
         "Revenue, margins, FCF, ROIC and share count, charted straight from SEC filings",
         "No narrative overlay — just the ten lines"
       ]
+    },
+    {
+      name: "Tenor",
+      status: "live",
+      url: "https://debjitmukherjee1.github.io/tenor/",
+      type: "RATES + CREDIT",
+      summary: "The rates desk on one page: the US Treasury curve and its inversions since 2000, implied forwards, real yields and breakevens, the policy rate and credit spreads, refreshed every weekday from public data.",
+      features: [
+        "Today's Treasury curve against a week, a month, a year and five years ago, with a replay of any day since 2000",
+        "Every 10Y−2Y and 10Y−3M inversion since 2000, with start, end, length and depth",
+        "Real yields, breakevens and high-yield and investment-grade credit spreads with percentiles"
+      ]
+    },
+    {
+      name: "Covenant",
+      status: "live",
+      url: "https://debjitmukherjee1.github.io/covenant/",
+      type: "CREDIT STRESS",
+      summary: "Build a company's debt stack, then break it: covenant tests, liquidity and the maturity wall under EBITDA and rate shocks, and a recovery waterfall that finds the fulcrum security. Runs entirely in the browser.",
+      features: [
+        "Editable debt stack with leverage through each tranche and maintenance covenants",
+        "Five-year stress projection and a breach grid across EBITDA and rate shocks",
+        "Distressed value, absolute-priority waterfall and recovery by tranche"
+      ]
+    },
+    {
+      name: "Redline",
+      status: "live",
+      url: "https://debjitmukherjee1.github.io/redline/",
+      type: "FILING ANALYSIS",
+      summary: "Read a 10-K section or earnings-call transcript like an analyst: tone, readability and forward-looking language, plus a sentence-level redline of what changed year on year. The text never leaves your browser.",
+      features: [
+        "Finance-specific tone and readability scores, and the most negative passages",
+        "Year-on-year redline of risk factors: added, removed and rewritten sentences",
+        "Every formula sourced to the academic literature it comes from"
+      ]
     }
   ],
 
