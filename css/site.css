@@ -531,7 +531,7 @@ main { position: relative; z-index: 1; }
 .cc-side:hover::after, .deal-x:hover::after, .nav-links:hover::after, .ld:hover::after, .tp-bench:hover::after, .panel:hover::after { opacity: 1; }
 
 /* ---------- headings: grey, with the emphasised words in white ----------- */
-.sec-title, .h-title, .tp-lead h2, .contact .display, .lab-intro h2, .page-head .display { color: #8d9097; font-weight: 400; }
+.sec-title, .h-title, .tp-lead h2, .contact .display, .lab-intro h2, .page-head .display { color: #a7aab1; font-weight: 400; }
 .sec-title em, .h-title em, .tp-lead h2 em, .display em, .lab-intro h2 em, .wordmark em { color: var(--ink); font-style: normal; }
 .page-head .display { color: var(--ink); }
 .wordmark { color: #3a3b3f; }
@@ -711,3 +711,22 @@ html { scroll-padding-top: 80px; scroll-padding-bottom: 110px; }
 /* research: why the rating mix leans cautious */
 .band-note { max-width: 74ch; margin-top: 28px; color: var(--ink-2); font-size: 15.5px; line-height: 1.6; }
 .band-note b { color: var(--ink); font-weight: 500; }
+
+/* ---------- ratings in black and white: the badge shape carries the rating, not a colour ----------
+   BUY solid white · ACCUMULATE white outline · HOLD grey outline · REDUCE dashed outline · under review: grey text */
+.pill.r-buy { background: var(--ink); border-color: var(--ink); color: #050505; }
+.pill.r-accumulate { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+.pill.r-hold { background: transparent; color: var(--ink-2); border: 1px solid rgba(255, 255, 255, .32); }
+.pill.r-reduce { background: transparent; color: var(--ink-2); border: 1px dashed rgba(255, 255, 255, .6); }
+.pill.r-review { color: var(--mute); border-color: transparent; background: transparent; padding-left: 4px; }
+.pill.live::before { background: var(--ink-2); }
+.dist .d-buy { background: var(--ink); color: #050505; }
+.dist .d-accumulate { background: #a9acb3; color: #050505; }
+.dist .d-hold { background: var(--bg-3); color: var(--ink-2); }
+.dist .d-reduce { background: repeating-linear-gradient(135deg, #2a2b2f 0 6px, #1b1c1f 6px 12px); color: var(--ink-2); }
+/* ticker direction arrows in grey */
+.tape a i.up, .tape a i.down { color: var(--ink-2); } .tape a i.flat { color: var(--mute); }
+
+/* a soft fade behind the bottom dock, so text scrolling under it never collides with the buttons */
+@media (min-width: 821px) { body::before { content: ""; position: fixed; left: 0; right: 0; bottom: 0; height: 120px; z-index: 60; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(5, 5, 5, 0), rgba(5, 5, 5, .86) 70%, #050505); } }

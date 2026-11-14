@@ -265,3 +265,6 @@ html:not(.in-calls):not(.static-home) .h-rail { opacity: 0; visibility: hidden; 
 /* the tucked calls section overlaps the intro: let clicks pass through it until the calls begin */
 html:not(.in-calls):not(.static-home) .h-calls, .pin-spacer:has(> .h-calls) { pointer-events: none; }
 html.in-calls .h-calls { pointer-events: auto; }
+
+/* keep the call rail clear of the chapter card */
+@media (min-width: 701px) { .h-rail { right: 16px; } .cc-side { right: calc(var(--pad) + 96px); } }
