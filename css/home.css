@@ -273,3 +273,6 @@ body[data-page="home"] .tape { background: rgba(255, 255, 255, .04); -webkit-bac
 /* the calls section now sits under the intro: keep its rail out of sight until the calls begin */
 .h-rail { transition: opacity .5s var(--ease), visibility .5s; }
 html:not(.in-calls):not(.static-home) .h-rail { opacity: 0; visibility: hidden; }
+/* the tucked calls section overlaps the intro: let clicks pass through it until the calls begin */
+html:not(.in-calls):not(.static-home) .h-calls, .pin-spacer:has(> .h-calls) { pointer-events: none; }
+html.in-calls .h-calls { pointer-events: auto; }
