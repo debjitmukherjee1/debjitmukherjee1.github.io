@@ -707,3 +707,7 @@ html { scroll-padding-top: 80px; scroll-padding-bottom: 110px; }
 .page-head-row > div:first-child { container-type: inline-size; }
 .page-head .display[style*="--fit"] { font-size: min(clamp(64px, 12.5vw, 230px), calc(100cqi / var(--fit))); }
 @media (max-width: 700px) { .page-head .display[style*="--fit"] { font-size: min(clamp(48px, 15.6vw, 84px), calc(100cqi / var(--fit))); } }
+
+/* research: why the rating mix leans cautious */
+.band-note { max-width: 74ch; margin-top: 28px; color: var(--ink-2); font-size: 15.5px; line-height: 1.6; }
+.band-note b { color: var(--ink); font-weight: 500; }
