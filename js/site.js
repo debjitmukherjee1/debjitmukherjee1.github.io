@@ -512,7 +512,8 @@
             '<div class="card-foot mono"><span>' + esc(m.fv ? "FV " + m.fv : m.kind) + (m.upside != null ? ' · <span class="' + cls(m.upside) + '">' + pct(m.upside) + "</span>" : "") + '</span><span class="go">' + ARROW + "</span></div></button>";
         }).join("") + "</div>";
       }
-      if (HAS_GSAP) gsap.from(host.querySelectorAll("tbody tr, .card"), { opacity: 0, y: 14, duration: .45, stagger: .015, ease: "power2.out", clearProps: "all" });
+      // animate only what's on screen; the rest appears at once (a staggered fade on every row grows without limit)
+      if (HAS_GSAP) { var first = Array.prototype.slice.call(host.querySelectorAll("tbody tr, .card"), 0, 24); if (first.length) gsap.from(first, { opacity: 0, y: 14, duration: .45, stagger: .015, ease: "power2.out", clearProps: "all" }); }
       if (window.ScrollTrigger) ScrollTrigger.refresh();
     }
     $("#lib-search").addEventListener("input", function (e) { st.q = e.target.value; draw(); });

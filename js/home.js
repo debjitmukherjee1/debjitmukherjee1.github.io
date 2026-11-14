@@ -158,8 +158,19 @@ function showChapter(i) {
   });
   gsap.fromTo($(".cc-side", ch), { y: 60 * dir, opacity: 0, scale: .96 }, { y: 0, opacity: 1, scale: 1, duration: .9, ease: "power3.out", overwrite: true });
 }
+// Weak device? The pinned scroll scenes need a reasonably fast phone; below that the plain layout stays smooth.
+// A ~5 ms check on a laptop: about 16 ms at 6x slower, 21 ms at 8x (the point where scenes start to stutter).
+function weakDevice() {
+  try {
+    const n = navigator;
+    if (n.connection && n.connection.saveData) return true;
+    if (n.deviceMemory && n.deviceMemory <= 2) return true;
+    const run = () => { const t = performance.now(); let x = 0; for (let i = 0; i < 400000; i++) x += Math.sqrt(i) * Math.sin(i); const el = document.createElement("div"); for (let i = 0; i < 300; i++) el.appendChild(document.createElement("span")); el.textContent = ""; return performance.now() - t + (x > Infinity ? 1 : 0); };
+    return Math.min(run(), run()) > 18;
+  } catch (e) { return false; }
+}
 function choreograph() {
-  if (!MOTION || innerHeight < 560) { root.classList.add("static-home"); setWorld("open", 0); return; }
+  if (!MOTION || innerHeight < 560 || weakDevice()) { root.classList.add("static-home"); setWorld("open", 0); return; }
   gsap.registerPlugin(ScrollTrigger);
   // intro: the headline grows and passes as the camera dives
   // One continuous move, no hold and no 9x zoom (huge scaled text re-rasterises and stutters).
@@ -237,7 +248,7 @@ Promise.race([DM.ledgerReady, new Promise(r => setTimeout(r, 6000))]).then(() =>
   if (window.ScrollTrigger) ScrollTrigger.refresh();
   const calls = DM.calls().slice().sort((a, b) => a.call_date < b.call_date ? 1 : -1);   // newest nearest the camera
   if (!calls.length || DM.REDUCED) return;
-  import("./stage.js?v=120").then(mod => {
+  import("./stage.js?v=121").then(mod => {
     S = mod; S.buildStage(calls);
     if (!ST().ok) { S = null; return; }
     if (activeCh > -1) aim(activeCh, 0); else setWorld("open", 0);

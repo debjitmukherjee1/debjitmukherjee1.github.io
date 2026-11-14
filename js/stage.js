@@ -151,8 +151,8 @@ export function buildStage(calls) {
   let last = performance.now(), running = true;
   // Slow machine (software rendering, an old integrated GPU): after a short sample, stop animating the
   // landscape and draw it only while the camera is moving. Glass effects are switched off too (.low-power).
-  let sampleFrames = 0, sampleStart = 0, slow = false, frameNo = 0;
-  document.addEventListener("visibilitychange", () => { running = !document.hidden && !canvas._lost; if (running) { last = performance.now(); requestAnimationFrame(frame); } });
+  let sampleFrames = 0, sampleStart = 0, slow = false, frameNo = 0, tier = 0;
+  document.addEventListener("visibilitychange", () => { running = !document.hidden && !canvas._lost; sampleStart = 0; sampleFrames = 0; if (running) { last = performance.now(); requestAnimationFrame(frame); } });
   function frame(now) {
     if (!running || canvas._lost) return;
     const dt = Math.min(.05, (now - last) / 1000); last = now;
@@ -169,16 +169,26 @@ export function buildStage(calls) {
     dust.position.x = Math.sin(now * .00006) * 2; dust.rotation.y = now * .000008;
     bright.material.opacity = .6 + .35 * Math.sin(now * .0017); bright.rotation.y = now * .000005;
     frameNo++;
+    // Quality governor: measure the frame rate over every 2-second window, all the time (not just at load),
+    // and step down when the device can't keep up: sharpness first, then glass effects, then animation.
+    // It only ever steps down, so quality never flickers back and forth.
     if (!sampleStart) sampleStart = now;
-    else if (!slow && now - sampleStart < 4000) sampleFrames++;
-    else if (!slow && sampleFrames && sampleFrames / ((now - sampleStart) / 1000) < 24 && now - sampleStart < 4500) {
-      slow = stage.slow = true; root.classList.add("low-power");
+    else if (now - sampleStart < 2000) sampleFrames++;
+    else {
+      const fps = sampleFrames / ((now - sampleStart) / 1000);
+      if (fps < 48 && tier < 1) { tier = 1; renderer.setPixelRatio(1); size(); }
+      else if (fps < 36 && tier < 2) { tier = 2; renderer.setPixelRatio(.75); size(); root.classList.add("low-power"); }
+      else if (fps < 24 && !slow) { slow = stage.slow = true; root.classList.add("low-power"); }
+      stage.tier = slow ? 3 : tier;
+      sampleStart = now; sampleFrames = 0;
     }
     const moving = cur.p.distanceToSquared(stage.goal.p) + cur.l.distanceToSquared(stage.goal.l) > 1e-4;
     if (slow ? moving || frameNo % 30 === 0 : !(stage.quiet && frameNo % 2)) renderer.render(scene, cam);
     requestAnimationFrame(frame);
   }
-  requestAnimationFrame(frame);
+  // compile the shaders off the main thread where the browser supports it, so the page doesn't freeze on load
+  const ready = renderer.compileAsync ? renderer.compileAsync(scene, cam).catch(() => {}) : Promise.resolve();
+  ready.then(() => requestAnimationFrame(frame));
   stage.ok = true;
   root.classList.add("has-stage");
   if (MOTION) stage.ridges.forEach((r, i) => {

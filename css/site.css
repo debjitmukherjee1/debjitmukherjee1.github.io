@@ -296,7 +296,7 @@ body::after {
 .contact-links a:last-child { border-bottom: 1px solid var(--line); }
 .contact-links a:hover { padding-left: 12px; color: var(--accent-text); }
 .contact-links a span { font: 400 12px var(--mono); color: var(--mute); letter-spacing: .08em; }
-.wordmark { font: 400 clamp(48px, 13vw, 290px)/1 var(--display); letter-spacing: -.028em; white-space: nowrap; margin: clamp(40px, 8vh, 100px) 0 .06em; text-align: center; color: var(--ink); user-select: none; }
+.wordmark { font: 400 clamp(40px, 11.8vw, 200px)/1 var(--display); letter-spacing: -.028em; white-space: nowrap; margin: clamp(40px, 8vh, 100px) 0 .06em; text-align: center; color: var(--ink); user-select: none; }
 .wordmark em { font-style: normal; color: var(--accent-text); }
 .foot { border-top: 1px solid var(--line); padding: 22px 0 28px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 32px; color: var(--mute); font-size: 12px; position: relative; background: var(--bg); }
 .foot p { max-width: 70ch; }
@@ -606,7 +606,7 @@ main { position: relative; z-index: 1; }
   .lib-count { margin-left: 0; }
   .sector-row { flex-wrap: nowrap; overflow-x: auto; margin: 0 calc(var(--pad) * -1) 20px; padding: 0 var(--pad); scrollbar-width: none; } .sector-row button { flex: none; }
   .contact { padding-top: 72px; } .contact .display { font-size: clamp(40px, 12.5vw, 60px); }
-  .wordmark { font-size: 12.6vw; margin-top: 44px; }
+  .wordmark { font-size: 11.8vw; margin-top: 44px; }
   .foot { padding-bottom: 28px; }
   .sheet-body { padding: 20px 18px 28px; } .sheet-body h2 { font-size: 34px; } .keys dd { font-size: 19px; }
   .big-chart svg { height: 170px; } .chart-stats b { font-size: 18px; }
