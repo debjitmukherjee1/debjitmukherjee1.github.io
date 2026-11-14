@@ -162,13 +162,18 @@ function choreograph() {
   if (!MOTION || innerHeight < 560) { root.classList.add("static-home"); setWorld("open", 0); return; }
   gsap.registerPlugin(ScrollTrigger);
   // intro: the headline grows and passes as the camera dives
-  const intro = gsap.timeline({ scrollTrigger: { trigger: ".h-intro", start: "top top", end: "+=70%", pin: true, scrub: .6,
+  // One continuous move, no hold and no 9x zoom (huge scaled text re-rasterises and stutters).
+  // The calls section is pulled up under the intro, so the first call arrives as the headline
+  // leaves, instead of after a screen of empty scrolling.
+  const intro = gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: ".h-intro", start: "top top", end: "+=60%", pin: true, scrub: .4,
     onUpdate: s => { if (ST().ok) blendView(ST().views.hero, ST().views.dive, gsap.parseEase("power2.inOut")(s.progress)); },
-    onLeave: () => {}, onEnterBack: () => { setWorld("open"); focusRidge(-1); } } });
-  intro.to("#h-word", { yPercent: -130, opacity: 0, ease: "power2.in", duration: .22 }, 0)
-    .to(".h-foot, .h-status", { autoAlpha: 0, y: 30, duration: .12 }, 0)
-    .to("#h-line", { scale: 2.1, yPercent: -34, xPercent: 0, ease: "power2.inOut", duration: .55 }, 0)
-    .to("#h-line", { scale: 9, opacity: 0, ease: "power2.in", duration: .4 }, .58);
+    onEnterBack: () => { setWorld("open"); focusRidge(-1); } } });
+  intro.to("#h-word", { yPercent: -110, opacity: 0, ease: "power1.in", duration: .35 }, 0)
+    .to(".h-foot, .h-status", { autoAlpha: 0, y: 24, duration: .2 }, 0)
+    .to("#h-line", { scale: 1.9, yPercent: -18, ease: "power1.inOut", duration: 1 }, 0)
+    .to("#h-line", { opacity: 0, ease: "power1.in", duration: .5 }, .5);
+  const tuck = () => gsap.set(".h-calls", { marginTop: -$(".h-intro").offsetHeight });
+  tuck(); ScrollTrigger.addEventListener("refreshInit", tuck);
   // calls: one chapter per step
   const n = list.length + 1;
   gsap.set(".call-ch", { autoAlpha: 0 });
