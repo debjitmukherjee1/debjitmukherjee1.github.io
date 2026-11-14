@@ -856,7 +856,7 @@ const siteData = {
       status: "live",
       url: "https://debjitmukherjee1.github.io/ledger/",
       type: "TRACK RECORD",
-      summary: "A public, self-updating track record of every research call published — return since call, alpha vs benchmark, hit rate, upcoming earnings. Losers shown as prominently as winners.",
+      summary: "A public, self-updating track record of every research call published — return since call, alpha vs benchmark, hit rate, upcoming earnings. Losers shown as prominently as winners; Indian calls appear once they are a year old.",
       features: [
         "Self-updating track record of every call published",
         "Return since call and alpha vs. benchmark, side by side",

@@ -701,3 +701,9 @@ body:not([data-page="home"]) { background: radial-gradient(80% 50% at 50% -10%, 
 /* anchors and focused elements stop clear of the bottom dock */
 html { scroll-padding-top: 80px; scroll-padding-bottom: 110px; }
 @media (max-width: 820px) { html { scroll-padding-bottom: 24px; } }
+
+/* page titles never run into the text beside them: a long single word (Workbench) is capped
+   to its column. --fit is the word's width in ems plus a margin for Safari's wider rendering. */
+.page-head-row > div:first-child { container-type: inline-size; }
+.page-head .display[style*="--fit"] { font-size: min(clamp(64px, 12.5vw, 230px), calc(100cqi / var(--fit))); }
+@media (max-width: 700px) { .page-head .display[style*="--fit"] { font-size: min(clamp(48px, 15.6vw, 84px), calc(100cqi / var(--fit))); } }
