@@ -625,9 +625,9 @@
   }
 
   /* ---------- boot ------------------------------------------------------ */
-  var WORLDS = {     // [glow, base] — monochrome throughout; a call chapter only changes how bright the scene glows
-    open: ["#6a6e78", "#050505"], BUY: ["#e4e6ea", "#070708"], ACCUMULATE: ["#b9bdc5", "#060607"], HOLD: ["#8a8e97", "#050506"],
-    REDUCE: ["#5d6169", "#050505"], record: ["#7c808a", "#050505"], calm: ["#3c3e44", "#050505"]
+  var WORLDS = {     // [glow, base] — grey everywhere except inside a call chapter, which takes its rating's colour
+    open: ["#6a6e78", "#050505"], BUY: ["#19e68c", "#050907"], ACCUMULATE: ["#1fd8c4", "#05090a"], HOLD: ["#8f7dff", "#07060d"],
+    REDUCE: ["#ff5a36", "#0b0605"], record: ["#7c808a", "#050505"], calm: ["#3c3e44", "#050505"]
   };
   window.DM = { D: D, MODELS: MODELS, RATED: RATED, COVERED: COVERED, WORLDS: WORLDS, asOf: asOf, review: review, models: MODELS, HAS_GSAP: HAS_GSAP, REDUCED: REDUCED, introDone: false,
     ledgerReady: ledgerReady, trackReady: trackReady, calls: function () { return CALLS; }, led: function () { return LED; }, lenis: function () { return lenis; },
