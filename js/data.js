@@ -236,7 +236,8 @@ const siteData = {
       bullets: [
         "Author full equity research notes and DCF/comps valuation models on U.S.-listed companies, rebuilt to Vireo's house template and methodology",
         "Reconcile each valuation against an independent model — intrinsic value and blended target within ±2%, rating identical — before editorial submission",
-        "Apply Vireo's house approach: a 60/20/20 blend of intrinsic value (DCF, DDM or sum-of-the-parts, by business type), EV/EBITDA and P/E, with any gap between methods explained in the thesis"
+        "Apply Vireo's house approach: a 60/20/20 blend of intrinsic value (DCF, DDM or sum-of-the-parts, by business type), EV/EBITDA and P/E, with any gap between methods explained in the thesis",
+        "Initiated coverage of Coca-Cola (KO) in July 2026 at BUY with a $94 target under Vireo's income-name weights (60% dividend model). My own note on the same model stays HOLD at $86 because it gives the dividend model 40%; both rest on 5% perpetual dividend growth, and the report shows where the rating turns"
       ],
       link: "https://www.vireocapitalresearch.com/research",
       linkLabel: "Read published research at Vireo Capital Research ↗",
