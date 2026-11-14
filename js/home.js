@@ -50,8 +50,11 @@ function renderIntro() {
   const h = hero.headline || [hero.tagline || ""];
   $("#h-word").innerHTML = esc(hero.name || "").split(" ").map(w => "<span>" + esc(w) + "</span>").join(" ");
   $("#h-line").innerHTML = h.map((l, i) => '<span class="hl' + (i === h.length - 1 ? " em" : "") + '"><span>' + esc(l) + "</span></span>").join("");
-  $("#h-cta").innerHTML = '<a class="btn btn-solid" href="research">The research <span class="arr">↗</span></a><a class="btn" href="mailto:' + esc(hero.email) + '">Email</a><a class="btn" href="' + esc(hero.resumeUrl) + '" target="_blank" rel="noopener">CV (PDF)</a><a class="btn" href="' + esc(hero.linkedinUrl) + '" target="_blank" rel="noopener">LinkedIn</a>';
-  $("#h-status").innerHTML = '<p class="h-who">' + esc(hero.status || "") + '</p><p class="h-seek"><span class="pill live r-accumulate">' + esc(hero.seeking || "Open to opportunities") + '</span><span id="h-live"></span></p>';
+  // one primary action, one secondary, then plain links (the CV link repeats as text on phones)
+  $("#h-cta").innerHTML = '<a class="btn btn-solid" href="research">Read the research <span class="arr">↗</span></a>' +
+    '<a class="btn btn-ghost" href="' + esc(hero.resumeUrl) + '" target="_blank" rel="noopener">Download CV</a>' +
+    '<span class="h-links"><a class="h-cv-link" href="' + esc(hero.resumeUrl) + '" target="_blank" rel="noopener">CV</a><a href="mailto:' + esc(hero.email) + '">Email</a><a href="' + esc(hero.linkedinUrl) + '" target="_blank" rel="noopener">LinkedIn</a></span>';
+  $("#h-status").innerHTML = '<p class="h-who">' + esc(hero.status || "") + '</p><p class="h-seek">' + esc(hero.seeking || "Open to opportunities") + "</p>";
   fitWord();
 }
 function fitWord() {
@@ -60,7 +63,9 @@ function fitWord() {
   el.style.fontSize = "100px"; el.style.right = "auto"; el.style.width = "max-content";
   const w = el.offsetWidth;
   el.style.right = ""; el.style.width = "";
-  if (w) el.style.fontSize = Math.floor(100 * avail / w * 0.985) + "px";
+  // the name is a signature, not the headline: fit the width on phones, cap it on wider screens
+  const cap = Math.max(44, Math.min(84, innerWidth * 0.052));
+  if (w) el.style.fontSize = Math.floor(Math.min(cap, 100 * avail / w * 0.985)) + "px";
 }
 function renderCalls(list) {
   const host = $("#h-calls-inner"), LED = DM.led() || {};
@@ -176,13 +181,15 @@ function choreograph() {
   // One continuous move, no hold and no 9x zoom (huge scaled text re-rasterises and stutters).
   // The calls section is pulled up under the intro, so the first call arrives as the headline
   // leaves, instead of after a screen of empty scrolling.
+  // First scroll: the text clears first (a slight lift and fade, no big zoom), then the camera dives.
+  const small = innerWidth < 760;
   const intro = gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: ".h-intro", start: "top top", end: "+=60%", pin: true, scrub: .4,
-    onUpdate: s => { if (ST().ok) blendView(ST().views.hero, ST().views.dive, gsap.parseEase("power2.inOut")(s.progress)); },
+    onUpdate: s => { if (ST().ok) blendView(ST().views.hero, ST().views.dive, gsap.parseEase("power2.inOut")(Math.max(0, (s.progress - .3) / .7))); },
     onEnterBack: () => { setWorld("open"); focusRidge(-1); } } });
-  intro.to("#h-word", { yPercent: -110, opacity: 0, ease: "power1.in", duration: .35 }, 0)
-    .to(".h-foot, .h-status", { autoAlpha: 0, y: 24, duration: .2 }, 0)
-    .to("#h-line", { scale: 1.9, yPercent: -18, ease: "power1.inOut", duration: 1 }, 0)
-    .to("#h-line", { opacity: 0, ease: "power1.in", duration: .5 }, .5);
+  intro.to("#h-word", { yPercent: -40, opacity: 0, ease: "power2.out", duration: .3 }, 0)
+    .to(".h-foot, .h-status", { autoAlpha: 0, y: 16, ease: "power2.out", duration: .25 }, 0)
+    .to("#h-line", { scale: small ? 1 : 1.15, y: () => -innerHeight * .04, opacity: 0, ease: "power2.out", duration: .35 }, 0)
+    .to({}, { duration: .65 }, .35);
   const tuck = () => gsap.set(".h-calls", { marginTop: -$(".h-intro").offsetHeight });
   tuck(); ScrollTrigger.addEventListener("refreshInit", tuck);
   // calls: one chapter per step

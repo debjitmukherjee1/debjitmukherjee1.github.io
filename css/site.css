@@ -685,7 +685,7 @@ em { font-style: normal; }
 /* ---------- professional pass ------------------------------------------- */
 /* low-power: set by the 3D stage on a slow machine — glass becomes solid, no grain */
 .low-power .glass, .low-power .nav-links, .low-power .card, .low-power .panel, .low-power .cc-side, .low-power .deal-x, .low-power .tp-bench,
-.low-power .h-rail, .low-power .btn, .low-power .icon-btn, .low-power .sheet, .low-power .pal, .low-power .seg, .low-power .ld, .low-power .ridge-tip, .low-power .tape {
+.low-power .h-rail, .low-power .btn:not(.btn-solid), .low-power .icon-btn, .low-power .sheet, .low-power .pal, .low-power .seg, .low-power .ld, .low-power .ridge-tip, .low-power .tape {
   -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: #121214 !important;
 }
 .low-power body::after { display: none; }

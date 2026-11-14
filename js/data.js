@@ -50,7 +50,7 @@ const siteData = {
     headline: ["Equity research", "on Indian and US", "large caps."],
     /* The two lines under the name on the Overview: who you are, and what you want.
        Add the intake you are applying for (e.g. "summer 2027") when you know it. */
-    status: "Second-year B.Com (Honours & Research), Amity University Kolkata · Class of 2029",
+    status: "B.Com (Honours & Research), Amity University Kolkata, Class of 2029 · CFA Level I candidate · Student Equity Research Analyst, Vireo Capital Research",
     seeking: "Looking for equity research and investment banking internships · Kolkata, India",
     bio: "B.Com (Honours & Research), Amity University Kolkata · CFA Program Level I candidate. I research, model and publish full equity reports on Indian and US large caps, each with its Excel model.",
     email: "m.debjit2007@gmail.com",
