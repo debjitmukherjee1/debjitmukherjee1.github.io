@@ -969,7 +969,7 @@ const siteData = {
       { title: "Accurate details", text: "The details you give below are true, and you are asking in a professional capacity." },
       { title: "Access can be withdrawn", text: "I decide whether to share the materials, and I may withdraw access at any time. If I ask, you will delete any copies you have made." }
     ],
-    privacy: "What I collect: the details in this form. Why: only to confirm who you are, reply to you and share the notes you ask for. Where it is kept: in a Google Form and its responses, in my own Google account. Who sees it: only me; I do not sell or share it. How long: until I have dealt with your request, and no more than 12 months after that. You can ask me to delete it at any time by emailing m.debjit2007@gmail.com."
+    privacy: "What I collect: the details in this form. Why: only to confirm who you are, reply to you and share the notes you ask for. Where it is kept: in a Google Form and its responses, in my own Google account. Who sees it: only me; I do not sell or share it. How long: until I have dealt with your request, and no more than 12 months after that. This site also uses Google Analytics for anonymous page-view counts (advertising features and Google signals are off); sending this form tells Analytics only how many notes you asked for, never your details. You can ask me to delete it at any time by emailing m.debjit2007@gmail.com."
   },
 
   /* --------------------------------------------------------------------

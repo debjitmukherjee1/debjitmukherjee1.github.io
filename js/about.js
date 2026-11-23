@@ -45,7 +45,7 @@
   var lead = $("#cv-lead");
   if (lead) {
     lead.innerHTML = (D.leadership || []).map(function (l, i) {
-      var pics = (l.photos || []).map(function (ph) { return '<img src="' + esc(ph.src) + '" alt="' + esc(ph.caption) + '" loading="lazy" onerror="this.remove()">'; }).join("");
+      var pics = (l.photos || []).map(function (ph) { return '<img src="' + esc(ph.src) + '" alt="' + esc(ph.caption) + '" loading="lazy" data-fallback="self">'; }).join("");
       return '<article class="cv-item" data-r><p class="cv-when mono">' + esc(l.years) + "</p><div><h3>" + esc(l.role) + '</h3><p class="cv-role">' + esc(l.organization) + '</p><p class="cv-sum">' + esc(l.summary) + "</p>" + list(l.bullets) +
         (pics ? '<button class="cv-ph" type="button" data-l="' + i + '" aria-label="View photographs: ' + esc(l.role) + '">' + pics + "<span>View photographs</span></button>" : "") + "</div></article>";
     }).join("");

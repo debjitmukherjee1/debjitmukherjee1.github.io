@@ -1,3 +1,19 @@
+/* Security (23-Nov-2026): the site's Content-Security-Policy blocks inline
+   event handlers, so images that should disappear when they fail to load carry
+   data-fallback="self" | "<selector of the ancestor to remove>" instead of
+   onerror="...", and this one capturing listener does the removing. */
+document.addEventListener("error", function (e) {
+  var t = e.target, f = t && t.getAttribute && t.getAttribute("data-fallback");
+  if (!f || t.tagName !== "IMG") return;
+  var el = f === "self" ? t : t.closest(f);
+  if (el) el.remove();
+}, true);
+/* Clickjacking guard: GitHub Pages cannot send X-Frame-Options or a
+   frame-ancestors header, so refuse to render inside another site's frame. */
+if (window.top !== window.self) {
+  try { window.top.location.replace(window.self.location.href); }
+  catch (err) { document.documentElement.style.display = "none"; }
+}
 /* ============================================================================
    site.js — renders every page from js/data.js and runs all behaviour.
    ----------------------------------------------------------------------------
@@ -226,7 +242,7 @@
   }
   function bullets(list) { return list && list.length ? '<ul class="bul">' + list.map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul>" : ""; }
   function photos(list) {
-    return list && list.length ? '<h4>Photos</h4><div class="photos">' + list.map(function (p) { return '<figure><img src="' + esc(p.src) + '" alt="' + esc(p.caption) + '" loading="lazy" onerror="this.closest(\'figure\').remove()"><figcaption>' + esc(p.caption) + "</figcaption></figure>"; }).join("") + "</div>" : "";
+    return list && list.length ? '<h4>Photos</h4><div class="photos">' + list.map(function (p) { return '<figure><img src="' + esc(p.src) + '" alt="' + esc(p.caption) + '" loading="lazy" data-fallback="figure"><figcaption>' + esc(p.caption) + "</figcaption></figure>"; }).join("") + "</div>" : "";
   }
   function paras(text) {
     // long research blurbs read better in short paragraphs: break every ~3 sentences
@@ -457,7 +473,7 @@
     if (f && feat) f.innerHTML = '<div class="feature" data-r><div><span class="pill live r-accumulate">' + esc(feat.years) + "</span><h3>" + esc(feat.role + ", " + feat.organization) + '</h3><p style="color:var(--ink-2)">' + esc(feat.summary) + "</p></div><ul>" + (feat.bullets || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div>";
     g.innerHTML = rest.map(function (l, i) {
       var p = (l.photos || [])[0];
-      return '<button class="card" type="button" data-l="' + i + '" data-r>' + (p ? '<div class="photos" style="grid-template-columns:1fr"><figure style="border:0"><img src="' + esc(p.src) + '" alt="' + esc(p.caption) + '" loading="lazy" onerror="this.closest(\'.photos\').remove()"></figure></div>' : "") +
+      return '<button class="card" type="button" data-l="' + i + '" data-r>' + (p ? '<div class="photos" style="grid-template-columns:1fr"><figure style="border:0"><img src="' + esc(p.src) + '" alt="' + esc(p.caption) + '" loading="lazy" data-fallback=".photos"></figure></div>' : "") +
         '<div class="card-top mono"><span>' + esc(l.years) + "</span></div><h3>" + esc(l.role) + '</h3><p class="mono mute" style="font-size:11px">' + esc(l.organization) + "</p><p>" + esc(l.summary) + '</p><div class="card-foot mono"><span>Details</span><span class="go">' + ARROW + "</span></div></button>";
     }).join("");
     g.addEventListener("click", function (e) { var b = e.target.closest("[data-l]"); if (!b) return; var l = rest[+b.getAttribute("data-l")]; openGeneric("Leadership", l.years, l.role, l.organization, l.summary, l.bullets, l.photos); });
